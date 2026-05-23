@@ -78,7 +78,7 @@ export function BrandLogo({ retailer, className, wordmarkClassName }: Props) {
           data-testid={`brand-logo-${retailer.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
           loading="lazy"
           className={cn(
-            "block max-h-12 max-w-[150px] object-contain object-left transition-opacity duration-300 md:max-h-16 md:max-w-[180px]",
+            "block max-h-14 max-w-[160px] object-contain object-left transition-opacity duration-300 md:max-h-18 md:max-w-[190px]",
             className,
           )}        />
       )}
