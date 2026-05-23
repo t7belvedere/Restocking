@@ -61,7 +61,7 @@ export const RETAILERS: Retailer[] = [
     note_fr: "Studio + Conscious surveillés", note_en: "Studio + Conscious watched" },
   { name: "UNIQLO", domain: "uniqlo.com", country: "EU", status: "optimized", wordmark: "geist-bold", accent: "red",
     note_fr: "U et J +J en priorité", note_en: "U and +J first" },
-  { name: "MANGO", domain: "shop.mango.com", country: "EU", status: "optimized", wordmark: "dm-thin-caps",
+  { name: "MANGO", domain: "mango.com", country: "EU", status: "optimized", wordmark: "dm-thin-caps",
     note_fr: "HTTP propre, parfait", note_en: "Clean HTTP, perfect" },
   { name: "Massimo Dutti", domain: "massimodutti.com", country: "EU", status: "optimized", wordmark: "serif-italic",
     note_fr: "Manteaux et cuir", note_en: "Coats and leather" },
@@ -93,7 +93,7 @@ export const RETAILERS: Retailer[] = [
     note_fr: "Denim japonais surveillé", note_en: "Japanese denim watched" },
   { name: "Jacquemus", domain: "jacquemus.com", country: "FR", status: "beta", wordmark: "italiana-caps",
     note_fr: "Drops chaotiques", note_en: "Chaotic drops" },
-  { name: "Lemaire", domain: "lemaire.fr", country: "FR", status: "beta", wordmark: "italiana-caps",
+  { name: "Lemaire", domain: "lemaire.com", country: "FR", status: "beta", wordmark: "italiana-caps",
     note_fr: "Pré-orders incluses", note_en: "Pre-orders included" },
   { name: "POLÈNE", domain: "polene-paris.com", country: "FR", status: "optimized", wordmark: "serif-bold",
     note_fr: "Numéro Un & Neuf", note_en: "Numéro Un & Neuf" },
@@ -117,11 +117,11 @@ export const RETAILERS: Retailer[] = [
     note_fr: "SNKRS & restocks", note_en: "SNKRS & restocks" },
   { name: "ADIDAS", domain: "adidas.com", country: "DE", status: "beta", wordmark: "anton-caps",
     note_fr: "Confirms drops", note_en: "Confirms drops" },
-  { name: "New Balance", domain: "newbalance.fr", country: "US", status: "beta", wordmark: "geist-bold",
+  { name: "New Balance", domain: "newbalance.com", country: "US", status: "beta", wordmark: "geist-bold",
     note_fr: "Séries 990 & 2002R", note_en: "990 & 2002R series" },
   { name: "Salomon", domain: "salomon.com", country: "FR", status: "optimized", wordmark: "geist-bold",
     note_fr: "XT-6 restock rapide", note_en: "Fast XT-6 restocks" },
-  { name: "KITH", domain: "eu.kith.com", country: "US/EU", status: "beta", wordmark: "dm-bold",
+  { name: "KITH", domain: "kith.com", country: "US/EU", status: "beta", wordmark: "dm-bold",
     note_fr: "Drops très limités", note_en: "Highly limited drops" },
 
   // ── UK ────────────────────────────────────────────────────────────
@@ -135,7 +135,7 @@ export const RETAILERS: Retailer[] = [
     note_fr: "Sur la roadmap", note_en: "On the roadmap" },
   { name: "TOAST", domain: "toa.st", country: "UK", status: "beta", wordmark: "dm-thin-caps",
     note_fr: "Edition limitée", note_en: "Limited editions" },
-  { name: "Boden", domain: "boden.co.uk", country: "UK", status: "beta", wordmark: "bricolage-tight",
+  { name: "Boden", domain: "boden.com", country: "UK", status: "beta", wordmark: "bricolage-tight",
     note_fr: "Surveillance famille", note_en: "Family wardrobes" },
 
   // ── NORTH AMERICA ────────────────────────────────────────────────
@@ -151,6 +151,7 @@ export const RETAILERS: Retailer[] = [
     note_fr: "Sur la roadmap", note_en: "On the roadmap" },
   { name: "FRAME", domain: "frame-store.com", country: "US", status: "beta", wordmark: "dm-bold",
     note_fr: "Sur demande", note_en: "On request" },
+
 
   // ── SCANDI / EU PREMIUM ──────────────────────────────────────────
   { name: "Acne Studios", domain: "acnestudios.com", country: "SE", status: "beta", wordmark: "italiana-thin",

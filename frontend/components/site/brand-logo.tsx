@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { BrandWordmark } from "@/components/site/brand-wordmark";
 import type { Retailer } from "@/lib/data/retailers";
 
-// Brandfetch Client ID for the Logo API (CDN)
-const BRANDFETCH_CLIENT_ID = process.env.NEXT_PUBLIC_BRANDFETCH_CLIENT_ID || "1idoVDqRtZmwOL9NXro";
-
-type LogoState = "loading" | "loaded" | "fallback";
+type LogoState =
+  | { kind: "loading" }
+  | { kind: "loaded"; url: string }
+  | { kind: "fallback" };
 
 type Props = {
   retailer: Pick<Retailer, "name" | "domain" | "wordmark" | "accent">;
@@ -17,18 +17,37 @@ type Props = {
 };
 
 /**
- * Renders a retailer logo via Brandfetch Logo API (CDN).
- * We use the Client ID for authorized CDN access.
- *
- * On any failure (no logo found, image load error) we degrade to a
- * typographic wordmark — the tile never breaks.
+ * Renders a retailer logo via our internal API proxy (/api/logo/[domain]).
+ * This ensures we get the high-quality wordmark logo from Brandfetch
+ * structured data, rather than the default (often just an icon) from their CDN.
  */
 export function BrandLogo({ retailer, className, wordmarkClassName }: Props) {
-  const [state, setState] = useState<LogoState>("loading");
+  const [state, setState] = useState<LogoState>({ kind: "loading" });
 
-  const logoUrl = `https://cdn.brandfetch.io/${retailer.domain}?c=${BRANDFETCH_CLIENT_ID}`;
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      try {
+        const res = await fetch(`/api/logo/${retailer.domain}`);
+        if (!res.ok) throw new Error("API error");
+        const data = await res.json();
+        
+        if (!active) return;
+        
+        if (data.url) {
+          setState({ kind: "loaded", url: data.url });
+        } else {
+          setState({ kind: "fallback" });
+        }
+      } catch (err) {
+        if (active) setState({ kind: "fallback" });
+      }
+    }
+    load();
+    return () => { active = false; };
+  }, [retailer.domain]);
 
-  if (state === "fallback") {
+  if (state.kind === "fallback") {
     return (
       <BrandWordmark
         name={retailer.name}
@@ -41,7 +60,7 @@ export function BrandLogo({ retailer, className, wordmarkClassName }: Props) {
 
   return (
     <div className="relative flex items-center">
-      {state === "loading" && (
+      {state.kind === "loading" && (
         <div
           data-testid={`brand-logo-skeleton-${retailer.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
           className={cn(
@@ -51,21 +70,21 @@ export function BrandLogo({ retailer, className, wordmarkClassName }: Props) {
           aria-label={retailer.name}
         />
       )}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={logoUrl}
-        alt={retailer.name}
-        data-testid={`brand-logo-${retailer.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
-        onLoad={() => setState("loaded")}
-        onError={() => setState("fallback")}
-        loading="lazy"
-        className={cn(
-          "block max-h-16 max-w-[180px] object-contain object-left transition-opacity duration-300 md:max-h-20 md:max-w-[200px]",
-          state === "loaded" ? "opacity-100" : "absolute opacity-0",
-          className,
-        )}
-      />
+      {state.kind === "loaded" && (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={state.url}
+          alt={retailer.name}
+          data-testid={`brand-logo-${retailer.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+          loading="lazy"
+          className={cn(
+            "block max-h-16 max-w-[180px] object-contain object-left transition-opacity duration-300 md:max-h-20 md:max-w-[200px]",
+            className,
+          )}
+        />
+      )}
     </div>
   );
 }
+
 
