@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useLocale } from "@/components/site/locale-provider";
+import { createClient } from "@/lib/supabase/client";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
 const BASE_OFFSET = 137; // small visible base so it never reads "0"
 
 export function LiveCounter({
@@ -15,17 +15,18 @@ export function LiveCounter({
 }) {
   const { t } = useLocale();
   const [count, setCount] = useState<number | null>(null);
+  const supabase = createClient();
 
   useEffect(() => {
     let active = true;
     async function load() {
       try {
-        const res = await fetch(`${BACKEND_URL}/api/waitlist/stats`, {
-          cache: "no-store",
-        });
-        if (!res.ok) return;
-        const data = (await res.json()) as { total: number };
-        if (active) setCount(data.total + BASE_OFFSET);
+        const { count: total, error } = await supabase
+          .from("waitlist")
+          .select("*", { count: "exact", head: true });
+          
+        if (error || total === null) return;
+        if (active) setCount(total + BASE_OFFSET);
       } catch {
         // ignore
       }
@@ -36,7 +37,7 @@ export function LiveCounter({
       active = false;
       clearInterval(id);
     };
-  }, []);
+  }, [supabase]);
 
   const dotColor =
     variant === "lime"
@@ -53,7 +54,7 @@ export function LiveCounter({
     >
       <span className="inline-flex items-center gap-3 rounded-full border-2 border-ink bg-paper px-4 py-2 text-sm font-semibold text-ink shadow-brutal-sm">
         <span className="flex items-center justify-center">
-          <span className="pulse-dot inline-block h-2.5 w-2.5 rounded-full bg-[oklch(0.65_0.18_142)]" />
+          <span className={`pulse-dot inline-block h-2.5 w-2.5 rounded-full ${dotColor}`} />
         </span>
         {count === null ? (
           <span className="animate-pulse font-mono text-ink/70">…</span>
