@@ -20,6 +20,7 @@ export function LiveCounter({
   useEffect(() => {
     let active = true;
     async function load() {
+      if (!supabase) return;
       try {
         const { count: total, error } = await supabase
           .from("waitlist")
