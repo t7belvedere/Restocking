@@ -1,25 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { BrandWordmark } from "@/components/site/brand-wordmark";
 import type { Retailer } from "@/lib/data/retailers";
 
-const BRANDFETCH_CLIENT_ID =
-  process.env.NEXT_PUBLIC_BRANDFETCH_CLIENT_ID ?? "";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
 
-/**
- * Builds the Brandfetch CDN URL for a brand's official logo.
- * Doc: https://docs.brandfetch.com/docs/logo-link
- *
- * The "c" param is the public clientId — safe to expose in the browser.
- * We omit fallback=lettermark/transparent so Brandfetch picks the cleanest
- * variant per brand (usually a wordmark over transparent bg).
- */
-function brandfetchUrl(domain: string): string | null {
-  if (!BRANDFETCH_CLIENT_ID) return null;
-  return `https://cdn.brandfetch.io/${domain}/w/400/h/200?c=${BRANDFETCH_CLIENT_ID}`;
-}
+type LogoState =
+  | { kind: "loading" }
+  | { kind: "loaded"; url: string }
+  | { kind: "fallback" };
 
 type Props = {
   retailer: Pick<Retailer, "name" | "domain" | "wordmark" | "accent">;
@@ -28,20 +19,57 @@ type Props = {
 };
 
 /**
- * Renders a retailer logo.
+ * Renders a retailer logo via our backend logo proxy
+ * (GET /api/logo/{domain}) which calls Brandfetch with a server-side key
+ * and caches the returned CDN URL in Mongo for 14 days.
  *
- *  1. Tries the official Brandfetch logo (CDN, no auth other than public clientId)
- *  2. On <img> error (404, network, quota) we fall back to our hand-tuned
- *     typographic wordmark so the tile never breaks.
- *
- * The <img> is rendered with no width/height to preserve the SVG aspect; the
- * parent tile constrains it.
+ * On any failure (network, no logo found, image load error) we degrade to a
+ * typographic wordmark — the tile never breaks.
  */
 export function BrandLogo({ retailer, className, wordmarkClassName }: Props) {
-  const [errored, setErrored] = useState(false);
-  const url = brandfetchUrl(retailer.domain);
+  const [state, setState] = useState<LogoState>({ kind: "loading" });
 
-  if (!url || errored) {
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      try {
+        const res = await fetch(
+          `${BACKEND_URL}/api/logo/${encodeURIComponent(retailer.domain)}`,
+          { cache: "force-cache" },
+        );
+        if (!res.ok) throw new Error(`logo lookup failed: ${res.status}`);
+        const data = (await res.json()) as { url: string | null };
+        if (!active) return;
+        if (data.url) {
+          setState({ kind: "loaded", url: data.url });
+        } else {
+          setState({ kind: "fallback" });
+        }
+      } catch {
+        if (active) setState({ kind: "fallback" });
+      }
+    }
+    load();
+    return () => {
+      active = false;
+    };
+  }, [retailer.domain]);
+
+  if (state.kind === "loading") {
+    // Skeleton placeholder keeps tile height stable until the image arrives.
+    return (
+      <div
+        data-testid={`brand-logo-skeleton-${retailer.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+        className={cn(
+          "h-12 w-32 animate-pulse rounded-md bg-ink/10 md:h-14",
+          className,
+        )}
+        aria-label={retailer.name}
+      />
+    );
+  }
+
+  if (state.kind === "fallback") {
     return (
       <BrandWordmark
         name={retailer.name}
@@ -55,13 +83,13 @@ export function BrandLogo({ retailer, className, wordmarkClassName }: Props) {
   return (
     /* eslint-disable-next-line @next/next/no-img-element */
     <img
-      src={url}
+      src={state.url}
       alt={retailer.name}
       data-testid={`brand-logo-${retailer.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
-      onError={() => setErrored(true)}
+      onError={() => setState({ kind: "fallback" })}
       loading="lazy"
       className={cn(
-        "block max-h-12 max-w-[140px] object-contain object-left md:max-h-14",
+        "block max-h-12 max-w-[160px] object-contain object-left md:max-h-14",
         className,
       )}
     />
