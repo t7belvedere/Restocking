@@ -20,11 +20,20 @@ type Props = {
  * Renders a retailer logo via our internal API proxy (/api/logo/[domain]).
  * This ensures we get the high-quality wordmark logo from Brandfetch
  * structured data, rather than the default (often just an icon) from their CDN.
+ * Caches the result in localStorage to prevent redundant API calls.
  */
 export function BrandLogo({ retailer, className, wordmarkClassName }: Props) {
   const [state, setState] = useState<LogoState>({ kind: "loading" });
 
   useEffect(() => {
+    const cacheKey = `logo_${retailer.domain}`;
+    const cached = localStorage.getItem(cacheKey);
+    
+    if (cached) {
+      setState({ kind: "loaded", url: cached });
+      return;
+    }
+
     let active = true;
     async function load() {
       try {
@@ -35,6 +44,7 @@ export function BrandLogo({ retailer, className, wordmarkClassName }: Props) {
         if (!active) return;
         
         if (data.url) {
+          localStorage.setItem(cacheKey, data.url);
           setState({ kind: "loaded", url: data.url });
         } else {
           setState({ kind: "fallback" });
