@@ -11,9 +11,9 @@ export function SiteFooter() {
   return (
     <footer
       data-testid="site-footer"
-      className="relative border-t-2 border-ink bg-ink text-cream"
+      className="relative w-full border-t-2 border-ink bg-ink text-cream"
     >
-      <div className="absolute inset-0 dot-paper" aria-hidden style={{ opacity: 0.08 }} />
+      <div className="absolute inset-0 dot-paper pointer-events-none" aria-hidden style={{ opacity: 0.08 }} />
       <div className="container mx-auto grid max-w-7xl gap-10 px-5 py-14 lg:grid-cols-[1.4fr_1fr_1fr_1fr] lg:px-8">
         <div className="space-y-4">
           <Logo size="lg" inverted />
