@@ -1,0 +1,120 @@
+{
+  "theme": "light",
+  "archetype": "Archetype 3 (Neo-Brutalist Playful)",
+  "vibe": "Fresh, vibrant, high-contrast, fashion-credible but not snobby. Think Notion meets modern high-street fashion.",
+  "global_rules": {
+    "spacing": "Generous (p-8 to p-24). Containers must have padding to prevent text collision.",
+    "borders_and_shadows": "Neo-brutalist. 1px to 2px solid dark borders (border-ink). Hard, unblurred shadows for cards and buttons (e.g., shadow-[4px_4px_0px_oklch(0.15_0_0)]).",
+    "corner_radius": "Subtle. rounded-lg or rounded-xl, never fully pill-shaped except for small badges.",
+    "animations": "Snappy, spring-based micro-interactions. Hover states should translate elements slightly (-translate-y-1, translate-x-1) to reveal the hard shadow underneath."
+  },
+  "colors": {
+    "primary": "oklch(0.68 0.22 35)",
+    "primary_description": "Vibrant Orange - For primary CTAs and high-priority alerts.",
+    "secondary": "oklch(0.60 0.20 260)",
+    "secondary_description": "Electric Blue - For secondary actions, highlights, and the 'In Stock' badge.",
+    "tertiary": "oklch(0.85 0.18 120)",
+    "tertiary_description": "Acid Lime - For decorative elements, tickers, and the live counter.",
+    "background": "oklch(0.98 0.01 90)",
+    "background_description": "Warm Off-White/Cream - The main background of the site, preventing clinical sterility.",
+    "surface": "oklch(1 0 0)",
+    "surface_description": "Pure White - For cards and form inputs to pop against the cream background.",
+    "text_main": "oklch(0.15 0 0)",
+    "text_main_description": "Ink Black - High contrast for all typography.",
+    "text_muted": "oklch(0.45 0.01 0)",
+    "text_muted_description": "Charcoal - For secondary text and placeholders."
+  },
+  "typography": {
+    "heading_font": "Bricolage Grotesque",
+    "heading_strategy": "Bold, tight tracking (tracking-tight), expressive. Use for all H1-H3. The logo wordmark 'restocking' should be this font, extra bold, slightly italicized with a vibrant dot or graphic asterisk.",
+    "body_font": "DM Sans",
+    "body_strategy": "Clean, highly legible, modern geometric feel. Used for paragraphs, UI elements, and data points.",
+    "scales": {
+      "h1": "text-5xl md:text-6xl lg:text-7xl font-extrabold leading-none tracking-tighter",
+      "h2": "text-4xl md:text-5xl font-bold leading-tight tracking-tight",
+      "h3": "text-2xl md:text-3xl font-bold leading-snug",
+      "body": "text-base md:text-lg leading-relaxed",
+      "small_caps": "text-xs font-bold uppercase tracking-[0.15em]"
+    }
+  },
+  "routing": {
+    "structure": [
+      { "path": "/", "name": "Home" },
+      { "path": "/how-it-works", "name": "Comment ça marche" },
+      { "path": "/retailers", "name": "Marques" },
+      { "path": "/pricing", "name": "Tarifs" },
+      { "path": "/faq", "name": "FAQ" },
+      { "path": "/manifesto", "name": "Manifesto" }
+    ],
+    "i18n": "Implement a bilingual toggle (FR/EN) in the header navigation. Default to FR."
+  },
+  "layouts": {
+    "Header": {
+      "design": "Sticky, glassmorphism or solid cream with a 1px bottom border. Stylized wordmark logo on the left. Navigation links center (hidden on mobile). FR/EN switcher and secondary CTA on the right.",
+      "test_ids": ["nav-home", "nav-how-it-works", "nav-pricing", "locale-switcher"]
+    },
+    "Home": {
+      "hero": "Two-column asymmetric layout. Left: Massive H1, 'Tu rates les restocks dans ta taille'. Email waitlist form + primary CTA. Below CTA: Live counter 'X personnes déjà inscrites' with a pulsing green dot. Right: Floating mock product card (Manteau oversize en laine) intersecting with a phone notification mockup.",
+      "social_proof": "Reddit quotes scrolling in a marquee. High-contrast stylized cards.",
+      "test_ids": ["hero-email-input", "hero-waitlist-submit", "live-counter"]
+    },
+    "How_It_Works": {
+      "layout": "Bento Grid (Tetris Mode). 3 massive cards. Card 1: 'Colle l'URL' (Graphic of an input field). Card 2: 'Choisis ta taille' (Graphic of a dropdown with sizes XS, S, M, L). Card 3: 'Reçois l'alerte' (Graphic of a ping/notification bubble). Use vibrant background colors for each card (Orange, Blue, Lime) with black borders.",
+      "test_ids": ["step-1-card", "step-2-card", "step-3-card"]
+    },
+    "Retailers": {
+      "layout": "Minimalist header followed by a dense, brutalist grid (grid-cols-2 md:grid-cols-4). Each cell is a white square with a 1px black border, containing the brand name in large typography or pure black logo (Zara, COS, Aritzia, Uniqlo, Sézane, Mango, Arket, ASOS). Hovering over a cell inverts the colors (black background, white text).",
+      "test_ids": ["retailer-grid", "retailer-card-zara"]
+    },
+    "Pricing": {
+      "layout": "Toggle switch at the top (Monthly/Annual). Side-by-side cards (Free vs Pro). Pro card is visually elevated with a hard shadow, an electric blue border, and a 'Popular' badge rotated at -5deg. Clear feature list with checkmarks.",
+      "test_ids": ["pricing-toggle", "plan-free-cta", "plan-pro-cta"]
+    },
+    "FAQ": {
+      "layout": "Narrow centralized column (max-w-2xl). Shadcn Accordion customized with neo-brutalist styling (borders between items, bold typography for questions, slightly tinted background on hover).",
+      "test_ids": ["faq-accordion", "faq-item-1"]
+    },
+    "Manifesto": {
+      "layout": "Editorial layout. Large serif/display typography taking up the whole screen. 'Because the web has enough sold out signs...' Heavy text, generous margins. Uses the 'restocked_stamp' image as a floating graphical asset over the text.",
+      "test_ids": ["manifesto-content"]
+    }
+  },
+  "ui_motifs": {
+    "stamp": "Use the 'restocked_stamp' graphic rotated randomly on image corners.",
+    "ticker": "A continuous CSS marquee at the footer or below the hero displaying 'RESTOCKED • ZARA Manteau S • RESTOCKED • COS T-Shirt L • RESTOCKED'.",
+    "buttons": "Custom shadcn button: border-2 border-black bg-primary text-black font-bold shadow-[4px_4px_0px_#000] hover:-translate-y-1 hover:translate-x-1 hover:shadow-[6px_6px_0px_#000] transition-all."
+  },
+  "component_customization": {
+    "shadcn_card": "Remove default shadow. Add border-2 border-black, bg-white, and shadow-[4px_4px_0px_#000].",
+    "shadcn_input": "border-2 border-black rounded-md focus-visible:ring-primary focus-visible:ring-offset-2.",
+    "shadcn_badge": "bg-secondary text-white border border-black uppercase tracking-widest font-bold."
+  },
+  "media": [
+    {
+      "category": "graphic_assets",
+      "description": "3D Notification Bubble for How It Works (Step 3) or Hero motif",
+      "url": "https://static.prod-images.emergentagent.com/jobs/40fdc8e3-cfec-4df7-8e98-e85f89d6fe27/images/e5fed67e911c64818c19506a9c176e1055562df01e708e1bef140da8ad9eb313.png"
+    },
+    {
+      "category": "graphic_assets",
+      "description": "Restocked Stamp for Manifesto or floating over Product Cards",
+      "url": "https://static.prod-images.emergentagent.com/jobs/40fdc8e3-cfec-4df7-8e98-e85f89d6fe27/images/335f73b191dda7303f3dcf89714450cbe0ab04c564577914ae2f9965b771d903.png"
+    },
+    {
+      "category": "graphic_assets",
+      "description": "3D Shopping Bag for How It Works (Step 1) or Pricing Hero",
+      "url": "https://static.prod-images.emergentagent.com/jobs/40fdc8e3-cfec-4df7-8e98-e85f89d6fe27/images/900cf514768684e136ea91a398eefac18ad6e9aa5d094d05f3780a8e1cb11a73.png"
+    },
+    {
+      "category": "photography",
+      "description": "Fashion Model Street Style - Use in Manifesto or as background in Hero",
+      "url": "https://images.unsplash.com/photo-1589351189946-b8eb5e170ba6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjh8MHwxfHNlYXJjaHw0fHxmYXNoaW9uJTIwbW9kZWwlMjBzdHJlZXQlMjBzdHlsZXxlbnwwfHx8fDE3Nzk1NjcwNjl8MA&ixlib=rb-4.1.0&q=85"
+    },
+    {
+      "category": "photography",
+      "description": "Excited person on phone - Use in Testimonials or Social Proof section",
+      "url": "https://images.pexels.com/photos/3907837/pexels-photo-3907837.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+    }
+  ],
+  "instructions_to_main_agent": "Implement a multi-page routing structure in Next.js (App Router). Adhere strictly to the Neo-Brutalist styling (hard black borders, solid offset shadows). Do not use soft box-shadows. Apply Bricolage Grotesque for all headings. Build the /retailers page as a dense grid. Ensure the locale switcher toggles state between FR/EN content natively or via a context. Ensure all test_ids are applied. Use the provided oklch colors mapped in your Tailwind @theme block."
+}
