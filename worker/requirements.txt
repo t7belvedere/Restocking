@@ -1,0 +1,14 @@
+# Scraping
+scrapling==0.2.9
+playwright==1.49.0
+
+# Supabase
+supabase==2.10.0
+
+# Notifications
+resend==2.5.0
+twilio==9.3.7
+
+# Scheduling / utilities
+python-dotenv==1.0.1
+httpx==0.27.2
