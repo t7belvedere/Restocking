@@ -4,6 +4,8 @@ import type { CheckLog, Subscription, Watch } from "@/lib/supabase/types";
 
 async function getAuthedClient() {
   const supabase = await createClient();
+  if (!supabase) redirect("/login");
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -13,6 +15,8 @@ async function getAuthedClient() {
 
 export async function getCurrentUser() {
   const supabase = await createClient();
+  if (!supabase) return null;
+
   const {
     data: { user },
   } = await supabase.auth.getUser();

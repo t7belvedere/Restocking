@@ -185,6 +185,8 @@ export async function createWatch(
   if (!parsed) return { ok: false, error: "INVALID_URL" };
 
   const supabase = await createClient();
+  if (!supabase) return { ok: false, error: "UNKNOWN" };
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -231,6 +233,8 @@ export async function toggleWatch(
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   if (!id) return { ok: false, error: "INVALID_ID" };
   const supabase = await createClient();
+  if (!supabase) return { ok: false, error: "DB_ERROR" };
+
   const { error } = await supabase
     .from("watches")
     .update({ is_active })
@@ -249,6 +253,8 @@ export async function toggleWatch(
 export async function deleteWatch(id: string): Promise<void> {
   if (!id) return;
   const supabase = await createClient();
+  if (!supabase) return;
+
   const { error } = await supabase.from("watches").delete().eq("id", id);
   if (error) {
     console.error("deleteWatch error", error);
