@@ -1,12 +1,21 @@
 import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/toaster";
+import { LocaleProvider } from "@/components/site/locale-provider";
+import { SiteHeader } from "@/components/site/header";
+import { SiteFooter } from "@/components/site/footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Restocking — Alertes de retour en stock par taille",
+  title: "restocking — alertes de retour en stock, taille par taille",
   description:
-    "Surveillance par taille des produits mode EU. On vous prévient dès que votre taille revient.",
+    "Restocking surveille les boutiques mode européennes (Zara, COS, Aritzia, Sézane, Uniqlo…) et te prévient en moins de 5 minutes dès que ta taille revient en stock.",
   metadataBase: new URL("https://restocking.app"),
+  openGraph: {
+    title: "restocking — your size, the moment it comes back",
+    description:
+      "Size-specific restock alerts for European fashion. Zara, COS, Aritzia, Sézane and 100+ stores.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -15,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -24,13 +33,17 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-dvh bg-background text-foreground antialiased">
-        {children}
-        <Toaster />
+      <body className="min-h-dvh bg-cream text-ink antialiased">
+        <LocaleProvider>
+          <SiteHeader />
+          {children}
+          <SiteFooter />
+          <Toaster />
+        </LocaleProvider>
       </body>
     </html>
   );

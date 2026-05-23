@@ -1,32 +1,35 @@
+"use client";
+
 import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { ArrowRight } from "lucide-react";
+import { useLocale } from "@/components/site/locale-provider";
 
 export default function NotFound() {
+  const { t } = useLocale();
   return (
-    <div className="flex min-h-dvh items-center justify-center px-6 py-16">
-      <div className="max-w-md space-y-4 text-center">
-        <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-          Erreur 404
+    <main className="flex min-h-[80dvh] items-center justify-center px-5 py-20 lg:px-8">
+      <div className="max-w-xl space-y-6 text-center">
+        <p className="font-mono text-xs uppercase tracking-[0.25em] text-ink/60">
+          404
         </p>
-        <h1 className="font-display text-4xl font-semibold tracking-tight">
-          Page introuvable
+        <h1 className="font-display text-6xl font-extrabold leading-none tracking-tighter md:text-8xl">
+          Lost in the wardrobe.
         </h1>
-        <p className="text-sm text-muted-foreground">
-          Cette URL n&apos;existe pas (ou plus). Retour au tableau de bord ?
+        <p className="text-base text-ink/70">
+          {t === undefined
+            ? "This page does not exist (anymore)."
+            : "Cette URL n’existe pas (ou plus). On te ramène à la page d’accueil ?"}
         </p>
-        <div className="flex items-center justify-center gap-2 pt-2">
+        <div className="flex items-center justify-center">
           <Link
             href="/"
-            className={cn(buttonVariants({ variant: "outline" }))}
+            className="inline-flex h-12 items-center gap-2 rounded-full border-2 border-ink bg-ink px-5 font-display text-sm font-bold uppercase tracking-wide text-cream shadow-brutal hover-press"
           >
-            Accueil
-          </Link>
-          <Link href="/dashboard" className={cn(buttonVariants())}>
-            Tableau de bord
+            {t?.common?.backHome ?? "Back home"}
+            <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
