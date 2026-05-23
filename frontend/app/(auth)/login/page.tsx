@@ -29,13 +29,9 @@ export default function LoginPage() {
         <section className="relative">
           <div className="absolute -left-6 -top-6 hidden h-20 w-20 rotate-12 rounded-2xl border-2 border-ink bg-[var(--brand-blue)] md:block" />
           <div className="relative rounded-3xl border-2 border-ink bg-paper p-7 shadow-brutal-xl md:p-9">
-            <Link
-              href="/"
-              data-testid="login-back-home"
-              className="mb-7 inline-block"
-            >
+            <div data-testid="login-back-home" className="mb-7">
               <Logo size="md" />
-            </Link>
+            </div>
             <Suspense
               fallback={
                 <div className="h-64 animate-pulse rounded-xl border-2 border-ink/15 bg-cream" />
