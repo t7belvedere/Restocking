@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { User } from "@supabase/supabase-js";
+import { Bell, ChevronDown, LogOut, Sparkles, User } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,14 +14,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface DashboardNavProps {
-  user: User;
-  plan: string;
+  email?: string | null;
+  plan: "free" | "pro";
 }
 
-export default function DashboardNav({ user, plan }: DashboardNavProps) {
+export function DashboardNav({ email, plan }: DashboardNavProps) {
   const router = useRouter();
   const supabase = createClient();
 
@@ -29,60 +29,70 @@ export default function DashboardNav({ user, plan }: DashboardNavProps) {
     const { error } = await supabase.auth.signOut();
     if (error) {
       toast.error("Erreur lors de la déconnexion.");
-    } else {
-      router.push("/");
-      router.refresh();
+      return;
     }
+    router.replace("/login");
+    router.refresh();
   }
 
-  const initials = user.email?.slice(0, 2).toUpperCase() ?? "??";
-
   return (
-    <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-      <div className="container max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+    <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
+      <div className="container mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link
           href="/dashboard"
-          className="font-semibold text-sm tracking-tight"
+          className="flex items-center gap-2 font-display text-lg font-semibold tracking-tight"
         >
-          restocking.app
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-foreground text-background">
+            <Bell className="h-3.5 w-3.5" />
+          </span>
+          Restocking
         </Link>
 
-        <div className="flex items-center gap-3">
-          {plan === "pro" ? (
-            <Badge variant="default" className="text-xs">Pro</Badge>
+        <div className="flex items-center gap-2">
+          {plan === "free" ? (
+            <Link
+              href="/upgrade"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "gap-1.5",
+              )}
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              Passer à Pro
+            </Link>
           ) : (
-            <Badge variant="secondary" className="text-xs">Free</Badge>
+            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+              Plan Pro
+            </span>
           )}
 
           <DropdownMenu>
-            <DropdownMenuTrigger className="focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-full">
-              <Avatar className="h-8 w-8 cursor-pointer">
-                <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Mon compte</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    {user.email}
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {plan === "free" && (
-                <DropdownMenuItem onClick={() => router.push("/upgrade")}>
-                  Passer à Pro — 7,99€/mois
-                </DropdownMenuItem>
+            <DropdownMenuTrigger
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "sm" }),
+                "gap-1.5",
               )}
-              <DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
-                Paramètres
+            >
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted text-foreground">
+                <User className="h-3.5 w-3.5" />
+              </span>
+              <span className="hidden sm:inline max-w-[160px] truncate">
+                {email ?? "Mon compte"}
+              </span>
+              <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>{email ?? "Compte"}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+                Mes alertes
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/upgrade")}>
+                Plan & facturation
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={handleSignOut}
-                variant="destructive"
-              >
+              <DropdownMenuItem onClick={handleSignOut}>
+                <LogOut className="h-3.5 w-3.5" />
                 Se déconnecter
               </DropdownMenuItem>
             </DropdownMenuContent>

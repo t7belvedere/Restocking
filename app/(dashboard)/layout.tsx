@@ -1,33 +1,25 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import DashboardNav from "@/components/dashboard/nav";
+import { DashboardNav } from "@/components/dashboard/nav";
+import { getSubscription, getCurrentUser } from "@/lib/data/watches";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const { data: subData } = await supabase
-    .from("subscriptions")
-    .select("plan")
-    .eq("user_id", user.id)
-    .single();
-
-  const plan = ((subData as { plan?: string } | null)?.plan ?? "free");
+  const subscription = await getSubscription();
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <DashboardNav user={user} plan={plan} />
-      <main className="flex-1 container max-w-5xl mx-auto px-4 py-8">
-        {children}
-      </main>
+    <div className="relative min-h-dvh">
+      <div
+        aria-hidden
+        className="surface-grain pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px]"
+      />
+      <DashboardNav email={user.email ?? null} plan={subscription.plan} />
+      <div className="container mx-auto max-w-6xl px-6 py-10">{children}</div>
     </div>
   );
 }

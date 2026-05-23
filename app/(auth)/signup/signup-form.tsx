@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,37 +8,43 @@ import { Separator } from "@/components/ui/separator";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 
-export function LoginForm() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? "/dashboard";
-
+export function SignupForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [pending, startTransition] = useTransition();
   const [googlePending, setGooglePending] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   const supabase = createClient();
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (password.length < 8) {
+      toast.error("Mot de passe trop court (8 caractères minimum).");
+      return;
+    }
     startTransition(async () => {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/callback`,
+        },
+      });
       if (error) {
         toast.error(error.message);
         return;
       }
-      router.push(redirectTo);
-      router.refresh();
+      setEmailSent(true);
     });
   }
 
-  async function onGoogleLogin() {
+  async function onGoogleSignup() {
     setGooglePending(true);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/callback?next=${encodeURIComponent(redirectTo)}`,
+        redirectTo: `${window.location.origin}/callback`,
       },
     });
     if (error) {
@@ -48,13 +53,26 @@ export function LoginForm() {
     }
   }
 
+  if (emailSent) {
+    return (
+      <div className="space-y-3 text-center">
+        <div className="text-3xl">📬</div>
+        <p className="font-medium">Vérifie ton email</p>
+        <p className="text-sm text-muted-foreground">
+          On a envoyé un lien de confirmation à <strong>{email}</strong>. Clique
+          dessus pour activer ton compte.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <Button
         type="button"
         variant="outline"
         className="w-full"
-        onClick={onGoogleLogin}
+        onClick={onGoogleSignup}
         disabled={googlePending}
       >
         <GoogleIcon className="h-4 w-4" />
@@ -85,14 +103,16 @@ export function LoginForm() {
           <Input
             id="password"
             type="password"
-            autoComplete="current-password"
+            autoComplete="new-password"
+            minLength={8}
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          <p className="text-xs text-muted-foreground">Minimum 8 caractères.</p>
         </div>
         <Button type="submit" className="w-full" disabled={pending}>
-          {pending ? "Connexion…" : "Se connecter"}
+          {pending ? "Création…" : "Créer mon compte"}
         </Button>
       </form>
     </div>

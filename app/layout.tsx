@@ -1,33 +1,12 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
-import { Toaster } from "@/components/ui/sonner";
-
-const geist = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist-sans",
-});
 
 export const metadata: Metadata = {
-  title: "Restocking — Alertes restock taille-spécifiques",
+  title: "Restocking — Alertes de retour en stock par taille",
   description:
-    "Colle l'URL, choisis ta taille — on t'alerte avant que ce soit reparti. Alertes de retour en stock pour Zara, COS, Uniqlo, Aritzia, Mango, Sézane.",
-  keywords: [
-    "restock",
-    "alerte stock",
-    "zara",
-    "cos",
-    "uniqlo",
-    "aritzia",
-    "mango",
-    "sézane",
-  ],
-  openGraph: {
-    title: "Restocking — Alertes restock taille-spécifiques",
-    description:
-      "Colle l'URL, choisis ta taille — on t'alerte avant que ce soit reparti.",
-    siteName: "Restocking",
-  },
+    "Surveillance par taille des produits mode EU. On vous prévient dès que votre taille revient.",
+  metadataBase: new URL("https://restocking.app"),
 };
 
 export default function RootLayout({
@@ -36,10 +15,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" className={`${geist.variable} h-full antialiased`}>
-      <body className="min-h-full bg-background text-foreground">
+    <html lang="fr">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="min-h-dvh bg-background text-foreground antialiased">
         {children}
-        <Toaster position="bottom-right" />
+        <Toaster />
       </body>
     </html>
   );

@@ -1,30 +1,33 @@
+import Link from "next/link";
 import { Suspense } from "react";
-import LoginForm from "./login-form";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { LoginForm } from "./login-form";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <Suspense fallback={<LoginFormSkeleton />}>
-        <LoginForm />
-      </Suspense>
-    </div>
-  );
-}
-
-function LoginFormSkeleton() {
-  return (
-    <div className="w-full max-w-sm space-y-6 animate-pulse">
-      <div className="text-center space-y-2">
-        <div className="h-5 w-32 bg-muted rounded mx-auto" />
-        <div className="h-8 w-24 bg-muted rounded mx-auto" />
-      </div>
-      <div className="h-10 bg-muted rounded" />
-      <div className="h-10 bg-muted rounded" />
-      <div className="space-y-4">
-        <div className="h-10 bg-muted rounded" />
-        <div className="h-10 bg-muted rounded" />
-        <div className="h-10 bg-muted rounded" />
-      </div>
+    <div className="flex min-h-dvh items-center justify-center px-6 py-16">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="font-display text-2xl">Bon retour.</CardTitle>
+          <CardDescription>
+            Connectez-vous pour voir vos alertes.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <Suspense fallback={<div className="h-64 animate-pulse rounded-md bg-muted" />}>
+            <LoginForm />
+          </Suspense>
+          <p className="text-center text-sm text-muted-foreground">
+            Pas encore de compte ?{" "}
+            <Link
+              href="/signup"
+              className="font-medium text-foreground underline underline-offset-4"
+            >
+              Créer un compte
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
