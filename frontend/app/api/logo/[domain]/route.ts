@@ -10,9 +10,9 @@ const BRANDFETCH_API_KEY = process.env.BRANDFETCH_API_KEY;
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { domain: string } }
+  { params }: { params: Promise<{ domain: string }> }
 ) {
-  const domain = params.domain;
+  const { domain } = await params;
 
   if (!BRANDFETCH_API_KEY) {
     return NextResponse.json({ url: null }, { status: 500 });
