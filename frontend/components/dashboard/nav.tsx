@@ -26,6 +26,7 @@ export function DashboardNav({ email, plan }: DashboardNavProps) {
   const supabase = createClient();
 
   async function handleSignOut() {
+    if (!supabase) return;
     const { error } = await supabase.auth.signOut();
     if (error) {
       toast.error("Erreur lors de la déconnexion.");
