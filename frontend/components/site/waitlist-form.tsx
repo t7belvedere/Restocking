@@ -52,8 +52,8 @@ export function WaitlistForm({
       setStatus({
         kind: "success",
         message: result.already ? t.common.already : t.common.success,
-        already: result.already,
-        position: result.position,
+        already: !!result.already,
+        position: result.position ?? null,
       });
       if (!result.already) setEmail("");
     } catch {
