@@ -94,7 +94,6 @@ async def waitlist_signup(payload: WaitlistSignupIn) -> WaitlistSignupOut:
 
     existing = await db.waitlist.find_one({"email": email})
     if existing:
-        total = await db.waitlist.count_documents({})
         return WaitlistSignupOut(
             ok=True,
             already_registered=True,
@@ -128,5 +127,4 @@ async def waitlist_signup(payload: WaitlistSignupIn) -> WaitlistSignupOut:
 @app.get("/api/waitlist/stats", response_model=WaitlistStatsOut)
 async def waitlist_stats() -> WaitlistStatsOut:
     total = await db.waitlist.count_documents({})
-    # Add a small visible base to make the early launch look healthier
     return WaitlistStatsOut(total=total)
