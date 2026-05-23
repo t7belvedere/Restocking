@@ -1,0 +1,284 @@
+/**
+ * @typedef {"fr" | "en"} Locale
+ */
+
+const SITE_URL = "https://restocking.app";
+
+/**
+ * @param {string | null | undefined} locale
+ * @returns {Locale}
+ */
+export function normalizeLocale(locale) {
+  return locale === "en" ? "en" : "fr";
+}
+
+const copy = {
+  fr: {
+    subject: "Vérifie ton adresse email - Restocking",
+    eyebrow: "Action requise",
+    headline: "Plus qu'un clic.",
+    intro:
+      "Pour commencer à surveiller tes articles et recevoir les alertes de restock, on doit juste s'assurer que cette adresse est bien la tienne.",
+    bodyTitle: "Pourquoi vérifier ?",
+    bodyLines: [
+      "On a besoin d'être sûrs de pouvoir t'envoyer les alertes au bon moment. Pas de spam, promis.",
+      "Si tu n'as pas créé de compte sur restocking.app, tu peux simplement ignorer cet email.",
+    ],
+    cta: "Vérifier mon email",
+    footer: "Cet email a été envoyé pour finaliser ton inscription sur restocking.app.",
+    signature: "L'équipe Restocking",
+  },
+  en: {
+    subject: "Verify your email address - Restocking",
+    eyebrow: "Action required",
+    headline: "Just one more click.",
+    intro:
+      "To start tracking your items and receiving restock alerts, we just need to make sure this email address is yours.",
+    bodyTitle: "Why verify?",
+    bodyLines: [
+      "We need to be sure we can send you alerts at the right time. No spam, we promise.",
+      "If you didn't create an account on restocking.app, you can safely ignore this email.",
+    ],
+    cta: "Verify my email",
+    footer: "This email was sent to complete your registration on restocking.app.",
+    signature: "The Restocking team",
+  },
+};
+
+/**
+ * @param {{ locale?: string | null, confirmationUrl?: string }} params
+ */
+export function buildVerificationEmail({ locale, confirmationUrl = "{{ .ConfirmationURL }}" }) {
+  const normalizedLocale = normalizeLocale(locale);
+  const content = copy[normalizedLocale];
+
+  return {
+    subject: content.subject,
+    html: `<!DOCTYPE html>
+<html lang="${normalizedLocale}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=DM+Sans:wght@400;500;700&display=swap');
+
+      body {
+        margin: 0;
+        padding: 0;
+        background: #fcfbf4;
+        color: #171717;
+        font-family: 'DM Sans', Arial, sans-serif;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .page {
+        padding: 32px 16px;
+      }
+
+      .shell {
+        max-width: 620px;
+        margin: 0 auto;
+      }
+
+      .panel {
+        border: 2px solid #171717;
+        background: #fffdf8;
+        box-shadow: 10px 10px 0 0 #171717;
+      }
+
+      .header {
+        background: #171717;
+        color: #fcfbf4;
+        padding: 18px 22px;
+      }
+
+      .header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .eyebrow {
+        font-family: 'Bricolage Grotesque', Arial, sans-serif;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+      }
+
+      .pulse {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: #ff6868; /* Red indicator for required action */
+        border: 2px solid #fcfbf4;
+      }
+
+      .body {
+        padding: 24px 22px 22px;
+        position: relative;
+      }
+
+      .sticker {
+        position: absolute;
+        right: 22px;
+        top: 22px;
+        width: 72px;
+        height: 72px;
+        background: #c8ff68; /* Lime accent */
+        border: 2px solid #171717;
+        transform: rotate(-5deg);
+      }
+
+      .headline {
+        margin: 0;
+        max-width: 72%;
+        font-family: 'Bricolage Grotesque', Arial, sans-serif;
+        font-size: 34px;
+        line-height: 0.95;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+
+      .intro {
+        margin: 18px 0 0;
+        max-width: 480px;
+        font-size: 16px;
+        line-height: 1.7;
+        color: #171717cc;
+      }
+
+      .info {
+        margin-top: 24px;
+        border: 2px solid #171717;
+        background: #fff3db;
+        padding: 16px;
+      }
+
+      .info-title {
+        margin: 0 0 10px;
+        font-family: 'Bricolage Grotesque', Arial, sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .info p {
+        margin: 0 0 10px;
+        font-size: 15px;
+        line-height: 1.7;
+      }
+
+      .info p:last-child {
+        margin-bottom: 0;
+      }
+
+      .cta-wrapper {
+        margin-top: 24px;
+        text-align: left;
+      }
+
+      .cta {
+        display: inline-block;
+        padding: 16px 24px;
+        border: 2px solid #171717;
+        background: #6d8dff; /* Blue CTA */
+        box-shadow: 4px 4px 0 0 #171717;
+        color: #fff;
+        font-family: 'Bricolage Grotesque', Arial, sans-serif;
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .cta:hover {
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 0 0 #171717;
+      }
+
+      .footer {
+        padding: 18px 22px 24px;
+        font-size: 12px;
+        line-height: 1.6;
+        color: #17171799;
+      }
+
+      .signature {
+        margin: 0 0 6px;
+        color: #171717;
+        font-weight: 700;
+      }
+
+      .footer p {
+        margin: 0;
+      }
+
+      @media only screen and (max-width: 640px) {
+        .page {
+          padding: 20px 12px;
+        }
+
+        .body,
+        .header,
+        .footer {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+
+        .headline {
+          max-width: 100%;
+          font-size: 29px;
+        }
+
+        .sticker {
+          position: static;
+          margin: 0 0 16px auto;
+          display: block;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="shell">
+        <div class="panel">
+          <div class="header">
+            <div class="header-row">
+              <div class="eyebrow">${content.eyebrow}</div>
+              <div class="pulse"></div>
+            </div>
+          </div>
+
+          <div class="body">
+            <div class="sticker" aria-hidden="true"></div>
+            <h1 class="headline">${content.headline}</h1>
+            <p class="intro">${content.intro}</p>
+
+            <div class="cta-wrapper">
+              <a class="cta" href="${confirmationUrl}">${content.cta}</a>
+            </div>
+
+            <div class="info">
+              <h2 class="info-title">${content.bodyTitle}</h2>
+              <p>${content.bodyLines[0]}</p>
+              <p>${content.bodyLines[1]}</p>
+            </div>
+          </div>
+
+          <div class="footer">
+            <p class="signature">${content.signature}</p>
+            <p>${content.footer}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>`,
+  };
+}
