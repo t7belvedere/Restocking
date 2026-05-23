@@ -52,9 +52,9 @@ export function LiveCounter({
       aria-live="polite"
     >
       <span className="inline-flex items-center gap-3 rounded-full border-2 border-ink bg-paper px-4 py-2 text-sm font-semibold text-ink shadow-brutal-sm">
-        <span
-          className={`pulse-dot inline-block h-2.5 w-2.5 rounded-full ${dotColor}`}
-        />
+        <span className="flex items-center justify-center">
+          <span className="pulse-dot inline-block h-2.5 w-2.5 rounded-full bg-[oklch(0.65_0.18_142)]" />
+        </span>
         {count === null ? (
           <span className="font-mono text-ink/70">…</span>
         ) : (
