@@ -151,6 +151,7 @@
     background-size: 24px 24px;
     background-position: 0 0;
     opacity: 0.08;
+    pointer-events: none;
   }
 
   .ticker {

@@ -2,15 +2,17 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { sendEmail } from "@/lib/email";
-import { WelcomeEmailTemplate } from "@/lib/welcome-template";
+import { buildWaitlistWelcomeEmail, normalizeWaitlistLocale } from "@/lib/welcome-email.mjs";
 
 export async function joinWaitlist(email: string, locale: string, referrer: string | null) {
   const supabase = await createClient();
   if (!supabase) return { ok: false, error: "DB_ERROR" };
 
-  const { data, error } = await supabase
+  const normalizedLocale = normalizeWaitlistLocale(locale);
+
+  const { error } = await supabase
     .from("waitlist")
-    .insert([{ email, locale, referrer }])
+    .insert([{ email, locale: normalizedLocale, referrer }])
     .select();
 
   if (error) {
@@ -21,10 +23,15 @@ export async function joinWaitlist(email: string, locale: string, referrer: stri
   }
 
   // Envoi de l'email de bienvenue
+  const welcomeEmail = buildWaitlistWelcomeEmail({
+    email,
+    locale: normalizedLocale,
+  });
+
   await sendEmail({
     to: email,
-    subject: "Bienvenue chez Restocking ! 🎉",
-    html: WelcomeEmailTemplate({ email }),
+    subject: welcomeEmail.subject,
+    html: welcomeEmail.html,
   });
 
   // Get current position
