@@ -4,11 +4,9 @@ import { useState } from "react";
 import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 import { useLocale } from "@/components/site/locale-provider";
 import { cn } from "@/lib/utils";
+import { joinWaitlist } from "@/app/actions/waitlist";
 
 const EMAIL_RE = /^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/;
-
-const BACKEND_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
 
 type Status =
   | { kind: "idle" }
@@ -39,33 +37,25 @@ export function WaitlistForm({
       return;
     }
     setStatus({ kind: "loading" });
+    
     try {
-      const res = await fetch(`${BACKEND_URL}/api/waitlist`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: trimmed,
-          locale,
-          referrer:
-            typeof document !== "undefined" ? document.referrer : null,
-        }),
-      });
-      if (!res.ok) {
-        throw new Error("Request failed");
+      const result = await joinWaitlist(
+        trimmed,
+        locale,
+        typeof document !== "undefined" ? document.referrer : null
+      );
+
+      if (!result.ok) {
+        throw new Error(result.error);
       }
-      const data = (await res.json()) as {
-        ok: boolean;
-        already_registered: boolean;
-        position: number | null;
-        message: string;
-      };
+
       setStatus({
         kind: "success",
-        message: data.already_registered ? t.common.already : t.common.success,
-        already: data.already_registered,
-        position: data.position,
+        message: result.already ? t.common.already : t.common.success,
+        already: result.already,
+        position: result.position,
       });
-      if (!data.already_registered) setEmail("");
+      if (!result.already) setEmail("");
     } catch {
       setStatus({ kind: "error", message: t.common.error });
     }
