@@ -56,7 +56,7 @@ export function LiveCounter({
           <span className="pulse-dot inline-block h-2.5 w-2.5 rounded-full bg-[oklch(0.65_0.18_142)]" />
         </span>
         {count === null ? (
-          <span className="font-mono text-ink/70">…</span>
+          <span className="animate-pulse font-mono text-ink/70">…</span>
         ) : (
           <span>
             <span className="font-mono font-bold text-ink">
