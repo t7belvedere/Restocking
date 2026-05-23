@@ -1,6 +1,8 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { sendEmail } from "@/lib/email";
+import { WelcomeEmailTemplate } from "@/lib/welcome-template";
 
 export async function joinWaitlist(email: string, locale: string, referrer: string | null) {
   const supabase = await createClient();
@@ -12,12 +14,18 @@ export async function joinWaitlist(email: string, locale: string, referrer: stri
     .select();
 
   if (error) {
-    // 23505 is Postgres unique violation
     if (error.code === "23505") {
       return { ok: true, already: true, position: null };
     }
     return { ok: false, error: "DB_ERROR" };
   }
+
+  // Envoi de l'email de bienvenue
+  await sendEmail({
+    to: email,
+    subject: "Bienvenue chez Restocking ! 🎉",
+    html: WelcomeEmailTemplate({ email }),
+  });
 
   // Get current position
   const { count } = await supabase
