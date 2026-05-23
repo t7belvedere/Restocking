@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { LocaleProvider } from "@/components/site/locale-provider";
 import { SiteHeader } from "@/components/site/header";
 import { SiteFooter } from "@/components/site/footer";
+import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,11 +19,24 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+async function getAuthState(): Promise<boolean> {
+  try {
+    const supabase = await createClient();
+    if (!supabase) return false;
+    const { data } = await supabase.auth.getClaims();
+    return Boolean(data?.claims?.sub);
+  } catch {
+    return false;
+  }
+}
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const isAuthenticated = await getAuthState();
+
   return (
     <html lang="fr" suppressHydrationWarning>
       <head>
@@ -39,7 +53,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-dvh bg-cream text-ink antialiased">
         <LocaleProvider>
-          <SiteHeader />
+          <SiteHeader isAuthenticated={isAuthenticated} />
           {children}
           <SiteFooter />
           <Toaster />

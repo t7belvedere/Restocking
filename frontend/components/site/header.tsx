@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { LayoutDashboard, LogIn, Menu, X } from "lucide-react";
 import { Logo } from "@/components/site/logo";
 import { useLocale } from "@/components/site/locale-provider";
 import { cn } from "@/lib/utils";
@@ -20,7 +20,11 @@ function getNavItems(t: ReturnType<typeof useLocale>["t"]) {
   ];
 }
 
-export function SiteHeader() {
+type Props = {
+  isAuthenticated?: boolean;
+};
+
+export function SiteHeader({ isAuthenticated = false }: Props) {
   const { t, locale, setLocale } = useLocale();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -61,13 +65,36 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2">
           <LocaleSwitch locale={locale} onChange={setLocale} />
-          <Link
-            href="/#waitlist"
-            data-testid="header-cta-waitlist"
-            className="hidden h-10 items-center justify-center rounded-full border-2 border-ink bg-ink px-4 font-display text-sm font-bold uppercase tracking-wide text-cream shadow-brutal hover-press md:inline-flex"
-          >
-            {t.nav.cta}
-          </Link>
+
+          {isAuthenticated ? (
+            <Link
+              href="/dashboard"
+              data-testid="header-cta-dashboard"
+              className="hidden h-10 items-center justify-center gap-1.5 rounded-full border-2 border-ink bg-ink px-4 font-display text-sm font-bold uppercase tracking-wide text-cream shadow-brutal hover-press md:inline-flex"
+            >
+              <LayoutDashboard className="h-3.5 w-3.5" />
+              {locale === "fr" ? "Tableau de bord" : "Dashboard"}
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                data-testid="header-cta-signin"
+                className="hidden h-10 items-center justify-center gap-1.5 rounded-full border-2 border-transparent px-3 font-display text-sm font-bold uppercase tracking-wide text-ink hover:border-ink hover:bg-paper md:inline-flex"
+              >
+                <LogIn className="h-3.5 w-3.5" />
+                {t.auth.signIn}
+              </Link>
+              <Link
+                href="/signup"
+                data-testid="header-cta-signup"
+                className="hidden h-10 items-center justify-center rounded-full border-2 border-ink bg-ink px-4 font-display text-sm font-bold uppercase tracking-wide text-cream shadow-brutal hover-press md:inline-flex"
+              >
+                {t.auth.signUp}
+              </Link>
+            </>
+          )}
+
           <button
             type="button"
             aria-label="Toggle menu"
@@ -102,14 +129,37 @@ export function SiteHeader() {
                 {item.label}
               </Link>
             ))}
-            <Link
-              href="/#waitlist"
-              onClick={() => setOpen(false)}
-              data-testid="mobile-header-cta-waitlist"
-              className="mt-4 inline-flex h-12 items-center justify-center rounded-full border-2 border-ink bg-[var(--brand-orange)] font-display font-bold uppercase tracking-wide text-ink shadow-brutal"
-            >
-              {t.nav.cta}
-            </Link>
+
+            {isAuthenticated ? (
+              <Link
+                href="/dashboard"
+                onClick={() => setOpen(false)}
+                data-testid="mobile-header-cta-dashboard"
+                className="mt-4 inline-flex h-12 items-center justify-center gap-2 rounded-full border-2 border-ink bg-ink font-display font-bold uppercase tracking-wide text-cream shadow-brutal"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                {locale === "fr" ? "Tableau de bord" : "Dashboard"}
+              </Link>
+            ) : (
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <Link
+                  href="/login"
+                  onClick={() => setOpen(false)}
+                  data-testid="mobile-header-cta-signin"
+                  className="inline-flex h-12 items-center justify-center rounded-full border-2 border-ink bg-paper font-display font-bold uppercase tracking-wide text-ink shadow-brutal-sm"
+                >
+                  {t.auth.signIn}
+                </Link>
+                <Link
+                  href="/signup"
+                  onClick={() => setOpen(false)}
+                  data-testid="mobile-header-cta-signup"
+                  className="inline-flex h-12 items-center justify-center rounded-full border-2 border-ink bg-ink font-display font-bold uppercase tracking-wide text-cream shadow-brutal"
+                >
+                  {t.auth.signUp}
+                </Link>
+              </div>
+            )}
           </nav>
         </div>
       ) : null}
@@ -142,9 +192,7 @@ function LocaleSwitch({
             aria-pressed={active}
             className={cn(
               "h-full rounded-full px-3 transition-colors",
-              active
-                ? "bg-ink text-cream"
-                : "text-ink/60 hover:text-ink",
+              active ? "bg-ink text-cream" : "text-ink/60 hover:text-ink",
             )}
           >
             {l}

@@ -6,7 +6,7 @@ import { CircleDot, Sparkles, ArrowUpRight } from "lucide-react";
 import { useLocale } from "@/components/site/locale-provider";
 import { RestockTicker } from "@/components/site/ticker";
 import { WaitlistForm } from "@/components/site/waitlist-form";
-import { BrandWordmark } from "@/components/site/brand-wordmark";
+import { BrandLogo } from "@/components/site/brand-logo";
 import { RETAILERS, RETAILER_COUNTS } from "@/lib/data/retailers";
 import type { RetailerStatus } from "@/lib/data/retailers";
 import { cn } from "@/lib/utils";
@@ -218,11 +218,9 @@ export default function RetailersPage() {
                       </span>
                     </div>
                     <div className="flex flex-1 items-center pt-3">
-                      <BrandWordmark
-                        name={r.name}
-                        style={r.wordmark}
-                        accent={r.accent}
-                        className="block max-w-full text-2xl leading-tight md:text-[1.75rem]"
+                      <BrandLogo
+                        retailer={r}
+                        wordmarkClassName="block max-w-full text-2xl leading-tight md:text-[1.75rem]"
                       />
                     </div>
                     <div className="flex items-end justify-between gap-2">

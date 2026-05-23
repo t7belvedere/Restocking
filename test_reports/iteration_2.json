@@ -1,0 +1,45 @@
+{
+  "summary": "Iteration 2 testing of restocking.app — Next.js 16 + FastAPI/Mongo. Verified: (a) marketing pages still 200 + 404 fallback; (b) waitlist endpoints + hero form e2e; (c) new /login + /signup pages render with graceful 'Auth launching soon' card; (d) auth route handlers /auth/callback and /auth/confirm respond 307 to /login?error=auth-not-configured; (e) header CTAs and mobile-nav CTAs (signin/signup, no dashboard); (f) locale-fr persists across /login → /signup. Backend 19/19 tests pass. Frontend mostly passes but TWO real issues found: (1) Brandfetch CDN returns 302→docs for every brand request in this preview env (clientId is domain-locked to restocking.app, preview domain is not whitelisted), so 0/48 brand-logo <img> tags actually render an image — only the wordmark fallback shows. Acceptance criterion required ≥5 logos to load. (2) React hydration error on /login (and /signup): <a> nested inside <a> because login-back-home/signup-back-home wraps <Logo/> which itself renders a Link.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/auth/callback", "issue": "Redirect Location is absolute to internal host (https://0.0.0.0:3000/login?...), not to the public origin. Caused by Next.js using request.url which sees the ingress-rewritten host. Browsers will follow it and fail in this preview env. Works on Vercel where the Host header is the public origin. Consider using NEXT_PUBLIC_SITE_URL instead of url.origin for redirect base, or returning a relative redirect path."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "app/(auth)/login/page.tsx & app/(auth)/signup/page.tsx", "issue": "Hydration error: <a> cannot be a descendant of <a>. The login-back-home / signup-back-home Link wraps <Logo/>, but Logo internally renders another Link (data-testid=site-logo with href='/'). Browser console fires 'In HTML, <a> cannot be a descendant of <a>'. Fix: render Logo without an internal Link (accept an `asChild` / `noLink` prop), OR drop the outer login-back-home Link and rely on Logo's own link.", "selector": "[data-testid=login-back-home] > [data-testid=site-logo]", "priority": "HIGH"},
+      {"component": "BrandLogo / Brandfetch CDN integration", "issue": "Brandfetch CDN responds 302 to https://docs.brandfetch.com/docs/logo-link/guidelines#2-hotlinking for every request from the preview origin — the clientId 1idoVDqRtZmwOL9NXro is hotlink-restricted and the preview host (38d41397-…preview.emergentagent.com) is not in its allow-list. Result: 0/48 brand-logo <img> tags successfully render in this preview; every tile falls back to the typographic wordmark via onError. Acceptance criteria required ≥5 brand logos to load. Fix: add the preview domain (and any *.preview.emergentagent.com wildcard) to the Brandfetch dashboard for this clientId, OR accept that brand logos only render on the production restocking.app domain and document the preview-env limitation.", "selector": "img[data-testid^=brand-logo-]", "priority": "HIGH"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_waitlist.py",
+    "/app/backend/tests/test_routes.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "[HIGH] Fix nested <a>/hydration error on /login + /signup pages (Logo inside another Link). Suggested: pass href={null} to <Logo/> when used inside an outer Link, or drop the outer Link.",
+    "[HIGH] Brand logos do not load in preview env — Brandfetch clientId is domain-restricted. Either whitelist *.preview.emergentagent.com in the Brandfetch dashboard, or document that the wordmark fallback is the expected preview-env behaviour. Fallback itself works correctly.",
+    "[MINOR] /auth/callback and /auth/confirm redirect Location uses request.url.origin which the ingress reports as https://0.0.0.0:3000. Consider preferring NEXT_PUBLIC_SITE_URL or returning a relative path so the redirect works in any host context."
+  ],
+  "critical_code_review_comments": [
+    "components/site/brand-logo.tsx: setErrored is correct, but consider also handling redirect-to-HTML responses (some CDNs return text/html instead of an error) — current code only relies on the native <img> onError event which DOES fire for HTML payloads. Working as designed.",
+    "app/(auth)/login/page.tsx & app/(auth)/signup/page.tsx: wrapping <Logo/> (which renders its own Link) inside another <Link/> creates invalid HTML. Either give Logo a `linked={false}` prop or remove the outer Link wrapper.",
+    "app/auth/callback/route.ts: uses `new URL(request.url).origin` for the redirect base. In environments where the proxy sets host to 0.0.0.0:3000, this leaks an internal address into the user-facing Location header. Prefer `process.env.NEXT_PUBLIC_SITE_URL` (already defined in .env) as the base.",
+    "lib/supabase/env.ts: isSupabaseConfigured() correctly degrades; clean and minimal.",
+    "components/site/header.tsx: header-cta-signin/signup branch is correct; data-testid coverage is comprehensive."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_routes.py (created)"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "70%"},
+  "test_credentials": "N/A — Supabase intentionally not configured in preview; tests verified the graceful 'auth-not-configured' degradation only.",
+  "seed_data_creation": "Two new TEST_ waitlist entries created via pytest + UI hero form. No cleanup required (waitlist is append-only with unique randomised emails).",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend regression suite is split across /app/backend/tests/test_waitlist.py (8 tests: health, waitlist signup/dup/invalid/locale, stats) and /app/backend/tests/test_routes.py (11 tests: 8 marketing-page 200s, 404 fallback, /auth/callback redirect, /auth/confirm redirect). Both pass at 100%. For the BrandLogo issue: confirmed via curl that cdn.brandfetch.io returns 302 to docs/logo-link/guidelines#2-hotlinking — this is hotlink-protection, not a code bug. The fix is on the Brandfetch dashboard (whitelist preview domain) OR documented preview-env limitation. For the hydration <a>-in-<a> issue: it shows in both /login and /signup pages and is a real DOM validity problem.",
+  "rca of the issue": "1) Brand logos: Brandfetch CDN serves an HTTP 302 to their hotlinking-guidelines docs page for any request that does not come from a domain whitelisted on the clientId. The preview domain is not whitelisted, so every <img> loads HTML, onError fires, and the BrandWordmark fallback is rendered — graceful, but 0 logos visible. Reproduction: `curl -I 'https://cdn.brandfetch.io/zara.com/w/400/h/200?c=1idoVDqRtZmwOL9NXro'` returns `302 Location: https://docs.brandfetch.com/docs/logo-link/guidelines#2-hotlinking`. Mitigation: register the preview hostname in the Brandfetch dashboard, or accept the wordmark fallback for preview. 2) Hydration <a>-in-<a>: caused by composition — login-back-home is a Next Link that wraps the <Logo/> component which itself contains a Next Link (data-testid=site-logo, href='/'). Reproduction: load /login or /signup → browser console shows 'In HTML, <a> cannot be a descendant of <a>'. Mitigation: introduce a `linked` / `asChild` prop on Logo, or drop the outer Link and rely on Logo's own link."
+}
