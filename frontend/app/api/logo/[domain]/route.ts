@@ -13,9 +13,14 @@ export async function GET(
   { params }: { params: Promise<{ domain: string }> }
 ) {
   const { domain } = await params;
+  
+  // Public Client ID for CDN fallback
+  const CLIENT_ID = process.env.NEXT_PUBLIC_BRANDFETCH_CLIENT_ID || "1idoVDqRtZmwOL9NXro";
+  const cdnFallback = `https://cdn.brandfetch.io/${domain}?c=${CLIENT_ID}`;
 
   if (!BRANDFETCH_API_KEY) {
-    return NextResponse.json({ url: null }, { status: 500 });
+    // If no API key, return the CDN URL directly
+    return NextResponse.json({ url: cdnFallback });
   }
 
   try {
@@ -23,27 +28,23 @@ export async function GET(
       headers: {
         Authorization: `Bearer ${BRANDFETCH_API_KEY}`,
       },
-      next: { revalidate: 3600 * 24 * 14 }, // Cache for 14 days
+      next: { revalidate: 3600 * 24 * 14 },
     });
 
     if (!res.ok) {
-      return NextResponse.json({ url: null });
+      return NextResponse.json({ url: cdnFallback });
     }
 
     const data = await res.json();
     
-    // Pick the best logo (horizontal wordmark preferred)
-    // Brandfetch assets usually have 'logo', 'icon', 'symbol'
+    // 1. Try to find the horizontal wordmark (logo)
+    // 2. Try to find the symbol/icon
+    // 3. Fallback to CDN URL
     const logoAsset = data.logos?.find((l: any) => l.type === "logo") || data.logos?.[0];
-    
-    if (!logoAsset || !logoAsset.formats?.[0]?.src) {
-      return NextResponse.json({ url: null });
-    }
+    const bestUrl = logoAsset?.formats?.[0]?.src || cdnFallback;
 
-    // Return the CDN URL for the logo format
-    return NextResponse.json({ url: logoAsset.formats[0].src });
+    return NextResponse.json({ url: bestUrl });
   } catch (error) {
-    console.error(`Brandfetch API error for ${domain}:`, error);
-    return NextResponse.json({ url: null });
+    return NextResponse.json({ url: cdnFallback });
   }
 }
