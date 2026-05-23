@@ -60,7 +60,7 @@ export function BrandLogo({ retailer, className, wordmarkClassName }: Props) {
         onError={() => setState("fallback")}
         loading="lazy"
         className={cn(
-          "block max-h-12 max-w-[160px] object-contain object-left transition-opacity duration-300 md:max-h-14",
+          "block max-h-16 max-w-[180px] object-contain object-left transition-opacity duration-300 md:max-h-20 md:max-w-[200px]",
           state === "loaded" ? "opacity-100" : "absolute opacity-0",
           className,
         )}
