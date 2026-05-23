@@ -268,6 +268,61 @@ export const messages = {
       madeIn: "Fait avec ❤️ entre Paris, Lyon et Berlin.",
       rights: "Tous droits réservés.",
     },
+    legal: {
+      privacy: {
+        title: "Politique de Confidentialité",
+        lastUpdated: "Mis à jour le 24 mai 2026",
+        intro: "Chez Restocking, on déteste le spam autant que toi. Tes données sont utilisées uniquement pour te prévenir quand ton vêtement préféré revient en stock.",
+        sections: [
+          {
+            title: "Données collectées",
+            content: "On garde ton e-mail, ta langue de préférence, et les URLs des produits que tu surveilles. C'est tout.",
+          },
+          {
+            title: "Usage des données",
+            content: "Ton e-mail sert uniquement à t'envoyer les alertes et des nouvelles importantes sur le service. On ne vendra JAMAIS ta data à des tiers.",
+          },
+          {
+            title: "Hébergement",
+            content: "Tes données sont stockées en Europe (région Frankfurt) sur les serveurs sécurisés de Supabase.",
+          },
+        ],
+      },
+      terms: {
+        title: "Conditions Générales d'Utilisation",
+        lastUpdated: "Mis à jour le 24 mai 2026",
+        intro: "En utilisant Restocking, tu acceptes ces quelques règles simples.",
+        sections: [
+          {
+            title: "Le Service",
+            content: "Restocking est un outil de veille. On fait de notre mieux pour être les plus rapides, mais on ne peut pas garantir que tu réussiras à acheter le produit avant les autres.",
+          },
+          {
+            title: "Usage loyal",
+            content: "Le service est destiné à un usage personnel. Toute tentative d'automatisation massive ou de dégradation du service pourra entraîner un bannissement.",
+          },
+          {
+            title: "Abonnement Pro",
+            content: "Le plan Pro est sans engagement. Tu peux annuler à tout moment depuis ton dashboard.",
+          },
+        ],
+      },
+      cookies: {
+        title: "Politique des Cookies",
+        lastUpdated: "Mis à jour le 24 mai 2026",
+        intro: "On utilise le strict minimum pour que le site fonctionne.",
+        sections: [
+          {
+            title: "Cookies essentiels",
+            content: "Ces cookies servent à mémoriser ta session d'authentification et ta préférence de langue. Sans eux, le site ne marche pas.",
+          },
+          {
+            title: "Analytique",
+            content: "On utilise des outils respectueux de la vie privée pour comprendre comment le site est utilisé, sans te tracker personnellement.",
+          },
+        ],
+      },
+    },
     auth: {
       signIn: "Se connecter",
       signUp: "Créer un compte",
@@ -564,6 +619,61 @@ export const messages = {
       },
       madeIn: "Made with ❤️ between Paris, Lyon & Berlin.",
       rights: "All rights reserved.",
+    },
+    legal: {
+      privacy: {
+        title: "Privacy Policy",
+        lastUpdated: "Updated May 24, 2026",
+        intro: "At Restocking, we hate spam as much as you do. Your data is used only to notify you when your favorite item comes back in stock.",
+        sections: [
+          {
+            title: "Data Collected",
+            content: "We keep your email, your language preference, and the product URLs you watch. That's all.",
+          },
+          {
+            title: "Data Usage",
+            content: "Your email is only used to send alerts and important service updates. We will NEVER sell your data to third parties.",
+          },
+          {
+            title: "Hosting",
+            content: "Your data is stored in Europe (Frankfurt region) on Supabase's secure servers.",
+          },
+        ],
+      },
+      terms: {
+        title: "Terms of Service",
+        lastUpdated: "Updated May 24, 2026",
+        intro: "By using Restocking, you agree to these simple rules.",
+        sections: [
+          {
+            title: "The Service",
+            content: "Restocking is a monitoring tool. We do our best to be the fastest, but we cannot guarantee that you will succeed in buying the product before others.",
+          },
+          {
+            title: "Fair Use",
+            content: "The service is intended for personal use. Any attempt at massive automation or degradation of the service may result in a ban.",
+          },
+          {
+            title: "Pro Subscription",
+            content: "The Pro plan is no-commitment. You can cancel at any time from your dashboard.",
+          },
+        ],
+      },
+      cookies: {
+        title: "Cookie Policy",
+        lastUpdated: "Updated May 24, 2026",
+        intro: "We use the strict minimum to keep the site running.",
+        sections: [
+          {
+            title: "Essential Cookies",
+            content: "These cookies are used to remember your authentication session and language preference. Without them, the site won't work.",
+          },
+          {
+            title: "Analytics",
+            content: "We use privacy-friendly tools to understand how the site is used, without tracking you personally.",
+          },
+        ],
+      },
     },
     auth: {
       signIn: "Sign in",
