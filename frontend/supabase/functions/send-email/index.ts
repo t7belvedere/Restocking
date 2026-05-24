@@ -1,12 +1,50 @@
-import { templateFr, templateEn } from "./templates";
+import { templateFr, templateEn } from "./templates.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const HOOK_SECRET = Deno.env.get("HOOK_SECRET");
+const HOOK_SECRET = Deno.env.get("HOOK_SECRET") || "";
+
+// Fonction utilitaire pour vérifier la signature HMAC envoyée par Supabase
+async function verifySignature(req: Request, secret: string) {
+  const signature = req.headers.get("x-webhook-signature");
+  if (!signature) return false;
+
+  // Le secret est au format "v1,whsec_<base64>" — on extrait les bytes bruts
+  const whsecMatch = secret.match(/whsec_(.+)/);
+  if (!whsecMatch) return false;
+  const keyBytes = Uint8Array.from(atob(whsecMatch[1]), (c) => c.charCodeAt(0));
+
+  const key = await crypto.subtle.importKey(
+    "raw",
+    keyBytes,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["verify"]
+  );
+
+  const body = await req.clone().text();
+  // La signature est au format "t=<timestamp>,v1=<base64_hmac>"
+  const parts = Object.fromEntries(
+    signature.split(",").map((p) => {
+      const idx = p.indexOf("=");
+      return [p.slice(0, idx), p.slice(idx + 1)];
+    })
+  );
+  const timestamp = parts["t"];
+  const sig = parts["v1"];
+  if (!timestamp || !sig) return false;
+
+  const data = new TextEncoder().encode(`${timestamp}.${body}`);
+  return await crypto.subtle.verify(
+    "HMAC",
+    key,
+    Uint8Array.from(atob(sig), (c) => c.charCodeAt(0)),
+    data
+  );
+}
 
 Deno.serve(async (req) => {
-  // Sécurité : Vérifier le secret du webhook
-  const signature = req.headers.get("x-webhook-signature");
-  if (HOOK_SECRET && signature !== HOOK_SECRET) {
+  // Sécurité : Vérifier la signature HMAC
+  if (!(await verifySignature(req, HOOK_SECRET))) {
     return new Response("Unauthorized", { status: 401 });
   }
 
