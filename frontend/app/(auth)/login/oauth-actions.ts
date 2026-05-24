@@ -4,14 +4,14 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured, getSiteUrl } from "@/lib/supabase/env";
 
+type OAuthProvider = "google" | "apple";
+
 /**
- * Initiates the Google OAuth flow via Supabase. On success, redirects the
- * browser to Google's consent screen. On failure, redirects back to /login
- * with an error query param.
- *
- * Called from a form action="..." on the login/signup forms.
+ * Initiates an OAuth flow via Supabase. On success, redirects the
+ * browser to the provider's consent screen. On failure, redirects
+ * back to /login with an error query param.
  */
-export async function signInWithGoogleAction(formData?: FormData) {
+async function signInWithOAuth(provider: OAuthProvider, formData?: FormData) {
   const locale = String(formData?.get("locale") ?? "fr");
   const nextPath = String(formData?.get("redirectTo") ?? "/dashboard");
 
@@ -26,11 +26,11 @@ export async function signInWithGoogleAction(formData?: FormData) {
 
   const redirectTo = `${getSiteUrl()}/auth/callback?next=${encodeURIComponent(nextPath)}`;
 
-  const { data, error } = await supabase!.auth.signInWithOAuth({
-    provider: "google",
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
     options: {
       redirectTo,
-      scopes: "openid email profile",
+      ...(provider === "google" ? { scopes: "openid email profile" } : {}),
     },
   });
 
@@ -38,5 +38,13 @@ export async function signInWithGoogleAction(formData?: FormData) {
     redirect(`/login?error=oauth-init-failed&locale=${locale}`);
   }
 
-  redirect(data!.url);
+  redirect(data.url);
+}
+
+export async function signInWithGoogleAction(formData?: FormData) {
+  return signInWithOAuth("google", formData);
+}
+
+export async function signInWithAppleAction(formData?: FormData) {
+  return signInWithOAuth("apple", formData);
 }
