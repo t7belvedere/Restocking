@@ -16,3 +16,7 @@ log.txt
 ruvector.db
 worker/PLAN.md
 .gstack/
+mobile/.expo/
+mobile/android/
+mobile/ios/
+*.tsbuildinfo
