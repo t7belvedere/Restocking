@@ -7,8 +7,7 @@ from urllib.parse import urlparse
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from scrapling.fetchers import Fetcher, PlayWrightFetcher, StealthyFetcher
-from scrapling.parser import Adaptor
+from scrapling.fetchers import Fetcher, PlayWrightFetcher
 
 load_dotenv()
 
@@ -421,10 +420,11 @@ async def health():
 async def analyze(url: str = Query(min_length=1)):
     """Scrape a product URL and return metadata.
 
-    Uses the same 3-tier fallback as the main worker loop:
-    Fetcher → StealthyFetcher → PlayWrightFetcher.
-    All async — FastAPI runs inside an asyncio event loop.
+    Uses 3-tier fallback. Playwright runs in a thread to avoid
+    asyncio conflicts with FastAPI/uvicorn.
     """
+    import asyncio as _asyncio
+
     try:
         parsed = urlparse(url)
         if parsed.scheme not in ("http", "https"):
@@ -433,36 +433,40 @@ async def analyze(url: str = Query(min_length=1)):
         raise HTTPException(status_code=400, detail="Invalid URL")
 
     html: str | None = None
-    page = None  # keep reference to the last successful page for CSS selectors
+    page = None
 
-    # Level 1 — plain HTTP (async)
+    # Level 1 — plain HTTP (async, no thread needed)
     try:
         page = await Fetcher.async_get(url, stealthy_headers=True, timeout=15)
         if page.status in (200, 304):
             html = getattr(page, "html_content", "")
-            # Bot challenge detection: tiny HTML = JS redirect page (Akamai, Cloudflare, etc.)
             if html and len(html) < 5000:
-                logger.debug("Level 1 HTML too small (%d bytes) — likely bot challenge, escalating", len(html))
+                logger.debug("Level 1 HTML too small (%d bytes) — escalating", len(html))
                 html = None
     except Exception:
-        logger.debug("Level 1 (Fetcher.async_get) failed", exc_info=True)
+        logger.debug("Level 1 (Fetcher) failed", exc_info=True)
 
-    # Level 2 — headless Camoufox (async)
+    # Level 2 — Playwright stealth in a thread (avoids asyncio conflict)
     if html is None:
         try:
-            page = await StealthyFetcher.async_fetch(url, headless=True, disable_resources=True, timeout=20000)
-            if page.status == 200:
-                html = getattr(page, "html_content", "")
-        except Exception:
-            logger.debug("Level 2 (StealthyFetcher.async_fetch) failed", exc_info=True)
-
-    # Level 3 — Playwright stealth with JS rendering (async)
-    if html is None:
-        try:
-            page = await PlayWrightFetcher.async_fetch(url, stealth=True, disable_resources=True, timeout=30000, wait=2000)
+            page = await _asyncio.to_thread(
+                PlayWrightFetcher.fetch,
+                url, stealth=True, disable_resources=True, timeout=25000, wait=2000,
+            )
             html = getattr(page, "html_content", "")
         except Exception:
-            logger.debug("Level 3 (PlayWrightFetcher.async_fetch) failed", exc_info=True)
+            logger.debug("Level 2 (PlayWrightFetcher) failed", exc_info=True)
+
+    # Level 3 — Playwright best effort
+    if html is None:
+        try:
+            page = await _asyncio.to_thread(
+                PlayWrightFetcher.fetch,
+                url, stealth=True, timeout=30000, wait=3000,
+            )
+            html = getattr(page, "html_content", "")
+        except Exception:
+            logger.debug("Level 3 (PlayWrightFetcher) failed", exc_info=True)
 
     if not html:
         raise HTTPException(status_code=502, detail="All fetch levels failed")
