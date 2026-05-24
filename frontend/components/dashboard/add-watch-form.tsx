@@ -254,7 +254,7 @@ export function AddWatchForm() {
                     className={cn(
                       "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
                       "active:scale-[0.97]",
-                      !inStock && "border-dashed border-red-200 bg-red-50/50 text-red-400 line-through",
+                      !inStock && "border-dashed border-red-200 bg-red-50/50 text-red-400 line-through hover:bg-red-100/50 cursor-pointer",
                       inStock && active
                         ? "border-foreground bg-foreground text-background shadow-sm"
                         : inStock
@@ -284,7 +284,7 @@ export function AddWatchForm() {
                     className={cn(
                       "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
                       "active:scale-[0.97]",
-                      !inStock && "border-dashed border-red-200 bg-red-50/50 text-red-400 line-through",
+                      !inStock && "border-dashed border-red-200 bg-red-50/50 text-red-400 line-through hover:bg-red-100/50 cursor-pointer",
                       inStock && active
                         ? "border-foreground bg-foreground text-background shadow-sm"
                         : inStock
