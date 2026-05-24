@@ -1129,6 +1129,15 @@ def _extract_css_image(page, url: str = "") -> str | None:
                     src = srcset.split(",")[0].strip().split(" ")[0]
             if not src:
                 continue
+            # Fix double-URL bug (some CDNs return protocol-relative URLs that get doubled)
+            if src.startswith("http://") or src.startswith("https://"):
+                # Check if the URL has a duplicated domain (e.g. https://a.comhttps://a.com/...)
+                parsed_src = _urlparse(src)
+                if parsed_src.netloc.count("http") > 0:
+                    # Find the second http and trim from there
+                    second = src.find("http", 8)
+                    if second > 0:
+                        src = src[second:]
             low = src.lower()
             # Skip data: URIs (SVG placeholders, inline icons)
             if low.startswith("data:"):
@@ -1178,6 +1187,11 @@ def _extract_css_image(page, url: str = "") -> str | None:
                     src = srcset.split(",")[0].strip().split(" ")[0]
             if not src:
                 continue
+            # Fix double-URL bug
+            if (src.startswith("http://") or src.startswith("https://")) and src.count("http") > 1:
+                second = src.find("http", 8)
+                if second > 0:
+                    src = src[second:]
             low = src.lower()
             if not src or "transparent" in low or _re.search(r"\.svg(\?|$)", low):
                 continue
@@ -1535,11 +1549,19 @@ async def _analyze_scrape(url: str, proxy_url: str | None, pw_proxy: dict | None
         try:
             llm_result = await _llm_extract(html, page, url)
             if llm_result:
-                # Name/price/image: traditional is more reliable, LLM as fallback
-                if not result.get("name") and llm_result.get("name"):
-                    result["name"] = llm_result["name"]
+                # Name: prefer LLM when it finds a product-specific name (not generic)
+                llm_name = llm_result.get("name")
+                if llm_name and (
+                    not result.get("name") or
+                    # Override generic names (brand-only, category-only)
+                    len(llm_name) > len(result.get("name", "") or "") or
+                    len(result.get("name", "") or "") < 25
+                ):
+                    result["name"] = llm_name
+                # Price: LLM as fallback for missing prices
                 if result.get("price") is None and llm_result.get("price"):
                     result["price"] = llm_result["price"]
+                # Image: LLM as fallback for missing images
                 if not result.get("image_url") and llm_result.get("image_url"):
                     result["image_url"] = llm_result["image_url"]
                 # Colors: LLM overrides — regex picks up recommended product names
@@ -1552,7 +1574,8 @@ async def _analyze_scrape(url: str, proxy_url: str | None, pw_proxy: dict | None
                     result["sizes"] = llm_sizes
                     # Update variants to match
                     result["variants"] = llm_sizes + (result.get("colors") or [])
-                logger.info("LLM validated: sizes=%s colors=%s", result["sizes"], result["colors"])
+                logger.info("LLM validated: name=%s sizes=%s colors=%s",
+                            result.get("name"), result.get("sizes"), result.get("colors"))
         except Exception:
             logger.debug("LLM validation failed", exc_info=True)
 
