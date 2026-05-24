@@ -147,6 +147,8 @@ export async function analyzeUrl(url: string): Promise<AnalyzeResult> {
         image_url: null,
         price: null,
         variants: [],
+        sizes: [],
+        colors: [],
         enrichment_pending: true,
         error: "FETCH_FAILED",
       };
