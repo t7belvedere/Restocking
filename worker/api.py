@@ -313,7 +313,10 @@ def _extract_dom_variants(page) -> list[str]:
     try:
         selects = page.css("select")
         for sel in selects[:8]:
-            name = (sel.attrib.get("name", "") + sel.attrib.get("id", "")).lower()
+            name = (sel.attrib.get("name", "") + sel.attrib.get("id", "") + sel.attrib.get("aria-label", "")).lower()
+            # Skip quantity/UI selects
+            if any(w in name for w in ("qty", "quantity", "sort", "order", "limit", "page")):
+                continue
             options = sel.css("option")
             for opt in options[1:]:  # skip placeholder
                 txt = "".join(opt.get_all_text()).strip() if hasattr(opt, "get_all_text") else ""
@@ -375,9 +378,12 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
     colors: list[str] = []
 
     _UI_GARBAGE = {
-        "qté", "qte", "quantité", "quantity", "rechercher", "search", "add to cart",
-        "ajouter au panier", "acheter", "buy", "select", "sélectionner",
-        "choisir", "choose", "submit", "envoyer",
+        "qte", "qté", "qty", "q.ty", "quantité", "quantity", "rechercher", "search",
+        "add to cart", "ajouter au panier", "acheter", "buy",
+        "select", "sélectionner", "choisir", "choose", "submit", "envoyer",
+        "in stock", "out of stock", "en stock", "rupture",
+        "ok", "cancel", "annuler", "size guide", "guide des tailles",
+        "clear", "effacer", "reset", "réinitialiser",
     }
     for v in variants:
         v_clean = v.strip()
