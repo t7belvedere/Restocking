@@ -1122,6 +1122,10 @@ def _sse_event(event: str, data: dict) -> str:
 async def _analyze_scrape(url: str, proxy_url: str | None, pw_proxy: dict | None):
     """Core scraping logic — shared by SSE streaming and JSON endpoints.
 
+    Each level tries WITHOUT proxy first, then WITH proxy only if needed.
+    This avoids burning proxy bandwidth on sites that don't require it
+    (Zara, Bershka, Stüssy, Princess Polly, etc.).
+
     Yields SSE-formatted progress/result/error event strings.
     """
     import asyncio as _asyncio
@@ -1129,68 +1133,77 @@ async def _analyze_scrape(url: str, proxy_url: str | None, pw_proxy: dict | None
     html: str | None = None
     page = None
     _was_playwright = False
+    _has_proxy = bool(proxy_url and pw_proxy)
 
-    # Level 1 — plain HTTP
-    yield _sse_event("progress", {"step": "http", "message": "Connexion au site..."})
-    try:
-        kwargs = {"stealthy_headers": True, "timeout": 15}
-        if proxy_url:
+    def _http_attempt(use_proxy: bool):
+        nonlocal page, html
+        kwargs: dict = {"stealthy_headers": True, "timeout": 15}
+        if use_proxy and proxy_url:
             kwargs["proxy"] = proxy_url
-        page = await _asyncio.to_thread(Fetcher.get, url, **kwargs)
+        page = Fetcher.get(url, **kwargs)
         if getattr(page, "status", 0) in (200, 304):
             html = getattr(page, "html_content", "")
             if html and len(html) < 5000:
                 logger.debug("Level 1 HTML too small (%d bytes) — escalating", len(html))
                 html = None
-    except Exception:
-        logger.debug("Level 1 (Fetcher) failed", exc_info=True)
 
-    # Level 2 — Playwright stealth
+    def _pw_attempt(use_proxy: bool, disable_resources: bool = True, timeout: int = 40000):
+        nonlocal page, html
+        kwargs: dict = {
+            "headless": True, "stealth": True, "hide_canvas": True,
+            "disable_resources": disable_resources, "timeout": timeout, "wait": 3000,
+        }
+        if use_proxy and pw_proxy:
+            kwargs["proxy"] = pw_proxy
+        page = PlayWrightFetcher.fetch(url, **kwargs)
+        html = getattr(page, "html_content", "")
+
+    # Level 1a — HTTP without proxy
+    yield _sse_event("progress", {"step": "http", "message": "Connexion au site..."})
+    try:
+        await _asyncio.to_thread(_http_attempt, False)
+    except Exception:
+        logger.debug("Level 1 (HTTP) failed", exc_info=True)
+
+    # Level 1b — HTTP with proxy (only if we have one and Level 1a failed)
+    if html is None and _has_proxy:
+        logger.debug("Level 1 retry with proxy")
+        try:
+            await _asyncio.to_thread(_http_attempt, True)
+        except Exception:
+            logger.debug("Level 1 (HTTP+proxy) failed", exc_info=True)
+
+    # Level 2a — Playwright stealth without proxy
     if html is None:
         _was_playwright = True
         yield _sse_event("progress", {"step": "playwright", "message": "Ouverture du navigateur..."})
         try:
-            pw_kwargs = {
-                "headless": True,
-                "stealth": True,
-                "hide_canvas": True,
-                "disable_resources": True,
-                "timeout": 40000,
-                "wait": 3000,
-            }
-            if pw_proxy:
-                pw_kwargs["proxy"] = pw_proxy
-            logger.info("Level 2 Playwright attempt — url=%s proxy=%s", url[:60], bool(pw_proxy))
-            page = await _asyncio.to_thread(
-                PlayWrightFetcher.fetch,
-                url,
-                **pw_kwargs,
-            )
-            html = getattr(page, "html_content", "")
+            await _asyncio.to_thread(_pw_attempt, False, True, 40000)
         except Exception:
-            logger.exception("Level 2 (PlayWrightFetcher) failed")
+            logger.debug("Level 2 (Playwright) failed", exc_info=True)
 
-    # Level 3 — Playwright best effort
+    # Level 2b — Playwright stealth with proxy
+    if html is None and _has_proxy:
+        logger.info("Level 2 Playwright retry with proxy — url=%s", url[:60])
+        try:
+            await _asyncio.to_thread(_pw_attempt, True, True, 40000)
+        except Exception:
+            logger.exception("Level 2 (Playwright+proxy) failed")
+
+    # Level 3a — Playwright best effort without proxy
     if html is None:
         yield _sse_event("progress", {"step": "playwright_retry", "message": "Nouvelle tentative..."})
         try:
-            pw3_kwargs = {
-                "headless": True,
-                "stealth": True,
-                "hide_canvas": True,
-                "timeout": 30000,
-                "wait": 3000,
-            }
-            if pw_proxy:
-                pw3_kwargs["proxy"] = pw_proxy
-            page = await _asyncio.to_thread(
-                PlayWrightFetcher.fetch,
-                url,
-                **pw3_kwargs,
-            )
-            html = getattr(page, "html_content", "")
+            await _asyncio.to_thread(_pw_attempt, False, False, 30000)
         except Exception:
-            logger.debug("Level 3 (PlayWrightFetcher) failed", exc_info=True)
+            logger.debug("Level 3 (Playwright best-effort) failed", exc_info=True)
+
+    # Level 3b — Playwright best effort with proxy
+    if html is None and _has_proxy:
+        try:
+            await _asyncio.to_thread(_pw_attempt, True, False, 30000)
+        except Exception:
+            logger.debug("Level 3 (Playwright best-effort+proxy) failed", exc_info=True)
 
     if not html:
         yield _sse_event("error", {"error": "All fetch levels failed"})
