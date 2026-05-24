@@ -8,7 +8,33 @@ Returns (page, method) where page is a Scrapling Response/Adaptor object.
 Raises the last exception if all levels fail.
 """
 
+import os
+
 from scrapling.fetchers import Fetcher, PlayWrightFetcher
+
+_proxy = os.getenv("PROXY_URL")
+
+
+def _pw_kwargs(**overrides):
+    """Base Playwright kwargs, with optional proxy."""
+    kw = {
+        "headless": True,
+        "stealth": True,
+        "disable_resources": True,
+    }
+    kw.update(overrides)
+    if _proxy:
+        kw["proxy"] = _proxy
+    return kw
+
+
+def _http_kwargs(**overrides):
+    """Base HTTP kwargs, with optional proxy."""
+    kw = {"stealthy_headers": True}
+    kw.update(overrides)
+    if _proxy:
+        kw["proxy"] = _proxy
+    return kw
 
 
 def fetch_with_fallback(url: str) -> tuple:
@@ -23,15 +49,11 @@ def fetch_with_fallback(url: str) -> tuple:
     """
     last_exc: Exception | None = None
 
-    # ------------------------------------------------------------------
     # Level 1 — plain HTTP (Fetcher.get has retries=3 built-in)
-    # ------------------------------------------------------------------
     try:
-        page = Fetcher.get(url, stealthy_headers=True)
+        page = Fetcher.get(url, **_http_kwargs())
         if page.status in (200, 304):
             html = getattr(page, "html_content", "")
-            # Bot challenge detection: tiny HTML pages are JS redirects
-            # (Akamai, Cloudflare, etc.) — escalate to Playwright.
             if html and len(html) < 5000:
                 last_exc = RuntimeError("Bot challenge detected (< 5 KB HTML)")
             else:
@@ -39,24 +61,19 @@ def fetch_with_fallback(url: str) -> tuple:
     except Exception as exc:
         last_exc = exc
 
-    # ------------------------------------------------------------------
-    # Level 2 — Playwright with stealth + disabled resources (faster)
-    # ------------------------------------------------------------------
+    # Level 2 — Playwright with stealth + disabled resources
     try:
-        page = PlayWrightFetcher.fetch(url, stealth=True, disable_resources=True)
+        page = PlayWrightFetcher.fetch(url, **_pw_kwargs())
         if page.status == 200:
             return page, "playwright_stealth"
     except Exception as exc:
         last_exc = exc
 
-    # ------------------------------------------------------------------
-    # Level 3 — Playwright, best effort (return whatever we get)
-    # ------------------------------------------------------------------
+    # Level 3 — Playwright, best effort
     try:
-        page = PlayWrightFetcher.fetch(url, stealth=True)
+        page = PlayWrightFetcher.fetch(url, **_pw_kwargs(disable_resources=False))
         return page, "playwright_stealth"
     except Exception as exc:
         last_exc = exc
 
-    # All three levels failed
     raise last_exc  # type: ignore[misc]

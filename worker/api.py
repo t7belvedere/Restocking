@@ -738,9 +738,14 @@ async def analyze(url: str = Query(min_length=1)):
     html: str | None = None
     page = None
 
+    proxy = os.getenv("PROXY_URL")
+
     # Level 1 — plain HTTP
     try:
-        page = await _asyncio.to_thread(Fetcher.get, url, stealthy_headers=True, timeout=15)
+        kwargs = {"stealthy_headers": True, "timeout": 15}
+        if proxy:
+            kwargs["proxy"] = proxy
+        page = await _asyncio.to_thread(Fetcher.get, url, **kwargs)
         if getattr(page, "status", 0) in (200, 304):
             html = getattr(page, "html_content", "")
             if html and len(html) < 5000:
@@ -752,14 +757,19 @@ async def analyze(url: str = Query(min_length=1)):
     # Level 2 — Playwright stealth
     if html is None:
         try:
+            pw_kwargs = {
+                "headless": True,
+                "stealth": True,
+                "disable_resources": True,
+                "timeout": 25000,
+                "wait": 2000,
+            }
+            if proxy:
+                pw_kwargs["proxy"] = proxy
             page = await _asyncio.to_thread(
                 PlayWrightFetcher.fetch,
                 url,
-                headless=True,
-                stealth=True,
-                disable_resources=True,
-                timeout=25000,
-                wait=2000,
+                **pw_kwargs,
             )
             html = getattr(page, "html_content", "")
         except Exception:
@@ -768,13 +778,18 @@ async def analyze(url: str = Query(min_length=1)):
     # Level 3 — Playwright best effort
     if html is None:
         try:
+            pw3_kwargs = {
+                "headless": True,
+                "stealth": True,
+                "timeout": 30000,
+                "wait": 3000,
+            }
+            if proxy:
+                pw3_kwargs["proxy"] = proxy
             page = await _asyncio.to_thread(
                 PlayWrightFetcher.fetch,
                 url,
-                headless=True,
-                stealth=True,
-                timeout=30000,
-                wait=3000,
+                **pw3_kwargs,
             )
             html = getattr(page, "html_content", "")
         except Exception:
