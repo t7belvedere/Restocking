@@ -11,6 +11,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { brutalSm, brutal, brutalXl } from "@/lib/shadows";
 import { supabase } from "@/lib/supabase";
+import { AppLogo } from "@/components/AppLogo";
 
 export default function RegisterScreen() {
   const { signUp } = useAuth();
@@ -99,8 +100,9 @@ export default function RegisterScreen() {
           className="mt-8 rounded-3xl border-2 border-ink bg-paper p-7"
           style={brutalXl}
         >
-          {/* Logo wordmark */}
-          <View className="mb-8 items-center">
+          {/* App logo */}
+          <View className="mb-8 items-center gap-3">
+            <AppLogo size={48} />
             <View className="flex-row items-baseline">
               <Text className="font-display text-2xl tracking-tighter text-ink">
                 restocking
