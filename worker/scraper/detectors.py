@@ -308,7 +308,8 @@ _VARIANT_SELECTORS = [
 
 _UNAVAILABLE_CLASS_FRAGMENTS = frozenset(
     ["unavailable", "disabled", "out-of-stock", "out_of_stock", "sold-out", "sold_out",
-     "pointer-events-none", "opacity-20", "opacity-30", "opacity-40", "opacity-50"]
+     "pointer-events-none", "opacity-20", "opacity-30", "opacity-40", "opacity-50",
+     "cursor-default", "bg-grey", "text-grey-dark", "line-through", "not-available"]
 )
 
 
@@ -353,8 +354,12 @@ def _element_matches_variant(element, variant_label: str | None, variant_id: str
     return False
 
 
+_OOS_TEXT = ("épuisé", "epuise", "sold out", "rupture", "indisponible", "out of stock",
+             "épuisée", "unavailable", "coming soon")
+
+
 def _element_is_unavailable(element) -> bool:
-    """Return True if element signals unavailability via attributes or classes."""
+    """Return True if element signals unavailability via attributes, classes, or text."""
     # data-available="false"
     available_attr = element.attrib.get("data-available", "")
     if available_attr and available_attr.strip().lower() == "false":
@@ -362,7 +367,18 @@ def _element_is_unavailable(element) -> bool:
 
     cls = element.attrib.get("class", "") or ""
     cls_lower = cls.lower()
-    return any(fragment in cls_lower for fragment in _UNAVAILABLE_CLASS_FRAGMENTS)
+    if any(fragment in cls_lower for fragment in _UNAVAILABLE_CLASS_FRAGMENTS):
+        return True
+
+    # Check child text for OOS keywords (Pimkie: <div class="product-flag">Épuisé</div>)
+    try:
+        all_text = str(element.get_all_text()).lower()
+        if any(w in all_text for w in _OOS_TEXT):
+            return True
+    except Exception:
+        pass
+
+    return False
 
 
 def _strategy_variant_attr(
