@@ -266,9 +266,13 @@ _ADD_TO_CART_SELECTORS = [
     "button.btn-add-to-bag",
     'button[id*="add-to-cart"]',
     'button[id*="add-to-bag"]',
-    'button[aria-label*="add to cart" i]',
-    'button[aria-label*="ajouter au panier" i]',
-    'button[aria-label*="add to bag" i]',
+    'button[aria-label*="add to cart"]',
+    'button[aria-label*="Add to Cart"]',
+    'button[aria-label*="Add To Cart"]',
+    'button[aria-label*="ajouter au panier"]',
+    'button[aria-label*="Ajouter au panier"]',
+    'button[aria-label*="add to bag"]',
+    'button[aria-label*="Add to Bag"]',
 ]
 
 _DISABLED_CLASS_FRAGMENTS = frozenset(
