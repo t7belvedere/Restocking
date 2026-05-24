@@ -27,8 +27,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  const response = NextResponse.next();
-  const supabase = createRouteHandlerClient(request, response);
+  const destination = new URL(
+    nextParam.startsWith("/") ? nextParam : "/dashboard",
+    origin,
+  );
+  const redirectResponse = NextResponse.redirect(destination);
+  const supabase = createRouteHandlerClient(request, redirectResponse);
   if (!supabase) {
     loginUrl.searchParams.set("error", "auth-client-init-failed");
     return NextResponse.redirect(loginUrl);
@@ -40,10 +44,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  const destination = new URL(
-    nextParam.startsWith("/") ? nextParam : "/dashboard",
-    origin,
-  );
-  // Preserve any cookies set by createRouteHandlerClient on the redirect.
-  return NextResponse.redirect(destination, { headers: response.headers });
+  return redirectResponse;
 }

@@ -29,8 +29,15 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  const response = NextResponse.next();
-  const supabase = createRouteHandlerClient(request, response);
+  const destinationPath =
+    nextParam && nextParam.startsWith("/") ? nextParam : "/dashboard";
+  const destination = new URL(destinationPath, origin);
+
+  // Create the redirect response first so Supabase writes session cookies
+  // directly onto it. Using NextResponse.next() in a route handler (not
+  // middleware) can produce an empty response — avoid it.
+  const redirectResponse = NextResponse.redirect(destination);
+  const supabase = createRouteHandlerClient(request, redirectResponse);
   if (!supabase) {
     loginUrl.searchParams.set("error", "auth-client-init-failed");
     return NextResponse.redirect(loginUrl);
@@ -56,8 +63,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  const destinationPath =
-    nextParam && nextParam.startsWith("/") ? nextParam : "/dashboard";
-  const destination = new URL(destinationPath, origin);
-  return NextResponse.redirect(destination, { headers: response.headers });
+  return redirectResponse;
 }
