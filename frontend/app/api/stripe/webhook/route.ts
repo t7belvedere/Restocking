@@ -26,9 +26,9 @@ export async function POST(req: NextRequest) {
       const userId = sub.metadata?.supabase_user_id;
       if (!userId) break;
 
-      const plan = sub.status === "active" ? "pro" : "free";
-      const periodEnd = sub.billing_cycle_anchor
-        ? new Date(sub.billing_cycle_anchor * 1000).toISOString()
+      const plan = sub.status === "active" || sub.status === "trialing" ? "pro" : "free";
+      const periodEnd = sub.current_period_end
+        ? new Date(sub.current_period_end * 1000).toISOString()
         : null;
 
       await supabase.from("subscriptions").upsert({
