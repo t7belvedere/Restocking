@@ -128,7 +128,7 @@ export default async function WatchDetailPage({
             Live
           </span>
         </div>
-        <CheckLogTable logs={logs} />
+        <CheckLogTable logs={logs} watchPrice={watch.price} />
       </section>
     </div>
   );

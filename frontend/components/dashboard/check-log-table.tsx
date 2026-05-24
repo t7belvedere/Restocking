@@ -92,7 +92,7 @@ function EmptyState() {
 /* Component                                                           */
 /* ------------------------------------------------------------------ */
 
-export function CheckLogTable({ logs }: { logs: CheckLog[] }) {
+export function CheckLogTable({ logs, watchPrice }: { logs: CheckLog[]; watchPrice?: number | null }) {
   if (logs.length === 0) return <EmptyState />;
 
   return (
@@ -143,7 +143,7 @@ export function CheckLogTable({ logs }: { logs: CheckLog[] }) {
                   : "—"}
               </TableCell>
               <TableCell className="text-right font-mono text-sm font-medium tabular-nums">
-                {formatPrice(log.price)}
+                {formatPrice(log.price ?? watchPrice)}
               </TableCell>
             </TableRow>
           ))}

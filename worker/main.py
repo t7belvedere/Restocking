@@ -126,6 +126,28 @@ def _apply_domain_rate_limit(url: str) -> None:
     domain_last_request[hostname] = time.monotonic()
 
 
+def _extract_price(html: str) -> float | None:
+    """Extract price from HTML meta tags or regex fallback."""
+    for key in ("og:price:amount", "product:price:amount"):
+        m = re.search(
+            rf'<meta[^>]+(?:property|name)=["\']{key}["\'][^>]+content=["\']([^"\']+)["\']',
+            html,
+            re.IGNORECASE,
+        )
+        if m:
+            try:
+                return float(m.group(1).replace(",", "."))
+            except (ValueError, TypeError):
+                pass
+    m = re.search(r"(\d{1,4}(?:[.,]\d{2})?)\s*€", html)
+    if m:
+        try:
+            return float(m.group(1).replace(",", "."))
+        except (ValueError, TypeError):
+            pass
+    return None
+
+
 def _enrich_watch(watch_id: str, page) -> None:
     """Extract product metadata from a Scrapling page and update the watch row.
 
@@ -145,24 +167,7 @@ def _enrich_watch(watch_id: str, page) -> None:
 
     name = _pick_meta("og:title")
     image_url = _pick_meta("og:image")
-
-    # Price: try og:price:amount first, then regex fallback
-    price: float | None = None
-    for key in ("og:price:amount", "product:price:amount"):
-        raw = _pick_meta(key)
-        if raw:
-            try:
-                price = float(raw.replace(",", "."))
-                break
-            except (ValueError, TypeError):
-                pass
-    if price is None:
-        m = re.search(r"(\d{1,4}(?:[.,]\d{2})?)\s*€", html)
-        if m:
-            try:
-                price = float(m.group(1).replace(",", "."))
-            except (ValueError, TypeError):
-                pass
+    price = _extract_price(html)
 
     if name or image_url or price is not None:
         update_watch_metadata(watch_id, name=name, image_url=image_url, price=price)
@@ -239,11 +244,13 @@ def _process_watch(watch: dict) -> None:
         logger.debug("watch %s: generic detector → %s (source: %s)", watch_id, status, signal_source)
 
     # --- Log the check ---
+    check_price = _extract_price(getattr(page, "html_content", ""))
     insert_check_log(
         watch_id=watch_id,
         status=status,
         signal_source=signal_source,
         raw_signal=method,
+        price=check_price,
     )
 
     # --- Update watch last_status + last_check ---
