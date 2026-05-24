@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
   }
 
   const destinationPath =
-    nextParam && nextParam.startsWith("/") ? nextParam : "/dashboard";
+    nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : "/dashboard";
   const destination = new URL(destinationPath, origin);
 
   // Create the redirect response first so Supabase writes session cookies

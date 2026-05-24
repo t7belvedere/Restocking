@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
   }
 
   const destination = new URL(
-    nextParam.startsWith("/") ? nextParam : "/dashboard",
+    nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : "/dashboard",
     origin,
   );
   const redirectResponse = NextResponse.redirect(destination);
