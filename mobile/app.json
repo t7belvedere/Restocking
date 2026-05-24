@@ -10,7 +10,6 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.restocking.mobile",
-      "jsEngine": "jsc",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -46,7 +45,6 @@
       "expo-web-browser",
       "expo-font",
       "expo-splash-screen",
-      "expo-build-properties"
     ],
     "extra": {
       "router": {},
