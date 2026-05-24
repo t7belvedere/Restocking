@@ -1,12 +1,21 @@
 "use client";
 
-import { Check, Sparkles, ExternalLink } from "lucide-react";
+import { Check, ExternalLink, Sparkles, Zap } from "lucide-react";
 import { useTransition } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { createCheckoutSession, createPortalSession } from "@/app/actions/stripe";
+
+const PRO_FEATURES = [
+  "20 produits surveillés au lieu de 3",
+  "Vérification toutes les 5 minutes",
+  "Notifications email + SMS instantanées",
+  "Fallback Playwright pour les sites complexes",
+  "Historique des vérifications illimité",
+  "Support prioritaire",
+];
 
 interface UpgradeCardsProps {
   currentPlan: "free" | "pro";
@@ -24,77 +33,136 @@ export function UpgradeCards({ currentPlan }: UpgradeCardsProps) {
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-2">
-      <Card className={cn("relative", currentPlan === "free" && "ring-1 ring-foreground/10")}>
-        <CardHeader>
+    <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
+      {/* FREE */}
+      <Card
+        className={cn(
+          "relative flex flex-col rounded-3xl border-2 border-ink/30 bg-cream/50 shadow-none transition-shadow hover:shadow-brutal",
+          currentPlan === "free" && "border-ink",
+        )}
+      >
+        <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="font-display text-xl">Free</CardTitle>
-            {currentPlan === "free" ? <Badge variant="muted">Plan actuel</Badge> : null}
+            <CardTitle className="font-display text-2xl">Free</CardTitle>
+            {currentPlan === "free" ? (
+              <Badge variant="muted" className="border-ink/30 font-bold">
+                Plan actuel
+              </Badge>
+            ) : null}
           </div>
           <p className="text-sm text-muted-foreground">Pour démarrer en douceur.</p>
         </CardHeader>
-        <CardContent className="space-y-5">
+        <CardContent className="flex flex-1 flex-col justify-between space-y-6">
           <div>
-            <p className="font-display text-4xl font-semibold">0 €</p>
-            <p className="text-xs text-muted-foreground">Pour toujours</p>
+            <div className="flex items-baseline gap-1">
+              <p className="font-display text-5xl font-extrabold tracking-tighter">0 €</p>
+              <span className="text-sm text-muted-foreground">/ pour toujours</span>
+            </div>
           </div>
-          <ul className="space-y-2 text-sm">
+          <ul className="space-y-2.5 text-sm">
             <Feature>3 produits surveillés</Feature>
-            <Feature>Vérification toutes les 15 min</Feature>
+            <Feature>Vérification toutes les 30 min</Feature>
             <Feature>Notifications email</Feature>
+            <Feature>Dashboard temps réel</Feature>
           </ul>
-          <Button type="button" variant="outline" className="w-full" disabled>
-            {currentPlan === "free" ? "Plan actuel" : "Plan Free"}
+          <Button type="button" variant="outline" className="w-full rounded-xl border-2" disabled>
+            {currentPlan === "free" ? "Plan actuel" : "Rétrograder"}
           </Button>
         </CardContent>
       </Card>
 
-      <Card className={cn("relative overflow-hidden border-foreground/15 bg-gradient-to-b from-accent/40 to-card", currentPlan === "pro" && "ring-1 ring-foreground/20")}>
-        <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/60 blur-3xl" />
-        <CardHeader>
+      {/* PRO */}
+      <Card
+        className={cn(
+          "relative flex flex-col overflow-hidden rounded-3xl border-2 bg-[var(--brand-orange)]/10 shadow-brutal transition-shadow hover:shadow-brutal-lg",
+          currentPlan === "pro" ? "border-ink bg-[var(--brand-orange)]/20" : "border-ink",
+        )}
+      >
+        {/* Decorative glow */}
+        <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[var(--brand-orange)]/20 blur-3xl" />
+
+        <CardHeader className="relative pb-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="font-display text-xl">
+            <CardTitle className="font-display text-2xl">
               <span className="inline-flex items-center gap-2">
-                <Sparkles className="h-4 w-4" />
+                <Sparkles className="h-5 w-5 text-[var(--brand-orange)]" />
                 Pro
               </span>
             </CardTitle>
             {currentPlan === "pro" ? (
-              <Badge variant="success">Plan actuel</Badge>
+              <Badge variant="success" className="font-bold">
+                Plan actuel
+              </Badge>
             ) : (
-              <Badge variant="default">Recommandé</Badge>
+              <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-[var(--brand-lime)] px-3 py-1 font-display text-xs font-bold uppercase tracking-widest shadow-brutal-sm">
+                <Zap className="h-3 w-3 fill-ink" />
+                Recommandé
+              </span>
             )}
           </div>
           <p className="text-sm text-muted-foreground">Pour ne rien rater, jamais.</p>
         </CardHeader>
-        <CardContent className="space-y-5">
-          <div className="flex items-baseline gap-2">
-            <p className="font-display text-4xl font-semibold">7,99 €</p>
-            <p className="text-sm text-muted-foreground">/ mois</p>
+
+        <CardContent className="relative flex flex-1 flex-col justify-between space-y-6">
+          <div>
+            <div className="flex items-baseline gap-2">
+              <p className="font-display text-5xl font-extrabold tracking-tighter">7,99 €</p>
+              <span className="text-sm text-muted-foreground">/ mois</span>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              ou <span className="font-semibold text-foreground">59 €/an</span> (deux mois offerts)
+            </p>
           </div>
-          <p className="text-xs text-muted-foreground">
-            ou <span className="font-medium text-foreground">59 €/an</span>{" "}
-            (deux mois offerts)
-          </p>
-          <ul className="space-y-2 text-sm">
-            <Feature>20 produits surveillés</Feature>
-            <Feature>Vérification toutes les 5 min</Feature>
-            <Feature>Notifications email + SMS</Feature>
-            <Feature>Historique illimité</Feature>
+
+          <ul className="space-y-2.5 text-sm">
+            {PRO_FEATURES.map((f) => (
+              <Feature key={f}>{f}</Feature>
+            ))}
           </ul>
 
           {currentPlan === "pro" ? (
-            <Button type="button" variant="outline" size="lg" className="w-full" onClick={portal} disabled={pending}>
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="w-full rounded-xl border-2"
+              onClick={portal}
+              disabled={pending}
+            >
               <ExternalLink className="mr-2 h-4 w-4" />
-              Gérer mon abonnement
+              Gérer mon abonnement (Stripe)
             </Button>
           ) : (
-            <div className="flex flex-col gap-2">
-              <Button type="button" size="lg" onClick={() => checkout("monthly")} disabled={pending}>
-                {pending ? "Redirection…" : "Choisir Pro mensuel — 7,99 €/mois"}
+            <div className="flex flex-col gap-2.5">
+              <Button
+                type="button"
+                size="lg"
+                className="w-full rounded-xl bg-[var(--brand-orange)] hover:bg-[var(--brand-orange)]/90"
+                onClick={() => checkout("monthly")}
+                disabled={pending}
+              >
+                {pending ? (
+                  "Redirection vers Stripe…"
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Pro mensuel — 7,99 €/mois
+                  </>
+                )}
               </Button>
-              <Button type="button" variant="outline" size="lg" onClick={() => checkout("annual")} disabled={pending}>
-                {pending ? "Redirection…" : "Choisir Pro annuel — 59 €/an"}
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="w-full rounded-xl border-2"
+                onClick={() => checkout("annual")}
+                disabled={pending}
+              >
+                {pending ? (
+                  "Redirection…"
+                ) : (
+                  "Pro annuel — 59 €/an (2 mois offerts)"
+                )}
               </Button>
             </div>
           )}
@@ -106,9 +174,9 @@ export function UpgradeCards({ currentPlan }: UpgradeCardsProps) {
 
 function Feature({ children }: { children: React.ReactNode }) {
   return (
-    <li className="flex items-start gap-2">
-      <Check className="mt-0.5 h-4 w-4 text-emerald-600" />
-      <span>{children}</span>
+    <li className="flex items-start gap-2.5">
+      <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+      <span className="text-ink/80">{children}</span>
     </li>
   );
 }
