@@ -6,8 +6,9 @@ import { buttonVariants } from "@/components/ui/button";
 import { WatchList, WatchListSkeleton } from "@/components/dashboard/watch-list";
 import { AutoRefresh } from "@/components/dashboard/auto-refresh";
 import { cn } from "@/lib/utils";
-import { getSubscription, getWatches } from "@/lib/data/watches";
+import { getSubscription, getCurrentUser, getWatches } from "@/lib/data/watches";
 import { PLAN_LIMITS } from "@/lib/supabase/types";
+import { QuickAddBrand } from "@/components/dashboard/quick-add-brand";
 
 export default async function DashboardPage() {
   return (
@@ -31,10 +32,13 @@ function DashboardLoading() {
 }
 
 async function DashboardContent() {
-  const [watches, subscription] = await Promise.all([
+  const [user, watches, subscription] = await Promise.all([
+    getCurrentUser(),
     getWatches(),
     getSubscription(),
   ]);
+  const preferredBrands: string[] =
+    (user?.user_metadata?.preferred_brands as string[]) ?? [];
   const max = PLAN_LIMITS[subscription.plan];
   const activeCount = watches.filter((w) => w.is_active).length;
   const isLimitReached = activeCount >= max;
@@ -80,6 +84,10 @@ async function DashboardContent() {
           </Link>
         )}
       </header>
+
+      {preferredBrands.length > 0 && (
+        <QuickAddBrand brands={preferredBrands} />
+      )}
 
       {watches.length === 0 ? (
         <EmptyState />
