@@ -28,6 +28,26 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Disable Chromium sandbox for container environments (Railway).
+# scrapling's PlaywrightEngine hard-codes chromium_sandbox=True which
+# crashes on Docker/container runtimes that lack kernel sandbox support.
+# We monkey-patch before any scrapling imports run.
+def _patch_playwright_sandbox() -> None:
+    try:
+        from scrapling.engines.pw import PlaywrightEngine
+        _orig = PlaywrightEngine._PlaywrightEngine__launch_kwargs
+
+        def _patched(self):
+            kw = _orig(self)
+            kw["chromium_sandbox"] = False
+            return kw
+
+        PlaywrightEngine._PlaywrightEngine__launch_kwargs = _patched
+    except Exception:
+        pass
+
+_patch_playwright_sandbox()
+
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------

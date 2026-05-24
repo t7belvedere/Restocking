@@ -825,7 +825,6 @@ async def analyze(url: str = Query(min_length=1)):
                 "disable_resources": True,
                 "timeout": 40000,
                 "wait": 3000,
-                "additional_arguments": ["--no-sandbox", "--disable-setuid-sandbox"],
             }
             if pw_proxy:
                 pw_kwargs["proxy"] = pw_proxy
@@ -848,7 +847,6 @@ async def analyze(url: str = Query(min_length=1)):
                 "hide_canvas": True,
                 "timeout": 30000,
                 "wait": 3000,
-                "additional_arguments": ["--no-sandbox", "--disable-setuid-sandbox"],
             }
             if pw_proxy:
                 pw3_kwargs["proxy"] = pw_proxy
@@ -881,7 +879,6 @@ async def analyze(url: str = Query(min_length=1)):
                 disable_resources=True,
                 timeout=20000,
                 wait=2000,
-                additional_arguments=["--no-sandbox", "--disable-setuid-sandbox"],
             )
             pw_html = getattr(pw_page, "html_content", "")
             if pw_html:

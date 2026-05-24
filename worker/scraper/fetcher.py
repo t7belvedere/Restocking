@@ -36,7 +36,6 @@ def _pw_kwargs(**overrides):
         "stealth": True,
         "hide_canvas": True,
         "disable_resources": True,
-        "additional_arguments": ["--no-sandbox", "--disable-setuid-sandbox"],
     }
     kw.update(overrides)
     if _pw_proxy:
