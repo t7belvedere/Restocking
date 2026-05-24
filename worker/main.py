@@ -89,7 +89,6 @@ def _is_due(watch: dict) -> bool:
     """Return True if enough time has elapsed since last_check for this watch."""
     last_check_raw = watch.get("last_check")
     if last_check_raw is None:
-        # New watch — always check immediately
         return True
 
     try:
@@ -102,6 +101,12 @@ def _is_due(watch: dict) -> bool:
             watch["id"],
             last_check_raw,
         )
+        return True
+
+    # Newly created watches: if last_check was set at creation time (by a DB
+    # default or trigger), still treat as due so the worker scrapes+enriches
+    # immediately instead of waiting for the full interval.
+    if watch.get("last_status") == "UNKNOWN" and watch.get("name") is None:
         return True
 
     interval = CHECK_INTERVAL_PRO if watch.get("plan") == "pro" else CHECK_INTERVAL_FREE

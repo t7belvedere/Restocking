@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { WatchList, WatchListSkeleton } from "@/components/dashboard/watch-list";
+import { AutoRefresh } from "@/components/dashboard/auto-refresh";
 import { cn } from "@/lib/utils";
 import { getSubscription, getWatches } from "@/lib/data/watches";
 import { PLAN_LIMITS } from "@/lib/supabase/types";
@@ -11,6 +12,7 @@ import { PLAN_LIMITS } from "@/lib/supabase/types";
 export default async function DashboardPage() {
   return (
     <Suspense fallback={<DashboardLoading />}>
+      <AutoRefresh intervalSeconds={60} />
       <DashboardContent />
     </Suspense>
   );
