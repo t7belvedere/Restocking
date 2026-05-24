@@ -7,12 +7,15 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Animated,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
+import { getSubscription, type SubscriptionInfo } from "@/lib/stripe";
 import { brutalSm, brutal } from "@/lib/shadows";
+import { useFadeUp, useScaleIn, useStaggerList } from "@/lib/animations";
 import { useRouter } from "expo-router";
 import {
   Bell,
@@ -160,29 +163,32 @@ function StatCard({
 // Empty State
 // ---------------------------------------------------------------------------
 
-function EmptyState({ onAdd }: { onAdd: () => void }) {
+function EmptyState({ onAdd, t }: { onAdd: () => void; t: any }) {
+  const fadeUp = useFadeUp();
+
   return (
-    <View className="mx-4 items-center rounded-3xl border-2 border-dashed border-ink/30 px-6 py-12">
-      <View className="mb-5 h-16 w-16 items-center justify-center rounded-2xl bg-lime">
-        <Bell size={28} color="#0b0b0b" strokeWidth={2.5} />
-      </View>
-      <Text className="mb-2 text-center font-display text-lg text-ink">
-        Prêt à commencer ?
-      </Text>
-      <Text className="mb-6 text-center font-sans text-sm leading-relaxed text-ink/50">
-        Ajoute ton premier article à surveiller. On t'envoie une alerte dès
-        qu'il est de nouveau disponible.
-      </Text>
-      <TouchableOpacity
-        onPress={onAdd}
-        className="w-full rounded-xl border-2 border-ink bg-orange py-3.5 shadow-brutal active:translate-y-0.5"
-        activeOpacity={0.8}
-      >
-        <Text className="text-center font-display text-base font-bold text-white">
-          Ajouter une alerte
+    <Animated.View style={fadeUp}>
+      <View className="mx-4 items-center rounded-3xl border-2 border-dashed border-ink/30 px-6 py-12">
+        <View className="mb-5 h-16 w-16 items-center justify-center rounded-2xl bg-lime">
+          <Bell size={28} color="#0b0b0b" strokeWidth={2.5} />
+        </View>
+        <Text className="mb-2 text-center font-display text-lg text-ink">
+          {t.readyToStart}
         </Text>
-      </TouchableOpacity>
-    </View>
+        <Text className="mb-6 text-center font-sans text-sm leading-relaxed text-ink/50">
+          {t.readyToStartDesc}
+        </Text>
+        <TouchableOpacity
+          onPress={onAdd}
+          className="w-full rounded-xl border-2 border-ink bg-orange py-3.5 shadow-brutal active:translate-y-0.5"
+          activeOpacity={0.8}
+        >
+          <Text className="text-center font-display text-base font-bold text-white">
+            {t.addAlert}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </Animated.View>
   );
 }
 
@@ -193,14 +199,17 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
 function WatchListItem({
   watch,
   onPress,
+  style,
 }: {
   watch: Watch;
   onPress: () => void;
+  style?: any;
 }) {
   const inStock = isInStock(watch);
   const domain = getDomainLabel(watch);
 
   return (
+    <Animated.View style={style}>
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.95}
@@ -271,6 +280,7 @@ function WatchListItem({
       {/* Chevron */}
       <ChevronRight size={18} color="#0b0b0b" style={{ opacity: 0.3 }} />
     </TouchableOpacity>
+    </Animated.View>
   );
 }
 
@@ -354,20 +364,26 @@ export default function Dashboard() {
   const insets = useSafeAreaInsets();
 
   const [watches, setWatches] = useState<Watch[]>([]);
+  const [sub, setSub] = useState<SubscriptionInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const staggerStyle = useStaggerList(watches.length);
 
   const fetchWatches = useCallback(async () => {
     if (!user) return;
-    const { data, error } = await supabase
-      .from("watches")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+    const [watchRes, subRes] = await Promise.all([
+      supabase
+        .from("watches")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
+      getSubscription(),
+    ]);
 
-    if (!error && data) {
-      setWatches(data as Watch[]);
+    if (!watchRes.error && watchRes.data) {
+      setWatches(watchRes.data as Watch[]);
     }
+    setSub(subRes);
     setLoading(false);
   }, [user]);
 
@@ -447,7 +463,7 @@ export default function Dashboard() {
 
         <View className="px-4 pb-4">
           <Text className="font-display text-2xl text-ink">
-            Bonjour{firstName ? ` ${firstName}` : ""}
+            {t.greeting}{firstName ? ` ${firstName}` : ""}
           </Text>
           <View className="mt-1 h-1 w-16 rounded-full bg-lime" />
         </View>
@@ -458,13 +474,13 @@ export default function Dashboard() {
           <StatCard
             icon={<Bell size={18} color="#fff" strokeWidth={2.5} />}
             iconBg="bg-orange"
-            label="Alertes actives"
+            label={t.activeAlerts}
             value={String(activeAlerts)}
           />
           <StatCard
             icon={<PackageCheck size={18} color="#0b0b0b" strokeWidth={2.5} />}
             iconBg="bg-lime"
-            label="En stock"
+            label={t.inStockCount}
             value={String(inStockCount)}
           />
         </View>
@@ -472,14 +488,14 @@ export default function Dashboard() {
           <StatCard
             icon={<Clock size={18} color="#fff" strokeWidth={2.5} />}
             iconBg="bg-blue"
-            label="Dernière vérif"
+            label={t.lastCheck}
             value={lastCheckedLabel}
           />
           <StatCard
             icon={<Crown size={18} color="#0b0b0b" strokeWidth={2.5} />}
             iconBg="bg-cream"
-            label="Abonnement"
-            value="Gratuit"
+            label={t.planLabel}
+            value={sub?.plan === "pro" ? "Pro" : t.freePlan}
           />
         </View>
 
@@ -493,7 +509,7 @@ export default function Dashboard() {
         >
           <Plus size={20} color="#fff" strokeWidth={3} />
           <Text className="font-display text-lg font-bold text-white">
-            Ajouter une alerte
+            {t.addAlert}
           </Text>
         </TouchableOpacity>
 
@@ -501,17 +517,17 @@ export default function Dashboard() {
 
         {watches.length > 0 && (
           <Text className="mb-3 px-4 font-display text-lg text-ink">
-            Mes alertes
+            {t.myAlerts}
           </Text>
         )}
 
         {/* ── Watch list ───────────────────────────────────────────── */}
 
         {watches.length === 0 ? (
-          <EmptyState onAdd={() => router.push("/add" as any)} />
+          <EmptyState onAdd={() => router.push("/add" as any)} t={t} />
         ) : (
           <View className="px-4">
-            {watches.map((watch) => (
+            {watches.map((watch, i) => (
               <WatchListItem
                 key={watch.id}
                 watch={watch}
@@ -520,6 +536,7 @@ export default function Dashboard() {
                     `/watch/${watch.id}` as any
                   )
                 }
+                style={staggerStyle(i)}
               />
             ))}
           </View>

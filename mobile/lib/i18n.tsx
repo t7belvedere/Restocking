@@ -43,7 +43,7 @@ const translations = {
     freePlan: "Gratuit",
     proPlan: "Pro",
     upgrade: "Passer à Pro",
-    manageSubscription: "Gérer l'abonnement",
+    manageSubscription: "Gérer",
     language: "Langue",
     account: "Compte",
     subscription: "Abonnement",
@@ -73,6 +73,32 @@ const translations = {
     deleteAccountMessage:
       "Toutes tes données seront définitivement supprimées. Cette action est irréversible.",
     deleteConfirm: "Supprimer",
+    // Dashboard
+    greeting: "Bonjour",
+    activeAlerts: "Alertes actives",
+    inStockCount: "En stock",
+    lastCheck: "Dernière vérif",
+    planLabel: "Abonnement",
+    addAlert: "Ajouter une alerte",
+    myAlerts: "Mes alertes",
+    readyToStart: "Prêt à commencer ?",
+    readyToStartDesc:
+      "Ajoute ton premier article à surveiller. On t'envoie une alerte dès qu'il est de nouveau disponible.",
+    renewalOn: "Renouvellement le",
+    activeSubscription: "Abonnement actif",
+    dangerZoneDesc:
+      "Une fois supprimées, toutes tes données seront définitivement effacées. Cette action est irréversible.",
+    // Add screen
+    pasteProductUrl: "Colle l'URL du produit",
+    manualSize: "Taille manuelle",
+    fetching: "Analyse en cours...",
+    alertCreated: "Alerte créée !",
+    // Watch detail
+    watchDetail: "Détail de l'alerte",
+    pause: "Mettre en pause",
+    reactivate: "Réactiver",
+    deleteWatch: "Supprimer",
+    checkLog: "Historique des vérifications",
   },
   en: {
     dashboard: "Dashboard",
@@ -113,7 +139,7 @@ const translations = {
     freePlan: "Free",
     proPlan: "Pro",
     upgrade: "Upgrade to Pro",
-    manageSubscription: "Manage subscription",
+    manageSubscription: "Manage",
     language: "Language",
     account: "Account",
     subscription: "Subscription",
@@ -142,6 +168,32 @@ const translations = {
     deleteAccountMessage:
       "All your data will be permanently deleted. This action is irreversible.",
     deleteConfirm: "Delete",
+    // Dashboard
+    greeting: "Hello",
+    activeAlerts: "Active alerts",
+    inStockCount: "In stock",
+    lastCheck: "Last check",
+    planLabel: "Plan",
+    addAlert: "Add an alert",
+    myAlerts: "My alerts",
+    readyToStart: "Ready to start?",
+    readyToStartDesc:
+      "Add your first item to watch. We'll notify you as soon as it's back in stock.",
+    renewalOn: "Renews on",
+    activeSubscription: "Active subscription",
+    dangerZoneDesc:
+      "Once deleted, all your data will be permanently erased. This action is irreversible.",
+    // Add screen
+    pasteProductUrl: "Paste the product URL",
+    manualSize: "Manual size",
+    fetching: "Analyzing...",
+    alertCreated: "Alert created!",
+    // Watch detail
+    watchDetail: "Alert detail",
+    pause: "Pause",
+    reactivate: "Reactivate",
+    deleteWatch: "Delete",
+    checkLog: "Check history",
   },
 };
 

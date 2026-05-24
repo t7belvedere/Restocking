@@ -10,8 +10,8 @@ import {
 import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
-import { supabase } from "@/lib/supabase";
 import { getSubscription, openPortal, type SubscriptionInfo } from "@/lib/stripe";
+import { deleteAccount } from "@/lib/api";
 import { brutal, brutalSm } from "@/lib/shadows";
 import { Crown, ArrowRight } from "lucide-react-native";
 
@@ -57,11 +57,9 @@ export default function SettingsScreen() {
         style: "destructive",
         onPress: async () => {
           setDeleting(true);
-          const { error } = await supabase.auth.admin?.deleteUser(
-            user?.id ?? "",
-          );
-          if (error) {
-            Alert.alert("Erreur", error.message);
+          const result = await deleteAccount();
+          if (!result.ok) {
+            Alert.alert("Erreur", result.error ?? "Échec de la suppression.");
             setDeleting(false);
             return;
           }
@@ -84,6 +82,8 @@ export default function SettingsScreen() {
         { year: "numeric", month: "long", day: "numeric" },
       )
     : null;
+
+  const isPro = sub?.plan === "pro";
 
   return (
     <ScrollView
@@ -196,9 +196,9 @@ export default function SettingsScreen() {
                 <Text className="mt-1 font-sans text-sm text-ink/50">
                   {isPro
                     ? periodEndLabel
-                      ? `Renouvellement le ${periodEndLabel}`
-                      : "Abonnement actif"
-                    : "3 alertes actives max"}
+                      ? `${t.renewalOn} ${periodEndLabel}`
+                      : t.activeSubscription
+                    : t.freePlanDesc ?? "3 alertes actives max"}
                 </Text>
               </View>
               {isPro ? (
@@ -209,7 +209,7 @@ export default function SettingsScreen() {
                   activeOpacity={0.8}
                 >
                   <Text className="font-display text-xs font-bold uppercase tracking-widest text-ink">
-                    Gérer
+                    {t.manageSubscription}
                   </Text>
                   <ArrowRight size={14} color="#0b0b0b" />
                 </TouchableOpacity>
@@ -237,8 +237,7 @@ export default function SettingsScreen() {
       </Text>
       <View className="mt-3 rounded-2xl border border-destructive/40 bg-destructive/5 p-5">
         <Text className="mb-4 font-sans text-sm leading-relaxed text-ink/50">
-          Une fois supprimées, toutes tes données seront définitivement
-          effacées. Cette action est irréversible.
+          {t.dangerZoneDesc}
         </Text>
         <TouchableOpacity
           className="h-12 items-center justify-center rounded-xl border-2 border-destructive bg-destructive"
