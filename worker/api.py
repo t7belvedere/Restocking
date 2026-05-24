@@ -170,7 +170,18 @@ def _extract_variants(html: str) -> list[str]:
                  "carte", "paypal", "visa", "mastercard", "livraison", "retour",
                  "javel", "blanchiment", "recyclage", "certifié", "qualité",
                  "nettoyage", "repassage", "séchage", "lavage", "blanchiment",
-                 "interdit", "séchage", "javel"}
+                 "interdit", "séchage", "javel",
+                 # Payment / trust / ui
+                 "american express", "apple pay", "klarna", "alma", "oney",
+                 "trustpilot", "france", "fr", "en", "de", "es", "it",
+                 # Navigation
+                 "accueil", "home", "boutique", "shop", "magasin", "store",
+                 "compte", "account", "connexion", "login", "panier", "cart",
+                 "recherche", "search", "menu", "fermer", "close",
+                 # Badges / flags
+                 "drapeau", "flag", "paiement", "payment", "livraison", "delivery",
+                 "réduction", "discount", "solde", "sale", "nouveau", "new",
+                 "promo", "promotion", "cadeau", "gift"}
     for m in re.finditer(
         r'<img[^>]+alt=["\']([^"\']{1,30})["\'][^>]*>',
         html, re.IGNORECASE,
@@ -271,16 +282,31 @@ def _prepare_html_for_llm(html: str, page, url: str) -> str:
     if metas:
         parts.append("Meta:\n" + "\n".join(metas))
 
-    # JSON-LD
+    # JSON-LD (all blocks — products, itemList, etc.)
+    jsonld_blocks: list[str] = []
     for m in re.finditer(
         r'<script[^>]+type="application/ld\+json"[^>]*>(.*?)</script>',
         html, re.DOTALL,
     ):
         try:
             data = json.loads(m.group(1))
-            parts.append(f"JSON-LD: {json.dumps(data, ensure_ascii=False)[:6000]}")
+            jsonld_blocks.append(json.dumps(data, ensure_ascii=False)[:4000])
         except Exception:
             pass
+    if jsonld_blocks:
+        parts.append("JSON-LD:\n" + "\n---\n".join(jsonld_blocks))
+
+    # Microdata (itemprop/product) — schema.org attributes in HTML
+    microdata: list[str] = []
+    for m in re.finditer(
+        r'<[^>]+itemprop=["\']([^"\']+)["\'][^>]*>(?:<[^>]+>)*([^<]{1,200})',
+        html, re.I,
+    ):
+        prop, val = m.group(1), m.group(2).strip()
+        if val and prop in ("name", "price", "color", "size", "sku", "productID", "image"):
+            microdata.append(f"  {prop}: {val}")
+    if microdata:
+        parts.append("Microdata:\n" + "\n".join(microdata[:30]))
 
     # Select dropdowns
     if page is not None:
@@ -290,7 +316,7 @@ def _prepare_html_for_llm(html: str, page, url: str) -> str:
                 opts: list[str] = []
                 for opt in sel.css("option"):
                     txt = (opt.get_all_text() or "").strip()
-                    if txt and txt not in ("--", "-", "Select", "Choisir", "Sélectionner"):
+                    if txt and txt not in ("--", "-", "Select", "Choisir", "Sélectionner", "Please select", "Select size", "Select color"):
                         opts.append(txt)
                 if opts:
                     parts.append(f"Select '{name}': {', '.join(opts)}")
@@ -311,7 +337,7 @@ def _prepare_html_for_llm(html: str, page, url: str) -> str:
     if data_sizes:
         parts.append(f"Available sizes (data-size): {', '.join(sorted(data_sizes))}")
 
-    # Aria-labels on buttons/links inside product sections (color/size selectors)
+    # Aria-labels on ALL interactive elements (buttons, links, options)
     if page is not None:
         try:
             color_candidates: set[str] = set()
@@ -319,17 +345,21 @@ def _prepare_html_for_llm(html: str, page, url: str) -> str:
             other_labels: set[str] = set()
             for sel in (
                 "button[aria-label]",
+                "a[aria-label]",
+                "li[aria-label]",
+                "option[aria-label]",
                 "[class*=product] [aria-label]",
                 "[class*=selector] [aria-label]",
                 "[class*=color] [aria-label]",
                 "[class*=size] [aria-label]",
+                "[class*=swatch] [aria-label]",
             ):
                 for el in page.css(sel):
                     label = (el.attrib.get("aria-label") or "").strip()
-                    if not label or len(label) > 30:
+                    if not label or len(label) > 40:
                         continue
                     # Heuristic: if it looks like a color word, put in color_candidates
-                    if re.search(r"(?:Bleu|Blanc|Noir|Rouge|Jaune|Vert|Rose|Gris|Brun|Orange|Violet|Marron|Beige|Ivoire|Kaki|Argent|Doré|Turquoise|Bordeaux|Lavande)", label, re.I):
+                    if re.search(r"(?:Bleu|Blanc|Noir|Rouge|Jaune|Vert|Rose|Gris|Brun|Orange|Violet|Marron|Beige|Ivoire|Kaki|Argent|Doré|Turquoise|Bordeaux|Lavande|White|Black|Red|Blue|Green|Pink|Grey|Brown|Purple|Silver|Gold|Navy|Cream)", label, re.I):
                         color_candidates.add(label)
                     elif label.upper() in SIZE_TOKENS or re.match(r"^\d{1,2}$", label):
                         size_candidates.add(label)
@@ -345,24 +375,80 @@ def _prepare_html_for_llm(html: str, page, url: str) -> str:
         except Exception:
             pass
 
-    # Visible text from product-related sections (first ~2000 chars)
+    # data-value / value attributes on buttons/options (variant selectors)
     if page is not None:
         try:
+            data_values: set[str] = set()
+            for sel in ("button[data-value]", "option[value]", "li[data-value]", "[data-index]"):
+                for el in page.css(sel):
+                    for attr in ("data-value", "value", "data-size"):
+                        val = el.attrib.get(attr, "").strip()
+                        if val and len(val) <= 30 and val not in ("", "--", "default"):
+                            data_values.add(val)
+            if data_values:
+                parts.append(f"Variant values: {', '.join(sorted(data_values)[:30])}")
+        except Exception:
+            pass
+
+    # Visible text from product-related sections
+    if page is not None:
+        try:
+            body_texts: list[str] = []
             for sel in (
                 "[class*=product-detail]",
                 "[class*=product-info]",
                 "[class*=pdp]",
                 "main",
+                "[id*=product]",
                 "[class*=product]",
             ):
                 els = page.css(sel)
-                if els:
-                    txt = els[0].get_all_text()
+                for el in els[:2]:
+                    txt = el.get_all_text()
                     if isinstance(txt, str) and len(txt) > 50:
-                        parts.append(f"Body text: {txt[:2000]}")
+                        # Clean: collapse whitespace, remove excessive blank lines
+                        cleaned = re.sub(r"\n\s*\n", "\n", txt)
+                        body_texts.append(cleaned[:2500])
                         break
+                if body_texts:
+                    break
+            if body_texts:
+                parts.append(f"Body text: {body_texts[0]}")
         except Exception:
             pass
+
+    # Embedded variant JSON in script tags (ASOS, Boohoo, many others).
+    # Find script blocks that contain size/variant/colour arrays or objects.
+    variant_scripts: list[str] = []
+    for m in re.finditer(
+        r'<script[^>]*>(.*?)</script>',
+        html, re.DOTALL,
+    ):
+        content = m.group(1)
+        # Skip tiny scripts, JSON-LD (already extracted), and analytics
+        if len(content) < 200 or '"@context"' in content:
+            continue
+        # Look for variant/size/color data patterns
+        has_size = bool(re.search(r'"size"\s*:\s*"([A-Z0-9]{1,6})"', content))
+        has_color = bool(re.search(r'"(?:color|colour|colorName|colourName)"\s*:\s*"([^"]+)"', content))
+        has_variants = bool(re.search(r'"(?:variants|sizes|productVariants|variantSkus)"\s*:\s*\[', content))
+        if has_size or has_color or has_variants:
+            # Extract just the relevant JSON portions
+            # Find "variants" arrays
+            for vm in re.finditer(
+                r'"(?:variants|sizes|productVariants|variantSkus)"\s*:\s*(\[.*?\](?=\s*[,}]))',
+                content, re.DOTALL,
+            ):
+                variant_scripts.append(vm.group(0)[:3000])
+            # Find size/color key-value pairs with context
+            size_matches = re.findall(r'"size"\s*:\s*"[^"]{1,12}"', content)
+            color_matches = re.findall(r'"(?:color|colour|colorName|colourName)"\s*:\s*"[^"]{1,40}"', content)
+            if size_matches or color_matches:
+                variant_scripts.append(
+                    "Variants: " + ", ".join((size_matches + color_matches)[:40])
+                )
+    if variant_scripts:
+        parts.append("Variant data:\n" + "\n".join(variant_scripts[:10]))
 
     return "\n\n".join(parts)
 
@@ -780,11 +866,23 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
         # Exact size token match
         if t.upper() in _SIZE_SET:
             return ("size", t)
-        # Short uppercase alphanumeric → size
-        if re.fullmatch(r"[A-Z0-9 .\-]{1,6}", t) and len(t) <= 8:
-            return ("size", t)
-        # Pure numeric → size
+        # Pure numeric: only classify as size if it looks like a clothing size
+        # EU sizes: 34-50, UK/US sizes: 0-24, waist sizes: 26-40, shoe sizes: 36-46
         if t.isdigit():
+            n = int(t)
+            if 32 <= n <= 52:   # EU clothing
+                return ("size", t)
+            if 24 <= n <= 34:   # Waist/denim
+                return ("size", t)
+            if 2 <= n <= 22:    # US/UK numeric (2-22)
+                return ("size", t)
+            # Single digit or value outside known ranges → not a size (qty, other)
+            return None
+        # Alphanumeric with letters: sizes like "W32", "US4", "UK8", "EU36"
+        if re.fullmatch(r"[A-Z]?\s*\d{1,2}", t) and 2 <= len(t) <= 5:
+            return ("size", t)
+        # Short uppercase alphanumeric with at least one letter (XS, XL, XXL variants)
+        if re.fullmatch(r"[A-Z0-9 .\-]{1,6}", t) and len(t) <= 8 and re.search(r"[A-Z]", t):
             return ("size", t)
         # Multi-word: check if it contains a known color or size
         words = t.upper().split()
@@ -806,6 +904,85 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
             "favori", "favoris", "wishlist", "blog", "magazine", "journal",
             "zalando", "zara", "cos", "hm", "uniqlo", "bershka", "pimkie",
             "stüssy", "stussy", "nike", "adidas", "puma",
+            # Payment methods
+            "american express", "apple pay", "klarna", "paypal", "visa", "mastercard",
+            "amex", "cartes bancaires", "cartes", "carte bancaire", "cb", "sepa",
+            "virement", "chèque", "cheque", "paiement en", "fois", "mensualité",
+            "alma", "oney", "floa", "scalapay",
+            # Navigation / UI chrome
+            "accueil", "home", "boutique", "shop", "nouveautés", "collection",
+            "vêtements", "vetements", "chaussures", "accessoires", "sacs",
+            "maillots", "lingerie", "sport", "beauté", "beaute", "parfums",
+            "décoration", "decoration", "meubles", "cuisine", "salle de bain",
+            "idées cadeaux", "idees cadeaux", "carte cadeau", "carte",
+            "électroménager", "electromenager", "high-tech", "informatique",
+            "librairie", "papeterie", "alimentaire", "épicerie", "epicerie",
+            "lifestyle", "culture", "musique", "vidéo", "video", "jeux",
+            "top categories", "top brands", "nos marques", "nos produits",
+            "découvrir", "decouvrir", "explorer", "s'inspirer", "sinspirer",
+            "lookbook", "campagne", "édito", "edito", "éditorial", "editorial",
+            # Product category labels
+            "robes", "robes longues", "robes courtes", "robes midi",
+            "pulls", "gilets", "manteaux", "vestes", "blousons", "pardessus",
+            "chemises", "chemisiers", "tops", "t-shirts", "t shirt", "tshirt",
+            "pantalons", "jeans", "jupes", "shorts", "bermudas",
+            "sweats", "hoodies", "survêtements", "survetements",
+            "costumes", "blazers", "tailleurs", "combinaisons", "combinaison",
+            "maillots de bain", "bikinis", "tankinis",
+            "sous-vêtements", "sous vetements", "soutiens-gorge", "culottes",
+            "chaussettes", "collants", "leggings", "cyclistes",
+            "baskets", "bottes", "sandales", "escarpins", "mocassins", "derbies",
+            "sneakers", "talons", "plates", "compensées", "compensees",
+            "lunettes", "bijoux", "montres", "ceintures", "foulards", "écharpes",
+            "bonnets", "casquettes", "chapeaux", "gants",
+            "bagues", "bracelets", "colliers", "boucles d'oreilles",
+            "doudounes", "parkas", "trenchs", "imperméables",
+            "polos", "débardeurs", "debardeurs", "caracos", "bodys",
+            "mailles", "maille", "coton", "lin", "laine", "soie", "cuir", "daim",
+            "cachemire", "jean", "denim", "jersey", "gaze", "gaze de coton",
+            "viscose", "polyester", "élasthanne", "elastanne", "nylon", "acrylique",
+            "popeline", "oxford", "twill", "velours", "satin", "mousseline",
+            "gabardine", "tweed", "jacquard", "broderie", "crochet",
+            "sélectionné", "selectionne", "selected", "not selected",
+            "ausgewählt", "nicht ausgewählt", "selezionato",
+            # Image gallery / carousel
+            "vignette", "thumbnail", "photo", "image", "vue", "zoom",
+            "diaporama", "carrousel", "carousel", "slide", "slider",
+            "précédent", "precedent", "suivant", "next", "previous",
+            "agrandir", "plein écran", "plein ecran", "fullscreen",
+            # Cookie / consent
+            "cookie", "cookies", "consentement", "consent", "privacy",
+            "confidentialité", "confidentialite", "rgpd", "gdpr",
+            "optanon", "onetrust", "didomi", "axeptio",
+            # Trustpilot / avis
+            "trustpilot", "avis", "reviews", "évaluations", "evaluations",
+            "note", "rating", "étoile", "etoile", "stars", "étoiles",
+            # Social / sharing
+            "facebook", "instagram", "twitter", "pinterest", "tiktok",
+            "youtube", "linkedin", "snapchat", "whatsapp", "messenger",
+            "partager", "share", "partage", "suivre", "follow", "s'abonner",
+            "newsletter", "inscription", "subscribe", "sign up", "signup",
+            # Powered by
+            "powered by", "propulsé par", "propulse par",
+            # Size / fit labels
+            "regular", "slim", "skinny", "loose", "oversize", "relaxed",
+            "tailored", "straight", "cropped", "long", "court",
+            "longue", "courte", "mi-long", "mi long", "longueur",
+            "coupe", "fit", "fitté", "fitte", "ample", "ajusté", "ajuste",
+            # Misc UI
+            "fermer", "close", "retour", "haut de page", "back to top",
+            "menu", "burger", "hamburger", "recherche", "chercher",
+            "search", "ok", "cancel", "annuler", "save", "enregistrer",
+            "submit", "envoyer", "reset", "réinitialiser", "reinitialiser",
+            "clear", "effacer", "apply", "appliquer", "filtrer", "filter",
+            "trier", "sort", "tri", "ordre", "order",
+            "vues", "views", "résultats", "results", "produits", "products",
+            "articles", "items", "référence", "reference", "ref",
+            "sku", "ean", "upc", "gtin", "isbn",
+            "taille", "size", "couleur", "color", "quantité", "quantity", "qty",
+            "description", "détails", "details", "composition", "entretien",
+            "livraison", "retour", "échange", "echange", "remboursement",
+            "guide", "guide des tailles", "size guide", "tableau",
         }
         words_lower = t.lower().split()
         if any(w in _NOT_COLOR for w in words_lower):
@@ -928,6 +1105,16 @@ def _extract_css_image(page, url: str = "") -> str | None:
     product_domain = _urlparse(url).netloc if url else ""
     _BAD_DOMAINS = {"cookielaw.org", "onetrust.com", "google.com", "facebook.net",
                     "doubleclick.net", "googletagmanager.com", "consensu.org"}
+    _BAD_PATH_FRAGMENTS = {
+        "flag", "flags", "drapeau", "drapeaux", "logo", "logos", "icon", "icons",
+        "picto", "pictos", "pictogram", "pictograms", "avatar", "favicon",
+        "banner", "banniere", "pub", "advertisement", "ad/", "/ad-",
+        "payment", "paiement", "trustpilot", "badge", "badges", "label",
+        "cookie", "cookies", "consent", "optanon", "onetrust",
+        "footer", "header", "sidebar", "widget", "button", "btn",
+        "spinner", "loader", "placeholder", "swatch", "pixel",
+        "1x1", "tracking", "beacon", "analytics", "pixel.gif",
+    }
 
     try:
         imgs = page.css("img")
@@ -943,11 +1130,15 @@ def _extract_css_image(page, url: str = "") -> str | None:
             if not src:
                 continue
             low = src.lower()
+            # Skip data: URIs (SVG placeholders, inline icons)
+            if low.startswith("data:"):
+                continue
             if "transparent" in low:
                 continue
             if _re.search(r"\.svg(\?|$)", low):
                 continue
-            if any(bad in low for bad in ("/pixel", "/akam", "tracking", "beacon")):
+            # Skip tracking pixels, Akamai, flags, icons, logos
+            if any(bad in low for bad in _BAD_PATH_FRAGMENTS):
                 continue
 
             # Skip known non-product domains (substring match)
@@ -990,7 +1181,7 @@ def _extract_css_image(page, url: str = "") -> str | None:
             low = src.lower()
             if not src or "transparent" in low or _re.search(r"\.svg(\?|$)", low):
                 continue
-            if any(bad in low for bad in ("/pixel", "/akam", "tracking", "beacon")):
+            if any(bad in low for bad in _BAD_PATH_FRAGMENTS):
                 continue
             try:
                 if any(bad in _urlparse(src).netloc.lower() for bad in _BAD_DOMAINS):
