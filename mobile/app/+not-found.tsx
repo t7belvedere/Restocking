@@ -1,21 +1,27 @@
-import { Link, Stack } from "expo-router";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
+import { Link } from "expo-router";
+import { brutal } from "@/lib/shadows";
 
-export default function NotFound() {
+export default function NotFoundScreen() {
   return (
-    <View style={s.container}>
-      <Stack.Screen options={{ title: "Not Found" }} />
-      <Text style={s.title}>404</Text>
-      <Link href="/" style={s.link}>
-        <Text style={s.linkText}>Go home</Text>
+    <View className="flex-1 items-center justify-center bg-cream p-8">
+      <Text className="font-display text-8xl font-extrabold text-ink">
+        404
+      </Text>
+      <Text className="mt-4 font-sans text-lg text-ink-soft">
+        Page introuvable
+      </Text>
+      <Link href="/(tabs)" asChild>
+        <TouchableOpacity
+          className="mt-8 h-12 items-center justify-center rounded-xl border-2 border-ink bg-orange px-8"
+          style={brutal}
+          activeOpacity={0.8}
+        >
+          <Text className="font-display text-sm font-bold uppercase tracking-widest text-ink">
+            Go home
+          </Text>
+        </TouchableOpacity>
       </Link>
     </View>
   );
 }
-
-const s = StyleSheet.create({
-  container: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#F9F8F6", gap: 16 },
-  title: { fontSize: 32, fontWeight: "700", color: "#262626" },
-  link: { borderRadius: 10, borderWidth: 2, borderColor: "#262626", backgroundColor: "#F85C15", paddingHorizontal: 24, paddingVertical: 14 },
-  linkText: { fontSize: 16, fontWeight: "700", color: "#FFF" },
-});

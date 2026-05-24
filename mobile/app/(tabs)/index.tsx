@@ -1,86 +1,55 @@
-import { useEffect, useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
-  FlatList,
-  RefreshControl,
-  TouchableOpacity,
+  ScrollView,
   Image,
+  TouchableOpacity,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { supabase } from "@/lib/supabase";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
-import { brutal, brutalSm } from "@/lib/shadows";
+import { supabase } from "@/lib/supabase";
+import { brutalSm, brutal } from "@/lib/shadows";
+import { useRouter } from "expo-router";
+import {
+  Bell,
+  PackageCheck,
+  Clock,
+  Crown,
+  Plus,
+  ChevronRight,
+} from "lucide-react-native";
 
-// ── Types ────────────────────────────────────────────────────────────────
-type WatchStatus = "IN_STOCK" | "OUT_OF_STOCK" | "UNKNOWN";
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 interface Watch {
   id: string;
-  name: string | null;
-  image_url: string | null;
-  variant_label: string | null;
-  size_label: string | null;
-  price: number | null;
-  currency: string | null;
-  in_stock: boolean | null;
-  last_status: WatchStatus | null;
-  last_checked_at: string | null;
-  last_check: string | null;
-  url: string;
-  is_active: boolean | null;
+  user_id: string;
+  name: string;
+  image_url?: string | null;
+  domain?: string | null;
+  url?: string | null;
+  size?: string | null;
+  price?: number | null;
+  currency?: string;
+  status?: string | null;
+  in_stock?: boolean | null;
+  is_in_stock?: boolean | null;
+  last_checked_at?: string | null;
+  updated_at?: string | null;
   created_at: string;
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
-function formatPrice(
-  value: number | null | undefined,
-  currency?: string | null,
-): string {
-  if (value == null || Number.isNaN(value)) return "—";
-  try {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: currency ?? "EUR",
-      maximumFractionDigits: 2,
-    }).format(value);
-  } catch {
-    return `${value.toFixed(2)} €`;
-  }
-}
-
-function shortHost(url: string): string {
-  try {
-    const u = new URL(url);
-    return u.hostname.replace(/^www\./, "");
-  } catch {
-    return url;
-  }
-}
-
-function getStatus(w: Watch): WatchStatus {
-  if (w.last_status) return w.last_status;
-  if (w.in_stock === true) return "IN_STOCK";
-  if (w.in_stock === false) return "OUT_OF_STOCK";
-  return "UNKNOWN";
-}
-
-function relativeTime(iso: string | null): string {
-  if (!iso) return "—";
-  const diff = Date.now() - new Date(iso).getTime();
-  const sec = Math.floor(diff / 1000);
-  if (sec < 60) return `il y a ${sec}s`;
-  const min = Math.floor(sec / 60);
-  if (min < 60) return `il y a ${min} min`;
-  const hours = Math.floor(min / 60);
-  if (hours < 24) return `il y a ${hours}h`;
-  return `il y a ${Math.floor(hours / 24)}j`;
-}
-
-const WEEKDAYS_FR = [
+const DAYS = [
   "Dimanche",
   "Lundi",
   "Mardi",
@@ -89,8 +58,7 @@ const WEEKDAYS_FR = [
   "Vendredi",
   "Samedi",
 ];
-
-const MONTHS_FR = [
+const MONTHS = [
   "Janvier",
   "Février",
   "Mars",
@@ -106,394 +74,457 @@ const MONTHS_FR = [
 ];
 
 function formatFrenchDate(date: Date): string {
-  const weekday = WEEKDAYS_FR[date.getDay()];
-  const day = date.getDate();
-  const month = MONTHS_FR[date.getMonth()];
-  return `${weekday} ${day} ${month}`;
+  return `${DAYS[date.getDay()]} ${date.getDate()} ${MONTHS[date.getMonth()]}`;
 }
 
-// ── Stat icon (emoji in colored circle) ──────────────────────────────────
-function StatIcon({ emoji, bg }: { emoji: string; bg: string }) {
+function extractDomain(url: string | null | undefined): string {
+  if (!url) return "";
+  try {
+    const host = new URL(url).hostname;
+    return host.replace(/^www\./, "");
+  } catch {
+    return url
+      .replace(/^https?:\/\//, "")
+      .replace(/^www\./, "")
+      .split("/")[0];
+  }
+}
+
+function isInStock(watch: Watch): boolean {
+  if (watch.status === "IN_STOCK") return true;
+  if (watch.status === "OUT_OF_STOCK") return false;
+  if (typeof watch.in_stock === "boolean") return watch.in_stock;
+  if (typeof watch.is_in_stock === "boolean") return watch.is_in_stock;
+  return false;
+}
+
+function getDomainLabel(watch: Watch): string {
+  return watch.domain || extractDomain(watch.url) || "";
+}
+
+function formatRelativeTime(dateStr: string | null | undefined): string {
+  if (!dateStr) return "—";
+  const now = Date.now();
+  const then = new Date(dateStr).getTime();
+  const diffMs = now - then;
+  const diffMin = Math.floor(diffMs / 60000);
+  const diffH = Math.floor(diffMin / 60);
+
+  if (diffMin < 1) return "À l'instant";
+  if (diffMin < 60) return `Il y a ${diffMin} min`;
+  if (diffH < 24) return `Il y a ${diffH}h`;
+  const diffD = Math.floor(diffH / 24);
+  if (diffD === 1) return "Hier";
+  if (diffD < 7) return `Il y a ${diffD}j`;
+  return new Date(dateStr).toLocaleDateString("fr-FR");
+}
+
+// ---------------------------------------------------------------------------
+// Stat Card
+// ---------------------------------------------------------------------------
+
+function StatCard({
+  icon,
+  iconBg,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  iconBg: string;
+  label: string;
+  value: string;
+}) {
   return (
     <View
-      style={{ backgroundColor: bg }}
-      className="h-10 w-10 items-center justify-center rounded-full"
+      className="flex-1 rounded-2xl border-2 border-ink bg-paper p-4"
+      style={brutalSm}
     >
-      <Text className="text-base leading-none">{emoji}</Text>
-    </View>
-  );
-}
-
-// ── Status badge ─────────────────────────────────────────────────────────
-function StatusBadge({ status }: { status: WatchStatus }) {
-  if (status === "IN_STOCK") {
-    return (
-      <View className="rounded-full border border-ink/20 bg-lime/40 px-3 py-1">
-        <Text className="font-sans-semibold text-xs uppercase text-ink">
-          En stock
-        </Text>
+      <View
+        className={`mb-3 h-10 w-10 items-center justify-center rounded-full ${iconBg}`}
+      >
+        {icon}
       </View>
-    );
-  }
-  if (status === "OUT_OF_STOCK") {
-    return (
-      <View className="rounded-full border border-ink/20 bg-pink/40 px-3 py-1">
-        <Text className="font-sans-semibold text-xs uppercase text-ink">
-          Rupture
-        </Text>
-      </View>
-    );
-  }
-  return (
-    <View className="rounded-full border border-ink/20 bg-muted px-3 py-1">
-      <Text className="font-sans-semibold text-xs uppercase text-ink/50">
-        En attente
+      <Text
+        className="font-display text-xl text-ink"
+        numberOfLines={1}
+        adjustsFontSizeToFit
+      >
+        {value}
       </Text>
+      <Text className="mt-1 font-sans text-xs text-ink/50">{label}</Text>
     </View>
   );
 }
 
-// ── Dashboard ────────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// Empty State
+// ---------------------------------------------------------------------------
+
+function EmptyState({ onAdd }: { onAdd: () => void }) {
+  return (
+    <View className="mx-4 items-center rounded-3xl border-2 border-dashed border-ink/30 px-6 py-12">
+      <View className="mb-5 h-16 w-16 items-center justify-center rounded-2xl bg-lime">
+        <Bell size={28} color="#0b0b0b" strokeWidth={2.5} />
+      </View>
+      <Text className="mb-2 text-center font-display text-lg text-ink">
+        Prêt à commencer ?
+      </Text>
+      <Text className="mb-6 text-center font-sans text-sm leading-relaxed text-ink/50">
+        Ajoute ton premier article à surveiller. On t'envoie une alerte dès
+        qu'il est de nouveau disponible.
+      </Text>
+      <TouchableOpacity
+        onPress={onAdd}
+        className="w-full rounded-xl border-2 border-ink bg-orange py-3.5 shadow-brutal active:translate-y-0.5"
+        activeOpacity={0.8}
+      >
+        <Text className="text-center font-display text-base font-bold text-white">
+          Ajouter une alerte
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Watch List Item
+// ---------------------------------------------------------------------------
+
+function WatchListItem({
+  watch,
+  onPress,
+}: {
+  watch: Watch;
+  onPress: () => void;
+}) {
+  const inStock = isInStock(watch);
+  const domain = getDomainLabel(watch);
+
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.95}
+      className="mb-3 flex-row items-center rounded-2xl border-2 border-ink bg-paper p-4"
+      style={brutal}
+    >
+      {/* Thumbnail */}
+      {watch.image_url ? (
+        <Image
+          source={{ uri: watch.image_url }}
+          className="h-20 w-20 rounded-xl bg-muted"
+          resizeMode="cover"
+        />
+      ) : (
+        <View className="h-20 w-20 items-center justify-center rounded-xl bg-muted">
+          <Text className="font-mono text-xs text-ink/30">img</Text>
+        </View>
+      )}
+
+      {/* Details */}
+      <View className="ml-4 flex-1 gap-1.5">
+        <Text
+          className="font-display text-base font-semibold text-ink"
+          numberOfLines={2}
+        >
+          {watch.name}
+        </Text>
+
+        {domain ? (
+          <Text className="font-sans text-xs text-ink/50" numberOfLines={1}>
+            {domain}
+          </Text>
+        ) : null}
+
+        <View className="flex-row flex-wrap items-center gap-2">
+          {/* Size pill */}
+          {watch.size ? (
+            <View className="rounded-full border border-ink/20 px-3 py-1">
+              <Text className="font-sans text-xs text-ink/70">
+                {watch.size}
+              </Text>
+            </View>
+          ) : null}
+
+          {/* Price */}
+          {typeof watch.price === "number" && watch.price > 0 ? (
+            <Text className="font-sans-semibold text-sm text-ink">
+              {new Intl.NumberFormat("fr-FR", {
+                style: "currency",
+                currency: watch.currency || "EUR",
+              }).format(watch.price)}
+            </Text>
+          ) : null}
+        </View>
+
+        {/* Status badge */}
+        <View
+          className={`mt-0.5 self-start rounded-md px-2.5 py-0.5 ${
+            inStock ? "bg-lime/40" : "bg-pink/40"
+          }`}
+        >
+          <Text className="font-mono text-xs font-medium uppercase tracking-wider text-ink">
+            {inStock ? "En stock" : "Rupture"}
+          </Text>
+        </View>
+      </View>
+
+      {/* Chevron */}
+      <ChevronRight size={18} color="#0b0b0b" style={{ opacity: 0.3 }} />
+    </TouchableOpacity>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Loading Skeleton
+// ---------------------------------------------------------------------------
+
+function LoadingSkeleton() {
+  return (
+    <View className="flex-1 bg-cream">
+      {/* Top bar skeleton */}
+      <View className="flex-row items-center justify-between px-4 pt-4 pb-2">
+        <View className="h-4 w-32 rounded bg-ink/10" />
+        <View className="h-6 w-24 rounded bg-ink/10" />
+      </View>
+
+      {/* Greeting skeleton */}
+      <View className="px-4 pb-4">
+        <View className="h-8 w-48 rounded bg-ink/10" />
+        <View className="mt-2 h-1 w-16 rounded-full bg-lime/50" />
+      </View>
+
+      {/* Stats skeleton */}
+      <View className="flex-row gap-3 px-4 pb-3">
+        <View className="flex-1 rounded-2xl border-2 border-ink/10 bg-paper p-4">
+          <View className="mb-3 h-10 w-10 rounded-full bg-ink/5" />
+          <View className="h-6 w-8 rounded bg-ink/10" />
+          <View className="mt-1 h-3 w-16 rounded bg-ink/5" />
+        </View>
+        <View className="flex-1 rounded-2xl border-2 border-ink/10 bg-paper p-4">
+          <View className="mb-3 h-10 w-10 rounded-full bg-ink/5" />
+          <View className="h-6 w-8 rounded bg-ink/10" />
+          <View className="mt-1 h-3 w-16 rounded bg-ink/5" />
+        </View>
+      </View>
+      <View className="flex-row gap-3 px-4 pb-4">
+        <View className="flex-1 rounded-2xl border-2 border-ink/10 bg-paper p-4">
+          <View className="mb-3 h-10 w-10 rounded-full bg-ink/5" />
+          <View className="h-6 w-20 rounded bg-ink/10" />
+          <View className="mt-1 h-3 w-12 rounded bg-ink/5" />
+        </View>
+        <View className="flex-1 rounded-2xl border-2 border-ink/10 bg-paper p-4">
+          <View className="mb-3 h-10 w-10 rounded-full bg-ink/5" />
+          <View className="h-6 w-12 rounded bg-ink/10" />
+          <View className="mt-1 h-3 w-16 rounded bg-ink/5" />
+        </View>
+      </View>
+
+      {/* CTA skeleton */}
+      <View className="mx-4 h-14 rounded-xl border-2 border-ink/10 bg-orange/20" />
+
+      {/* Watch list skeleton */}
+      <View className="mt-6 px-4">
+        <View className="mb-3 h-6 w-28 rounded bg-ink/10" />
+        {[1, 2, 3].map((i) => (
+          <View
+            key={i}
+            className="mb-3 flex-row rounded-2xl border-2 border-ink/10 bg-paper p-4"
+          >
+            <View className="h-20 w-20 rounded-xl bg-ink/5" />
+            <View className="ml-4 flex-1 gap-2">
+              <View className="h-5 w-3/4 rounded bg-ink/10" />
+              <View className="h-3 w-1/2 rounded bg-ink/5" />
+              <View className="h-4 w-16 rounded bg-ink/5" />
+            </View>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Dashboard
+// ---------------------------------------------------------------------------
+
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { t } = useI18n();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+
   const [watches, setWatches] = useState<Watch[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchWatches = useCallback(async () => {
     if (!user) return;
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("watches")
       .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
-    setWatches((data ?? []) as Watch[]);
+
+    if (!error && data) {
+      setWatches(data as Watch[]);
+    }
+    setLoading(false);
   }, [user]);
 
   useEffect(() => {
-    fetchWatches().finally(() => setLoading(false));
-  }, [fetchWatches]);
+    if (!authLoading && user) {
+      fetchWatches();
+    } else if (!authLoading && !user) {
+      setLoading(false);
+    }
+  }, [authLoading, user, fetchWatches]);
 
-  const onRefresh = useCallback(() => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    fetchWatches().finally(() => setRefreshing(false));
+    await fetchWatches();
+    setRefreshing(false);
   }, [fetchWatches]);
 
-  // ── Loading state ──────────────────────────────────────────────────────
-  if (loading) {
+  // -----------------------------------------------------------------------
+  // Loading state
+  // -----------------------------------------------------------------------
+
+  if (authLoading || loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-cream">
-        <ActivityIndicator size="large" color="#ff803d" />
+      <View style={{ paddingTop: insets.top }} className="flex-1 bg-cream">
+        <LoadingSkeleton />
       </View>
     );
   }
 
-  const firstName = (user?.user_metadata?.first_name as string) || null;
-  const activeWatches = watches.filter((w) => w.is_active !== false);
-  const pausedCount = watches.filter((w) => w.is_active === false).length;
-  const inStockCount = activeWatches.filter(
-    (w) => getStatus(w) === "IN_STOCK",
-  ).length;
+  // -----------------------------------------------------------------------
+  // Computed stats
+  // -----------------------------------------------------------------------
 
-  const lastCheck =
-    watches
-      .map((w) => w.last_check ?? w.last_checked_at ?? null)
-      .filter(Boolean)
-      .sort(
-        (a, b) => new Date(b!).getTime() - new Date(a!).getTime(),
-      )[0] ?? null;
+  const activeAlerts = watches.length;
+  const inStockCount = watches.filter(isInStock).length;
 
-  const plan = (user?.user_metadata?.plan as string) ?? "free";
-  const maxAlerts = plan === "pro" ? 20 : 3;
+  const lastCheckedRaw = watches
+    .map((w) => w.last_checked_at || w.updated_at)
+    .filter(Boolean)
+    .sort()
+    .reverse()[0];
+  const lastCheckedLabel = formatRelativeTime(lastCheckedRaw);
 
-  const dateStr = formatFrenchDate(new Date());
+  const firstName =
+    (user?.user_metadata?.first_name as string) ||
+    (user?.user_metadata?.full_name as string)?.split(" ")[0] ||
+    (user?.email ? user.email.split("@")[0] : "");
 
-  // ── Stats ──────────────────────────────────────────────────────────────
-  const stats = [
-    {
-      label: "Alertes actives",
-      value: `${activeWatches.length} / ${maxAlerts}`,
-      sub: pausedCount > 0 ? `${pausedCount} en pause` : undefined,
-      emoji: "🔔",
-      iconBg: "rgba(255,128,61,0.20)", // orange
-    },
-    {
-      label: "En stock",
-      value: String(inStockCount),
-      sub: "En ce moment",
-      emoji: "📈",
-      iconBg: "rgba(200,242,60,0.50)", // lime
-    },
-    {
-      label: "Dernier check",
-      value: relativeTime(lastCheck),
-      sub: "Worker actif",
-      emoji: "🕐",
-      iconBg: "rgba(54,155,255,0.20)", // blue
-    },
-    {
-      label: "Plan",
-      value: plan === "pro" ? "Pro" : "Free",
-      sub: plan === "free" ? "Passer à Pro →" : "Gérer →",
-      emoji: "📦",
-      iconBg:
-        plan === "pro"
-          ? "rgba(245,158,11,0.22)" // amber
-          : "rgba(11,11,11,0.06)",
-    },
-  ];
+  // -----------------------------------------------------------------------
+  // Render
+  // -----------------------------------------------------------------------
 
-  // ── Watch card ─────────────────────────────────────────────────────────
-  const renderWatch = ({ item }: { item: Watch }) => {
-    const status = getStatus(item);
-    const domain = shortHost(item.url);
-    const variant = item.variant_label ?? item.size_label ?? null;
-
-    return (
-      <TouchableOpacity activeOpacity={0.9}>
-        <View
-          className="flex-row items-start gap-3 rounded-2xl border-2 border-ink bg-paper p-4"
-          style={brutal}
-        >
-          {/* Product image */}
-          {item.image_url ? (
-            <Image
-              source={{ uri: item.image_url }}
-              className="h-20 w-20 rounded-xl bg-muted"
-              resizeMode="cover"
-            />
-          ) : (
-            <View className="h-20 w-20 items-center justify-center rounded-xl bg-muted">
-              <Text className="text-[10px] text-ink/30">Sans visuel</Text>
-            </View>
-          )}
-
-          {/* Body */}
-          <View className="min-w-0 flex-1 gap-1">
-            <Text
-              className="font-display text-base font-semibold leading-tight text-ink"
-              numberOfLines={2}
-            >
-              {item.name ?? "Produit sans titre"}
-            </Text>
-
-            <Text className="text-xs text-ink/50" numberOfLines={1}>
-              {domain}
-            </Text>
-
-            {/* Variant pill + price row */}
-            <View className="flex-row flex-wrap items-center gap-2">
-              {variant ? (
-                <View className="rounded-full border border-ink/20 px-3 py-1">
-                  <Text className="text-xs text-ink">{variant}</Text>
-                </View>
-              ) : null}
-              {item.price != null ? (
-                <Text className="font-sans-medium text-sm text-ink">
-                  {formatPrice(item.price, item.currency)}
-                </Text>
-              ) : null}
-            </View>
-
-            {/* Last check time */}
-            {(item.last_check || item.last_checked_at) && (
-              <Text className="text-[11px] text-ink/40">
-                Vérif.{" "}
-                {relativeTime(
-                  item.last_check ?? item.last_checked_at ?? null,
-                )}
-              </Text>
-            )}
-          </View>
-
-          {/* Status badge */}
-          <View className="shrink-0">
-            {item.is_active === false ? (
-              <View className="rounded-full border border-ink/20 bg-muted px-3 py-1">
-                <Text className="font-sans-semibold text-xs uppercase text-ink/50">
-                  En pause
-                </Text>
-              </View>
-            ) : (
-              <StatusBadge status={status} />
-            )}
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
-  // ── Empty state ────────────────────────────────────────────────────────
-  const renderEmpty = () => (
-    <View className="items-center px-4 pt-4">
-      <View className="w-full rounded-3xl border-2 border-dashed border-ink/30 bg-cream/50 p-8">
-        <View className="items-center gap-6">
-          {/* Bell icon in lime rounded-2xl box */}
-          <View className="relative">
-            <View
-              className="h-14 w-14 items-center justify-center rounded-2xl border-2 border-ink bg-lime"
-              style={brutalSm}
-            >
-              <Text className="text-2xl">🔔</Text>
-            </View>
-            <View className="absolute -right-2 -top-2 h-5 w-5 items-center justify-center rounded-full border-2 border-ink bg-orange">
-              <Text className="text-[9px] font-sans-bold text-ink">1</Text>
-            </View>
-          </View>
-
-          <View className="gap-2">
-            <Text className="text-center font-display text-xl text-ink">
-              {firstName
-                ? `Prête à traquer, ${firstName} ?`
-                : "Prêt à commencer ?"}
-            </Text>
-            <Text className="mx-auto max-w-sm text-center text-sm leading-relaxed text-ink/60">
-              Colle l&apos;URL d&apos;un produit qui t&apos;a échappé, choisis
-              ta taille, et on s&apos;occupe du reste.
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            onPress={() => router.push("/(tabs)/add")}
-            className="w-full rounded-xl border-2 border-ink bg-orange px-8 py-3.5"
-            style={brutalSm}
-            activeOpacity={0.85}
-          >
-            <Text className="text-center font-display text-base font-bold uppercase tracking-wide text-ink">
-              + Ajouter ma première alerte
-            </Text>
-          </TouchableOpacity>
-
-          <Text className="text-xs text-ink/30">
-            Zara, COS, Aritzia, Sézane, Uniqlo et 120+ autres marques
-          </Text>
-        </View>
-      </View>
-    </View>
-  );
-
-  // ── Header + Stats + CTA (rendered as ListHeaderComponent) ─────────────
-  const renderHeader = () => (
-    <View className="gap-6 px-4 pt-16">
-      {/* ── Header area ────────────────────────────────────────────────── */}
-      <View className="gap-1">
-        {/* Date in French */}
-        <Text className="font-sans-medium text-sm uppercase tracking-wider text-ink/70">
-          {dateStr}
-        </Text>
-
-        {/* Greeting with lime underline */}
-        <Text className="font-display text-3xl tracking-tighter text-ink">
-          {firstName ? (
-            <>
-              Bonjour{" "}
-              <Text className="font-display text-3xl tracking-tighter text-ink">
-                {firstName}
-              </Text>
-            </>
-          ) : (
-            "Mes alertes"
-          )}
-        </Text>
-        {firstName ? (
-          <View className="mt-0.5 h-1 w-16 -rotate-1 bg-lime" />
-        ) : null}
-
-        {/* Stats subtitle */}
-        <Text className="mt-2 font-sans text-sm text-ink/50">
-          {activeWatches.length} alerte{activeWatches.length !== 1 ? "s" : ""}{" "}
-          active{activeWatches.length !== 1 ? "s" : ""}
-          {inStockCount > 0 && `, ${inStockCount} en stock`}
-          {lastCheck && ` — dernière vérif. ${relativeTime(lastCheck)}`}
-        </Text>
-      </View>
-
-      {/* ── Stats grid 2x2 ─────────────────────────────────────────────── */}
-      <View className="flex-row flex-wrap gap-3">
-        {stats.map((s) => (
-          <View
-            key={s.label}
-            className="w-[47%] rounded-2xl border-2 border-ink bg-paper p-4"
-            style={brutalSm}
-          >
-            {/* Icon in colored circle */}
-            <StatIcon emoji={s.emoji} bg={s.iconBg} />
-
-            {/* Label */}
-            <Text className="mt-2 font-sans-medium text-xs text-ink/70">
-              {s.label}
-            </Text>
-
-            {/* Value */}
-            <Text
-              className="mt-0.5 font-display text-2xl tracking-tighter text-ink"
-              numberOfLines={1}
-            >
-              {s.value}
-            </Text>
-
-            {/* Sub */}
-            {s.sub ? (
-              <Text
-                className="mt-0.5 font-sans text-xs text-ink/50"
-                numberOfLines={1}
-              >
-                {s.sub}
-              </Text>
-            ) : null}
-          </View>
-        ))}
-      </View>
-
-      {/* ── "Ajouter" CTA ──────────────────────────────────────────────── */}
-      <TouchableOpacity
-        onPress={() => router.push("/(tabs)/add")}
-        className="h-14 w-full flex-row items-center justify-center gap-2 rounded-xl border-2 border-ink bg-orange"
-        style={brutal}
-        activeOpacity={0.85}
-      >
-        <Text className="font-display text-base font-bold uppercase tracking-wide text-ink">
-          + Ajouter une alerte
-        </Text>
-      </TouchableOpacity>
-
-      {/* ── Watch list section heading ─────────────────────────────────── */}
-      {watches.length > 0 && (
-        <View>
-          <Text className="font-sans-semibold text-xs uppercase tracking-widest text-ink/40">
-            Mes alertes ({watches.length})
-          </Text>
-        </View>
-      )}
-    </View>
-  );
-
-  // ── Main render ────────────────────────────────────────────────────────
   return (
-    <View className="flex-1 bg-cream">
-      <FlatList
-        data={watches}
-        keyExtractor={(item) => item.id}
-        renderItem={renderWatch}
-        ListHeaderComponent={renderHeader}
-        ListEmptyComponent={renderEmpty}
-        contentContainerStyle={{
-          paddingHorizontal: 16,
-          paddingBottom: 32,
-          gap: 12,
-        }}
+    <View style={{ paddingTop: insets.top }} className="flex-1 bg-cream">
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#ff803d"
-            colors={["#ff803d"]}
+            tintColor="#0b0b0b"
+            colors={["#0b0b0b"]}
           />
         }
-        showsVerticalScrollIndicator={false}
-      />
+      >
+        {/* ── Top bar ──────────────────────────────────────────────── */}
+
+        <View className="flex-row items-center justify-between px-4 pt-4 pb-2">
+          <Text className="font-sans-semibold text-sm uppercase tracking-wider text-ink/70">
+            {formatFrenchDate(new Date())}
+          </Text>
+          <Text className="font-display text-xl text-ink">restocking</Text>
+        </View>
+
+        {/* ── Greeting ─────────────────────────────────────────────── */}
+
+        <View className="px-4 pb-4">
+          <Text className="font-display text-2xl text-ink">
+            Bonjour{firstName ? ` ${firstName}` : ""}
+          </Text>
+          <View className="mt-1 h-1 w-16 rounded-full bg-lime" />
+        </View>
+
+        {/* ── Stats grid (2x2) ─────────────────────────────────────── */}
+
+        <View className="flex-row gap-3 px-4 pb-3">
+          <StatCard
+            icon={<Bell size={18} color="#fff" strokeWidth={2.5} />}
+            iconBg="bg-orange"
+            label="Alertes actives"
+            value={String(activeAlerts)}
+          />
+          <StatCard
+            icon={<PackageCheck size={18} color="#0b0b0b" strokeWidth={2.5} />}
+            iconBg="bg-lime"
+            label="En stock"
+            value={String(inStockCount)}
+          />
+        </View>
+        <View className="flex-row gap-3 px-4 pb-4">
+          <StatCard
+            icon={<Clock size={18} color="#fff" strokeWidth={2.5} />}
+            iconBg="bg-blue"
+            label="Dernière vérif"
+            value={lastCheckedLabel}
+          />
+          <StatCard
+            icon={<Crown size={18} color="#0b0b0b" strokeWidth={2.5} />}
+            iconBg="bg-cream"
+            label="Abonnement"
+            value="Gratuit"
+          />
+        </View>
+
+        {/* ── Add alert CTA ────────────────────────────────────────── */}
+
+        <TouchableOpacity
+          onPress={() => router.push("/add" as any)}
+          activeOpacity={0.8}
+          className="mx-4 mb-6 h-14 flex-row items-center justify-center gap-2 rounded-xl border-2 border-ink bg-orange"
+          style={brutal}
+        >
+          <Plus size={20} color="#fff" strokeWidth={3} />
+          <Text className="font-display text-lg font-bold text-white">
+            Ajouter une alerte
+          </Text>
+        </TouchableOpacity>
+
+        {/* ── Mes alertes heading ──────────────────────────────────── */}
+
+        {watches.length > 0 && (
+          <Text className="mb-3 px-4 font-display text-lg text-ink">
+            Mes alertes
+          </Text>
+        )}
+
+        {/* ── Watch list ───────────────────────────────────────────── */}
+
+        {watches.length === 0 ? (
+          <EmptyState onAdd={() => router.push("/add" as any)} />
+        ) : (
+          <View className="px-4">
+            {watches.map((watch) => (
+              <WatchListItem
+                key={watch.id}
+                watch={watch}
+                onPress={() =>
+                  router.push(
+                    `/watch/${watch.id}` as any
+                  )
+                }
+              />
+            ))}
+          </View>
+        )}
+      </ScrollView>
     </View>
   );
 }

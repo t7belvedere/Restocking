@@ -4,497 +4,387 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  ScrollView,
   Image,
+  ScrollView,
+  Animated,
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
-  Animated,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { analyzeUrl, type AnalyzeResult } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "expo-router";
+import { brutalSm, brutal } from "@/lib/shadows";
 
-import { brutal, brutalSm } from "@/lib/shadows";
+type Step = "input" | "preview" | "success";
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-function extractDomain(url: string): string {
-  try {
-    const hostname = new URL(url).hostname;
-    return hostname.replace(/^www\./, "");
-  } catch {
-    return "";
-  }
-}
-
-function formatPrice(price: number, currency: string): string {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: currency || "EUR",
-  }).format(price);
-}
-
-// ─── Skeleton loading placeholder ────────────────────────────────────────────
-function SkeletonBar({
-  width,
-  height = "h-4",
-}: {
-  width: string;
-  height?: string;
-}) {
-  const opacity = useRef(new Animated.Value(0.35)).current;
-
-  useEffect(() => {
-    const pulse = Animated.loop(
-      Animated.sequence([
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: 700,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacity, {
-          toValue: 0.35,
-          duration: 700,
-          useNativeDriver: true,
-        }),
-      ]),
-    );
-    pulse.start();
-    return () => pulse.stop();
-  }, [opacity]);
-
-  return (
-    <Animated.View
-      style={{ opacity }}
-      className={`rounded-md bg-ink/10 ${height} ${width}`}
-    />
-  );
-}
-
-// ─── Main component ──────────────────────────────────────────────────────────
-type Step = "input" | "loading" | "confirm" | "success";
-
-export default function AddWatch() {
+export default function AddScreen() {
   const { user } = useAuth();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const router = useRouter();
 
   const [step, setStep] = useState<Step>("input");
   const [url, setUrl] = useState("");
-  const [error, setError] = useState("");
-  const [result, setResult] = useState<AnalyzeResult | null>(null);
-  const [selectedSize, setSelectedSize] = useState<string>();
-  const [selectedColor, setSelectedColor] = useState<string>();
-  const [creating, setCreating] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [product, setProduct] = useState<AnalyzeResult | null>(null);
+  const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  // ── Analyze URL ──────────────────────────────────────────────────────────
-  const handleAnalyze = async () => {
-    setError("");
-    setResult(null);
-    setSelectedSize(undefined);
-    setSelectedColor(undefined);
+  const pulseAnim = useRef(new Animated.Value(0.3)).current;
 
-    const trimmed = url.trim();
-    if (!trimmed) {
-      setError("Entre une URL valide");
-      return;
-    }
-
-    setStep("loading");
-    try {
-      const data = await analyzeUrl(trimmed);
-      if (data.ok) {
-        setResult(data);
-        setStep("confirm");
-      } else {
-        setError(
-          data.error ??
-            "Impossible d'analyser cette URL. Verifie le lien et reessaie.",
-        );
-        setStep("input");
-      }
-    } catch {
-      setError(
-        "Erreur reseau. Verifie ta connexion internet et reessaie.",
+  useEffect(() => {
+    if (loading) {
+      const pulse = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 0.3,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+        ]),
       );
-      setStep("input");
+      pulse.start();
+      return () => pulse.stop();
+    } else {
+      pulseAnim.setValue(0.3);
+    }
+  }, [loading, pulseAnim]);
+
+  const handleAnalyze = async () => {
+    const trimmed = url.trim();
+    if (!trimmed) return;
+    setError(null);
+    setLoading(true);
+
+    try {
+      const result = await analyzeUrl(trimmed);
+      setLoading(false);
+
+      if (!result.ok) {
+        setError(result.error || "Impossible d'analyser cette URL.");
+        return;
+      }
+
+      const availableVariant = result.variants?.find((v) => v.in_stock);
+      setSelectedVariant(availableVariant?.label ?? result.variants?.[0]?.label ?? null);
+      setProduct(result);
+      setStep("preview");
+    } catch {
+      setLoading(false);
+      setError("Erreur reseau. Verifie ta connexion et reessaie.");
     }
   };
 
-  // ── Create alert ─────────────────────────────────────────────────────────
-  const handleCreate = async () => {
-    if (!user || !result) return;
-    setCreating(true);
-    setError("");
+  const handleCreateAlert = async () => {
+    if (!user || !product) return;
+    setSubmitting(true);
 
-    const { error: dbError } = await supabase.from("watches").insert({
+    const { error: insertError } = await supabase.from("watches").insert({
       user_id: user.id,
-      name: result.name ?? url,
+      name: product.name,
+      image_url: product.image_url ?? null,
+      price: product.price ?? null,
+      currency: product.currency ?? "EUR",
       url: url.trim(),
-      image_url: result.image_url ?? null,
-      price: result.price ?? null,
-      currency: result.currency ?? "EUR",
-      size_label: selectedSize ?? null,
-      enrichment_pending: result.enrichment_pending ?? false,
+      variant: selectedVariant ?? null,
+      enrichment_pending: product.enrichment_pending ?? false,
     });
 
-    if (dbError) {
-      setError(dbError.message);
-      setCreating(false);
+    setSubmitting(false);
+
+    if (insertError) {
+      Alert.alert("Erreur", insertError.message);
       return;
     }
 
-    setCreating(false);
     setStep("success");
   };
 
-  // ── Navigation helpers ───────────────────────────────────────────────────
-  const goBackToInput = () => {
-    setStep("input");
-    setResult(null);
-    setSelectedSize(undefined);
-    setSelectedColor(undefined);
-    setError("");
-  };
-
-  const reset = () => {
-    setStep("input");
+  const handleReset = () => {
     setUrl("");
-    setResult(null);
-    setSelectedSize(undefined);
-    setSelectedColor(undefined);
-    setError("");
+    setProduct(null);
+    setSelectedVariant(null);
+    setError(null);
+    setStep("input");
   };
 
-  // ── Distinguish size vs colour variants ──────────────────────────────────
-  const sizeVariants =
-    result?.variants?.filter(
-      (v) => !("type" in v) || (v as any).type === "size",
-    ) ?? [];
-  const colorVariants =
-    result?.variants?.filter(
-      (v) => "type" in v && (v as any).type === "color",
-    ) ?? [];
+  const domain = (() => {
+    if (!url) return "";
+    try {
+      return new URL(url.trim()).hostname.replace(/^www\./, "");
+    } catch {
+      return "";
+    }
+  })();
 
-  // ──────────────────────────────────────────────────────────────────────────
-  //  SUCCESS STATE
-  // ──────────────────────────────────────────────────────────────────────────
-  if (step === "success") {
-    return (
-      <View className="flex-1 items-center justify-center bg-cream px-8">
-        {/* Checkmark in lime circle */}
-        <View
-          className="mb-6 h-24 w-24 items-center justify-center rounded-full border-2 border-ink bg-lime"
-          style={brutal}
-        >
-          <Text className="font-display text-4xl text-ink">&#10003;</Text>
-        </View>
-
-        <Text className="mb-8 text-center font-display text-3xl font-extrabold text-ink">
-          Alerte creee !
-        </Text>
-
-        <View className="w-full max-w-sm gap-3">
-          <TouchableOpacity
-            onPress={reset}
-            className="h-12 w-full items-center justify-center rounded-xl border-2 border-ink bg-paper shadow-brutal"
-            activeOpacity={0.8}
-          >
-            <Text className="font-display text-sm font-bold uppercase tracking-widest text-ink">
-              + Ajouter un autre article
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => router.push("/(tabs)")}
-            className="h-12 w-full items-center justify-center rounded-xl border-2 border-ink bg-ink shadow-brutal"
-            activeOpacity={0.8}
-          >
-            <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
-              Voir mes alertes
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
-
-  // ──────────────────────────────────────────────────────────────────────────
-  //  CONFIRM STATE — product card + variant pickers + activate
-  // ──────────────────────────────────────────────────────────────────────────
-  if (step === "confirm" && result) {
-    return (
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1 bg-cream"
+  return (
+    <KeyboardAvoidingView
+      className="flex-1 bg-cream"
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ padding: 20, flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
       >
-        <ScrollView
-          contentContainerStyle={{
-            paddingHorizontal: 24,
-            paddingTop: 56,
-            paddingBottom: 40,
-          }}
-          keyboardShouldPersistTaps="handled"
-        >
-          {/* Back link */}
-          <TouchableOpacity onPress={goBackToInput} className="mb-5 self-start">
-            <Text className="font-mono text-xs uppercase tracking-[0.2em] text-ink/60">
-              &larr; {t.cancel}
+        {/* ────────── Step 1: URL Input ────────── */}
+        {step === "input" && (
+          <View style={{ gap: 24, marginTop: 40 }}>
+            <Text className="font-display text-3xl font-extrabold text-ink">
+              Ajouter une alerte
             </Text>
-          </TouchableOpacity>
+            <Text className="font-sans text-base font-semibold text-ink-soft">
+              Colle l'URL du produit que tu veux surveiller
+            </Text>
 
-          {/* ── Product preview card ──────────────────────────────────── */}
-          <View
-            className="overflow-hidden rounded-2xl border-2 border-ink bg-paper"
-            style={brutal}
-          >
-            {/* Product image */}
-            {result.image_url ? (
-              <Image
-                source={{ uri: result.image_url }}
-                className="h-52 w-full border-b-2 border-ink"
-                resizeMode="cover"
+            <View>
+              <TextInput
+                className="h-14 rounded-xl border-2 border-ink bg-paper px-4 font-sans text-base font-medium text-ink"
+                style={brutalSm}
+                placeholder={t.urlPlaceholder}
+                placeholderTextColor="#5a5355"
+                value={url}
+                onChangeText={(text) => {
+                  setUrl(text);
+                  if (error) setError(null);
+                }}
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="url"
+                returnKeyType="go"
+                onSubmitEditing={handleAnalyze}
               />
-            ) : null}
-
-            <View className="p-5">
-              {/* Product name */}
-              {result.name ? (
-                <Text
-                  className="font-display text-xl font-bold text-ink"
-                  numberOfLines={2}
-                >
-                  {result.name}
-                </Text>
-              ) : null}
-
-              {/* Domain */}
-              <Text className="mt-1 font-mono text-xs uppercase tracking-[0.2em] text-ink/60">
-                {extractDomain(url)}
-              </Text>
-
-              {/* Price */}
-              {result.price != null ? (
-                <Text className="mt-2 font-display text-lg text-ink">
-                  {formatPrice(result.price, result.currency ?? "EUR")}
+              {error ? (
+                <Text className="mt-2 font-sans text-sm text-destructive">
+                  {error}
                 </Text>
               ) : null}
             </View>
-          </View>
-
-          {/* ── Size selection ────────────────────────────────────────── */}
-          {sizeVariants.length > 0 && (
-            <View className="mt-6">
-              <Text className="font-display text-xs font-bold uppercase tracking-[0.2em] text-ink mb-3">
-                Taille
-              </Text>
-              <View className="flex-row flex-wrap gap-2.5">
-                {sizeVariants.map((v) => {
-                  const isSelected = selectedSize === v.label;
-                  const unavailable = !v.in_stock;
-
-                  return (
-                    <TouchableOpacity
-                      key={v.label}
-                      onPress={() => {
-                        if (!unavailable) setSelectedSize(v.label);
-                      }}
-                      disabled={unavailable}
-                      className={`rounded-full border-2 px-4 py-2 ${
-                        isSelected
-                          ? "border-ink bg-ink"
-                          : unavailable
-                            ? "border-ink/20 bg-muted opacity-40"
-                            : "border-ink bg-paper"
-                      }`}
-                      style={isSelected ? brutalSm : undefined}
-                      activeOpacity={0.7}
-                    >
-                      <Text
-                        className={`font-sans-medium text-sm ${
-                          isSelected
-                            ? "text-cream"
-                            : unavailable
-                              ? "text-ink-soft line-through"
-                              : "text-ink"
-                        }`}
-                      >
-                        {v.label}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </View>
-          )}
-
-          {/* ── Color selection ──────────────────────────────────────── */}
-          {colorVariants.length > 0 && (
-            <View className="mt-6">
-              <Text className="font-display text-xs font-bold uppercase tracking-[0.2em] text-ink mb-3">
-                Couleur
-              </Text>
-              <View className="flex-row flex-wrap gap-2.5">
-                {colorVariants.map((v) => {
-                  const isSelected = selectedColor === v.label;
-                  const unavailable = !v.in_stock;
-
-                  return (
-                    <TouchableOpacity
-                      key={v.label}
-                      onPress={() => {
-                        if (!unavailable) setSelectedColor(v.label);
-                      }}
-                      disabled={unavailable}
-                      className={`rounded-full border-2 px-4 py-2 ${
-                        isSelected
-                          ? "border-ink bg-ink"
-                          : unavailable
-                            ? "border-ink/20 bg-muted opacity-40"
-                            : "border-ink bg-paper"
-                      }`}
-                      style={isSelected ? brutalSm : undefined}
-                      activeOpacity={0.7}
-                    >
-                      <Text
-                        className={`font-sans-medium text-sm ${
-                          isSelected
-                            ? "text-cream"
-                            : unavailable
-                              ? "text-ink-soft line-through"
-                              : "text-ink"
-                        }`}
-                      >
-                        {v.label}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </View>
-          )}
-
-          {/* ── Enrichment pending banner ──────────────────────────────── */}
-          {result.enrichment_pending && (
-            <View
-              className="mt-6 rounded-xl border-2 border-orange/40 bg-orange/5 p-4"
-            >
-              <Text className="font-sans-medium text-sm leading-relaxed text-ink">
-                {t.enrichmentMessage}
-              </Text>
-            </View>
-          )}
-
-          {/* Error during creation */}
-          {error !== "" && (
-            <Text className="mt-4 font-sans-medium text-sm text-destructive">
-              {error}
-            </Text>
-          )}
-
-          {/* ── Bottom buttons ────────────────────────────────────────── */}
-          <View className="mt-8 flex-row gap-3">
-            <TouchableOpacity
-              onPress={goBackToInput}
-              className="flex-1 h-12 items-center justify-center rounded-xl border-2 border-ink bg-paper shadow-brutal"
-              activeOpacity={0.8}
-            >
-              <Text className="font-display text-sm font-bold uppercase tracking-widest text-ink">
-                {t.cancel}
-              </Text>
-            </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={handleCreate}
-              disabled={creating}
-              className="flex-1 h-12 items-center justify-center rounded-xl border-2 border-ink bg-ink shadow-brutal"
+              className="h-12 items-center justify-center rounded-xl border-2 border-ink bg-ink"
+              style={brutal}
+              onPress={handleAnalyze}
+              disabled={loading || !url.trim()}
               activeOpacity={0.8}
             >
-              {creating ? (
+              {loading ? (
                 <ActivityIndicator color="#fbf8f0" />
               ) : (
                 <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
-                  Activer l'alerte
+                  Analyser le produit
                 </Text>
               )}
             </TouchableOpacity>
+
+            {/* Skeleton loading bars */}
+            {loading && (
+              <View style={{ gap: 12, marginTop: 8 }}>
+                {[100, 85, 60].map((width, i) => (
+                  <Animated.View
+                    key={i}
+                    className="h-5 rounded-md bg-ink/10"
+                    style={{ opacity: pulseAnim, width: `${width}%` }}
+                  />
+                ))}
+              </View>
+            )}
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    );
-  }
-
-  // ──────────────────────────────────────────────────────────────────────────
-  //  INPUT / LOADING STATE
-  // ──────────────────────────────────────────────────────────────────────────
-  return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-cream"
-    >
-      <ScrollView
-        contentContainerStyle={{
-          paddingHorizontal: 24,
-          paddingTop: 56,
-          paddingBottom: 40,
-        }}
-        keyboardShouldPersistTaps="handled"
-      >
-        {/* Heading */}
-        <Text className="font-display text-3xl font-extrabold tracking-tighter text-ink">
-          Ajouter une alerte
-        </Text>
-        <Text className="mt-2 font-sans text-base leading-relaxed text-ink-soft">
-          Colle l'URL de l'article que tu veux surveiller
-        </Text>
-
-        {/* URL input */}
-        <TextInput
-          className="mt-6 h-14 w-full rounded-xl border-2 border-ink bg-paper px-4 font-medium text-ink"
-          style={brutalSm}
-          placeholder={t.urlPlaceholder}
-          placeholderTextColor="#A3A3A3"
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="url"
-          value={url}
-          onChangeText={setUrl}
-          onSubmitEditing={handleAnalyze}
-          returnKeyType="go"
-          editable={step !== "loading"}
-        />
-
-        {/* Analyse button */}
-        <TouchableOpacity
-          onPress={handleAnalyze}
-          disabled={step === "loading"}
-          className="mt-4 h-12 w-full items-center justify-center rounded-xl border-2 border-ink bg-ink shadow-brutal"
-          activeOpacity={0.8}
-        >
-          {step === "loading" ? (
-            <ActivityIndicator color="#fbf8f0" />
-          ) : (
-            <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
-              Analyser le produit
-            </Text>
-          )}
-        </TouchableOpacity>
-
-        {/* Validation error */}
-        {error !== "" && (
-          <Text className="mt-4 font-sans-medium text-sm text-destructive">
-            {error}
-          </Text>
         )}
 
-        {/* ── Skeleton loading preview ─────────────────────────────────── */}
-        {step === "loading" && (
-          <View className="mt-10 gap-4">
-            <SkeletonBar width="w-full" height="h-52" />
-            <SkeletonBar width="w-3/4" />
-            <SkeletonBar width="w-1/3" />
+        {/* ────────── Step 2: Product Preview ────────── */}
+        {step === "preview" && product && (
+          <View style={{ gap: 24, marginTop: 40 }}>
+            <Text className="font-display text-3xl font-extrabold text-ink">
+              Ajouter une alerte
+            </Text>
+
+            {/* Product preview card */}
+            <View
+              className="rounded-2xl border-2 border-ink bg-paper p-5"
+              style={brutal}
+            >
+              {product.image_url ? (
+                <Image
+                  source={{ uri: product.image_url }}
+                  className="mb-4 h-48 w-full rounded-xl border border-ink/20"
+                  resizeMode="cover"
+                />
+              ) : (
+                <View className="mb-4 h-48 w-full items-center justify-center rounded-xl border border-ink/20 bg-muted">
+                  <Text className="font-mono text-sm text-ink-soft">
+                    Pas d'image
+                  </Text>
+                </View>
+              )}
+
+              <Text
+                className="font-display text-xl font-bold text-ink"
+                numberOfLines={2}
+              >
+                {product.name}
+              </Text>
+
+              {domain ? (
+                <Text className="mt-1 font-mono text-sm text-ink-soft">
+                  {domain}
+                </Text>
+              ) : null}
+
+              {product.price ? (
+                <Text className="mt-2 font-mono text-lg font-bold text-ink">
+                  {new Intl.NumberFormat(
+                    locale === "fr" ? "fr-FR" : "en-US",
+                    {
+                      style: "currency",
+                      currency: product.currency || "EUR",
+                    },
+                  ).format(product.price)}
+                </Text>
+              ) : null}
+            </View>
+
+            {/* Variant pills */}
+            {product.variants && product.variants.length > 0 && (
+              <View>
+                <Text className="mb-3 font-sans text-sm font-semibold text-ink">
+                  {t.selectSize}
+                </Text>
+                <View className="flex-row flex-wrap gap-2">
+                  {product.variants.map((v) => {
+                    const isSelected = selectedVariant === v.label;
+                    return (
+                      <TouchableOpacity
+                        key={v.label}
+                        onPress={() => {
+                          if (v.in_stock) setSelectedVariant(v.label);
+                        }}
+                        disabled={!v.in_stock}
+                        className={`rounded-full border-2 px-4 py-2.5 ${
+                          isSelected
+                            ? "border-ink bg-ink"
+                            : v.in_stock
+                              ? "border-ink bg-paper"
+                              : "border-ink/20 opacity-40"
+                        }`}
+                        style={isSelected ? brutalSm : undefined}
+                        activeOpacity={0.7}
+                      >
+                        <Text
+                          className={`font-mono text-sm font-medium ${
+                            isSelected
+                              ? "text-cream"
+                              : v.in_stock
+                                ? "text-ink"
+                                : "text-ink-soft line-through"
+                          }`}
+                        >
+                          {v.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            )}
+
+            {/* Enrichment banner */}
+            {product.enrichment_pending ? (
+              <View className="rounded-xl border border-orange/40 bg-orange/5 p-4">
+                <Text className="font-sans text-sm leading-relaxed text-ink-soft">
+                  {t.enrichmentMessage}
+                </Text>
+              </View>
+            ) : null}
+
+            {/* Action buttons */}
+            <View className="flex-row gap-3">
+              <TouchableOpacity
+                className="flex-1 h-12 items-center justify-center rounded-xl border-2 border-ink bg-paper"
+                style={brutal}
+                onPress={handleReset}
+                activeOpacity={0.8}
+              >
+                <Text className="font-display text-sm font-bold uppercase tracking-widest text-ink">
+                  {t.cancel}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className="flex-1 h-12 items-center justify-center rounded-xl border-2 border-ink bg-ink"
+                style={brutal}
+                onPress={handleCreateAlert}
+                disabled={submitting}
+                activeOpacity={0.8}
+              >
+                {submitting ? (
+                  <ActivityIndicator color="#fbf8f0" />
+                ) : (
+                  <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
+                    Activer l'alerte
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* ────────── Success ────────── */}
+        {step === "success" && (
+          <View
+            className="flex-1 items-center justify-center"
+            style={{ gap: 32, marginTop: 80 }}
+          >
+            <View
+              className="h-24 w-24 items-center justify-center rounded-full bg-lime"
+              style={brutal}
+            >
+              <Text className="font-display text-4xl text-ink">
+                {"✓"}
+              </Text>
+            </View>
+
+            <Text className="font-display text-3xl font-extrabold text-ink text-center">
+              Alerte creee !
+            </Text>
+
+            <Text className="font-sans text-base text-ink-soft text-center leading-relaxed">
+              Ton alerte est active. Tu seras notifie des que le produit sera de
+              retour en stock.
+            </Text>
+
+            <View className="flex-row gap-3" style={{ marginTop: 8 }}>
+              <TouchableOpacity
+                className="h-12 items-center justify-center rounded-xl border-2 border-ink bg-paper px-6"
+                style={brutal}
+                onPress={handleReset}
+                activeOpacity={0.8}
+              >
+                <Text className="font-display text-sm font-bold uppercase tracking-widest text-ink">
+                  Ajouter un autre
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className="h-12 items-center justify-center rounded-xl border-2 border-ink bg-ink px-6"
+                style={brutal}
+                onPress={() => router.push("/(tabs)")}
+                activeOpacity={0.8}
+              >
+                <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
+                  Voir mes alertes
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </ScrollView>
