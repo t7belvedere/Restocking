@@ -2,6 +2,7 @@ import { templateFr, templateEn } from "./templates.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const HOOK_SECRET = Deno.env.get("HOOK_SECRET") || "";
+const SITE_URL = Deno.env.get("SITE_URL") || "https://restocking.app";
 
 // Vérifie la signature Svix envoyée par Supabase Auth Hooks
 // Format : webhook-signature: v1,<base64_hmac>
@@ -53,7 +54,7 @@ Deno.serve(async (req) => {
   let html = locale === "fr" ? templateFr : templateEn;
 
   // On remplace les variables "Supabase" par leurs vraies valeurs
-  html = html.replace("{{ .SiteURL }}", emailData.site_url);
+  html = html.replace("{{ .SiteURL }}", SITE_URL);
   html = html.replace("{{ .TokenHash }}", emailData.token_hash);
 
   const subject = locale === "fr" 
