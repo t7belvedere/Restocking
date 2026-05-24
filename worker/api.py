@@ -446,19 +446,29 @@ async def _universal_extract(page, html: str, url: str) -> dict:
     result["price"] = price
 
     # --- IMAGE ---
-    # Priority: og:image meta > DOM largest product image > imagesrcset
-    image_url = _pick_meta(html, "og:image")
+    # Priority: DOM <img> (real element, less likely blocked) > og:image meta > srcset
+    # Inditex brands (Pull&Bear, Zara) have different CDN paths for og:image
+    # vs the actual <img> tag — the real <img> URL is more accessible.
+    image_url = _extract_css_image(page, url)
     if not image_url:
-        image_url = _extract_css_image(page, url)
+        image_url = _pick_meta(html, "og:image")
     if image_url and image_url.startswith("http://"):
         image_url = image_url.replace("http://", "https://", 1)
     result["image_url"] = image_url
 
-    # Download the product image as base64 via httpx with browser headers.
-    # Many CDNs (Pull&Bear/Inditex, Stüssy) block direct <img> tags from
-    # other origins. Base64 inline avoids the block entirely.
+    # Download the product image as base64.
+    # Try the main image_url first, then og:image as fallback.
     if image_url:
-        result["image_base64"] = await _download_image_base64(image_url, url)
+        b64 = await _download_image_base64(image_url, url)
+        if not b64:
+            og_img = _pick_meta(html, "og:image")
+            if og_img and og_img != image_url:
+                if og_img.startswith("http://"):
+                    og_img = og_img.replace("http://", "https://", 1)
+                b64 = await _download_image_base64(og_img, url)
+                if b64:
+                    result["image_url"] = og_img  # Use the one that actually works
+        result["image_base64"] = b64
 
     # --- VARIANTS (sizes + colors unified) ---
     variants = _extract_variants(html)
