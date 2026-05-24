@@ -1556,7 +1556,7 @@ async def _analyze_scrape(url: str, proxy_url: str | None, pw_proxy: dict | None
 
     # --- LLM validation (DeepSeek) — runs on every request to cross-check results ---
     if _DEEPSEEK_KEY:
-        yield _sse_event("progress", {"step": "extracting", "message": "IA : validation des données..."})
+        yield _sse_event("progress", {"step": "extracting", "message": "Vérification des données..."})
         try:
             llm_result = await _llm_extract(html, page, url)
             if llm_result:
