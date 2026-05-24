@@ -80,7 +80,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "https://www.restocking.app/og-image.png",
+        url: "https://www.restocking.app/opengraph-image",
         width: 1200,
         height: 630,
         alt: "restocking — alertes de retour en stock",
@@ -92,7 +92,7 @@ export const metadata: Metadata = {
     title: "restocking — your size, the moment it comes back",
     description:
       "Size-specific restock alerts for European fashion. Zara, COS, Aritzia, Sézane and 100+ stores.",
-    images: ["https://www.restocking.app/og-image.png"],
+    images: ["https://www.restocking.app/opengraph-image"],
   },
 };
 
