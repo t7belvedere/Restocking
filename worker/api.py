@@ -38,15 +38,19 @@ SIZE_TOKENS = [
 
 
 def _pick_meta(html: str, prop: str) -> str | None:
-    m = re.search(
+    # Match in either order: property-then-content or content-then-property
+    for pat in (
         rf'<meta[^>]+(?:property|name)=["\']{prop}["\'][^>]+content=["\']([^"\']+)["\']',
-        html,
-        re.IGNORECASE,
-    )
-    return m.group(1) if m else None
+        rf'<meta[^>]+content=["\']([^"\']+)["\'][^>]+(?:property|name)=["\']{prop}["\']',
+    ):
+        m = re.search(pat, html, re.IGNORECASE)
+        if m:
+            return m.group(1)
+    return None
 
 
 def _pick_price(html: str) -> float | None:
+    # 1. Meta tags — most reliable
     for key in ("og:price:amount", "product:price:amount", "price"):
         raw = _pick_meta(html, key)
         if raw:
@@ -54,12 +58,33 @@ def _pick_price(html: str) -> float | None:
                 return float(raw.replace(",", "."))
             except (ValueError, TypeError):
                 pass
-    m = re.search(r"(\d{1,4}(?:[.,]\d{2})?)\s*€", html)
-    if m:
+    # 2. JSON-LD offers
+    for m in re.finditer(
+        r'<script type="application/ld\+json"[^>]*>(.*?)</script>',
+        html,
+        re.DOTALL,
+    ):
         try:
-            return float(m.group(1).replace(",", "."))
+            data = json.loads(m.group(1))
+            if isinstance(data, dict) and data.get("@type") == "Product":
+                offers = data.get("offers", [])
+                if isinstance(offers, dict):
+                    offers = [offers]
+                for o in offers:
+                    p = o.get("price")
+                    if p is not None:
+                        return float(p)
+        except Exception:
+            pass
+    # 3. Regex fallback — take the highest price found (product > shipping fees)
+    prices: list[float] = []
+    for m in re.finditer(r"(\d{1,4}(?:[.,]\d{2})?)\s*€", html):
+        try:
+            prices.append(float(m.group(1).replace(",", ".")))
         except (ValueError, TypeError):
             pass
+    if prices:
+        return max(prices)
     return None
 
 
@@ -142,12 +167,15 @@ def _extract_css_text(page, selector: str) -> str | None:
 
 
 def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
-    """Separate a merged variant list into sizes and colors.
-
-    Sizes are short tokens that match standard apparel sizing patterns.
-    Colors are longer natural-language descriptions.
-    """
+    """Separate a merged variant list into sizes and colors."""
     _SIZE_SET = set(SIZE_TOKENS)  # XXS..XXXL, 34..50
+    # Common French/English color names that look like short size tokens
+    _COLOR_WORDS = {
+        "BLANC", "NOIR", "ROUGE", "BLEU", "VERT", "ROSE", "GRIS", "JAUNE",
+        "MARRON", "BEIGE", "VIOLET", "ORANGE", "TURQUOISE", "KAKI", "IVOIRE",
+        "WHITE", "BLACK", "RED", "BLUE", "GREEN", "PINK", "GREY", "GRAY",
+        "YELLOW", "BROWN", "PURPLE", "SILVER", "GOLD", "NAVY", "CREAM",
+    }
     sizes: list[str] = []
     colors: list[str] = []
 
@@ -155,16 +183,18 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
         v_clean = v.strip()
         if not v_clean:
             continue
-        # Exact size token match
-        if v_clean.upper() in _SIZE_SET:
+        # Known color words (even short ones) → color
+        if v_clean.upper() in _COLOR_WORDS:
+            colors.append(v_clean)
+        # Exact size token match (numeric or alpha size)
+        elif v_clean.upper() in _SIZE_SET:
             sizes.append(v_clean)
-        # Short uppercase + optional digits (L, XL, XXL, 2XL, etc.)
+        # Short uppercase alphanumeric that's NOT a known color → size
         elif re.fullmatch(r"[A-Z0-9 ]{1,6}", v_clean) and len(v_clean) <= 6:
             sizes.append(v_clean)
         else:
             colors.append(v_clean)
 
-    # Normalize order — standard sizes first, then numeric
     _SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL"]
     sizes.sort(key=lambda s: (_SIZE_ORDER.index(s) if s in _SIZE_ORDER else len(_SIZE_ORDER) + int(s) if s.isdigit() else 999))
     colors.sort()
