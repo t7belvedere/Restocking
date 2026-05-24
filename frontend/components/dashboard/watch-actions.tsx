@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { Loader2, Pause, Play, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useLocale } from "@/components/site/locale-provider";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -23,6 +24,8 @@ interface WatchActionsProps {
 }
 
 export function WatchActions({ id, isActive }: WatchActionsProps) {
+  const { t } = useLocale();
+  const td = t.watchDetail;
   const [pending, startTransition] = useTransition();
   const [deleting, startDelete] = useTransition();
 
@@ -31,9 +34,9 @@ export function WatchActions({ id, isActive }: WatchActionsProps) {
       const next = !isActive;
       const res = await toggleWatch(id, next);
       if (res.ok) {
-        toast.success(next ? "Alerte réactivée" : "Alerte mise en pause");
+        toast.success(next ? td.reactivated : td.pausedToast);
       } else {
-        toast.error("Action impossible");
+        toast.error(td.actionFailed);
       }
     });
   }
@@ -64,7 +67,7 @@ export function WatchActions({ id, isActive }: WatchActionsProps) {
         ) : (
           <Play className="h-4 w-4" />
         )}
-        {isActive ? "Mettre en pause" : "Réactiver"}
+        {isActive ? td.pause : td.reactivate}
       </Button>
 
       <AlertDialog>
@@ -76,21 +79,20 @@ export function WatchActions({ id, isActive }: WatchActionsProps) {
             className="text-destructive hover:bg-destructive/10 hover:text-destructive"
           >
             <Trash2 className="h-4 w-4" />
-            Supprimer
+            {td.delete}
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer cette alerte ?</AlertDialogTitle>
+            <AlertDialogTitle>{td.deleteTitle}</AlertDialogTitle>
             <AlertDialogDescription>
-              Cette action est irréversible. L&apos;historique des
-              vérifications sera également supprimé.
+              {td.deleteDesc}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel asChild>
               <Button type="button" variant="outline">
-                Annuler
+                {td.cancel}
               </Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
@@ -105,7 +107,7 @@ export function WatchActions({ id, isActive }: WatchActionsProps) {
                 ) : (
                   <Trash2 className="h-4 w-4" />
                 )}
-                Supprimer définitivement
+                {td.deleteForever}
               </Button>
             </AlertDialogAction>
           </AlertDialogFooter>
