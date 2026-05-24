@@ -8,94 +8,79 @@ from supabase import Client, create_client
 
 load_dotenv()
 
-_url: str = os.environ["SUPABASE_URL"]
-_key: str = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
+_url = os.getenv("SUPABASE_URL", "")
+_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+if not _url or not _key:
+    raise EnvironmentError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in .env")
 
 supabase: Client = create_client(_url, _key)
 
 
 def get_active_watches() -> list[dict]:
-    """Return all active watches with user subscription info.
+    """Return all active watches with subscription plan.
 
-    Query: SELECT watches.*, subscriptions.plan, auth.users.email
-    FROM watches
-    JOIN subscriptions ON watches.user_id = subscriptions.user_id
-    JOIN auth.users ON watches.user_id = auth.users.id
-    WHERE watches.active = true
+    Email is not fetched here — use get_user_email(user_id) when needed.
     """
     response = (
         supabase.table("watches")
-        .select(
-            "*, subscriptions!inner(plan), users:user_id(email)"
-        )
-        .eq("active", True)
+        .select("*, subscriptions!inner(plan)")
+        .eq("is_active", True)
         .execute()
     )
     rows = response.data or []
-    # Flatten nested joins so callers get a flat dict per watch
     result = []
     for row in rows:
         flat = dict(row)
         subs = flat.pop("subscriptions", None)
-        users = flat.pop("users", None)
         if subs:
             flat["plan"] = subs.get("plan") if isinstance(subs, dict) else (subs[0].get("plan") if subs else None)
-        if users:
-            flat["email"] = users.get("email") if isinstance(users, dict) else (users[0].get("email") if users else None)
         result.append(flat)
     return result
 
 
-def update_watch_status(
-    watch_id: str,
-    status: str,
-    consecutive_in_stock: int,
-) -> None:
-    """Update last_status, last_check (now), consecutive_in_stock on a watch."""
-    supabase.table("watches").update(
-        {
-            "last_status": status,
-            "last_check": datetime.now(timezone.utc).isoformat(),
-            "consecutive_in_stock": consecutive_in_stock,
-        }
-    ).eq("id", watch_id).execute()
+def get_user_email(user_id: str) -> str | None:
+    """Fetch user email via Supabase Admin API."""
+    try:
+        response = supabase.auth.admin.get_user(user_id)
+        return response.user.email if response.user else None
+    except Exception:
+        return None
+
+
+def update_watch_status(watch_id: str, status: str) -> None:
+    """Update last_status and last_check on a watch."""
+    supabase.table("watches").update({
+        "last_status": status,
+        "last_check": datetime.now(timezone.utc).isoformat(),
+    }).eq("id", watch_id).execute()
 
 
 def insert_check_log(
     watch_id: str,
     status: str,
-    method: str,
-    error: str | None = None,
+    signal_source: str | None = None,
+    raw_signal: str | None = None,
 ) -> None:
-    """Insert a row into check_logs table.
+    """Insert a row into check_logs.
 
-    Fields: watch_id, status, method (http/stealth/stealth_cf), error, checked_at (now)
+    signal_source valid values: 'dataLayer', 'add_to_cart_btn', 'variant_attr', 'playwright'.
     """
-    supabase.table("check_logs").insert(
-        {
-            "watch_id": watch_id,
-            "status": status,
-            "method": method,
-            "error": error,
-            "checked_at": datetime.now(timezone.utc).isoformat(),
-        }
-    ).execute()
+    row: dict = {
+        "watch_id": watch_id,
+        "status": status,
+        "checked_at": datetime.now(timezone.utc).isoformat(),
+    }
+    if signal_source is not None:
+        row["signal_source"] = signal_source
+    if raw_signal is not None:
+        row["raw_signal"] = raw_signal
+    supabase.table("check_logs").insert(row).execute()
 
 
-def insert_notification(
-    watch_id: str,
-    user_id: str,
-    channel: str,
-) -> None:
-    """Insert a row into notifications table.
-
-    Fields: watch_id, user_id, channel (email/sms), sent_at (now)
-    """
-    supabase.table("notifications").insert(
-        {
-            "watch_id": watch_id,
-            "user_id": user_id,
-            "channel": channel,
-            "sent_at": datetime.now(timezone.utc).isoformat(),
-        }
-    ).execute()
+def insert_notification(watch_id: str, channel: str, success: bool = True) -> None:
+    """Insert a row into notifications."""
+    supabase.table("notifications").insert({
+        "watch_id": watch_id,
+        "channel": channel,
+        "success": success,
+    }).execute()
