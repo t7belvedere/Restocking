@@ -47,7 +47,7 @@ def get_active_watches() -> list[dict]:
 def get_user_email(user_id: str) -> str | None:
     """Fetch user email via Supabase Admin API."""
     try:
-        response = supabase.auth.admin.get_user(user_id)
+        response = supabase.auth.admin.get_user_by_id(user_id)
         return response.user.email if response.user else None
     except Exception:
         return None
@@ -56,7 +56,7 @@ def get_user_email(user_id: str) -> str | None:
 def get_user_phone(user_id: str) -> str | None:
     """Fetch verified user phone from user_metadata via Supabase Admin API."""
     try:
-        response = supabase.auth.admin.get_user(user_id)
+        response = supabase.auth.admin.get_user_by_id(user_id)
         if response.user and response.user.user_metadata:
             meta = response.user.user_metadata
             phone = meta.get("phone")
