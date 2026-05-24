@@ -642,6 +642,16 @@ async def health():
         "twilio": bool(TWILIO_SID),
     }
 
+@app.get("/my-ip")
+async def my_ip():
+    """Return the server's outbound IP — used to whitelist in proxy providers."""
+    import httpx as _httpx
+    try:
+        resp = await _httpx.AsyncClient(timeout=10).get("https://api.ipify.org")
+        return {"ip": resp.text.strip()}
+    except Exception:
+        return {"ip": "unknown"}
+
 
 # ---------------------------------------------------------------------------
 # OTP phone verification
