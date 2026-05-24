@@ -602,14 +602,15 @@ async def send_otp(phone: str = Query(min_length=6)):
     try:
         from twilio.rest import Client as TwilioClient
         client = TwilioClient(TWILIO_SID, TWILIO_TOKEN)
-        client.messages.create(
+        msg = client.messages.create(
             body=f"Restocking — code de vérification : {code}",
             from_=TWILIO_FROM,
             to=phone,
         )
-    except Exception:
-        logger.exception("Twilio send failed for %s", phone)
-        raise HTTPException(status_code=502, detail="Could not send SMS")
+        logger.info("Twilio SMS sent — SID=%s to=%s", msg.sid, phone)
+    except Exception as e:
+        logger.exception("Twilio send failed for %s: %s", phone, str(e))
+        raise HTTPException(status_code=502, detail=f"Could not send SMS: {str(e)[:120]}")
 
     _pending_otps[phone] = {"code": code, "expires_at": time.monotonic() + 300, "last_sent": time.monotonic()}
     logger.info("OTP sent to %s", phone)

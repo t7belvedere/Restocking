@@ -1,7 +1,9 @@
 "use server";
 
 const WORKER_URL =
-  process.env.WORKER_API_URL || "https://restocking-production.up.railway.app";
+  process.env.VERCEL_ENV === "production"
+    ? "https://restocking-production.up.railway.app"
+    : process.env.WORKER_API_URL || "https://restocking-production.up.railway.app";
 
 export async function sendPhoneOtp(phone: string): Promise<{ ok: boolean; error?: string }> {
   if (!phone || !/^\+[0-9]{7,15}$/.test(phone)) {
