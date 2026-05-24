@@ -1,15 +1,13 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import {
   ArrowRight,
   Loader2,
-  Mail,
-  CheckCircle2,
   Trophy,
 } from "lucide-react";
 import { useLocale } from "@/components/site/locale-provider";
-import { signupAction, type SignupState } from "@/app/(auth)/signup/actions";
+import { type SignupState } from "@/app/(auth)/signup/actions";
 import { signInWithGoogleAction } from "@/app/(auth)/login/oauth-actions";
 import { cn } from "@/lib/utils";
 
@@ -278,64 +276,31 @@ function GoogleIcon({ className }: { className?: string }) {
 // SignupStep
 // ---------------------------------------------------------------------------
 
-const initialSignupState: SignupState = { status: "idle" };
+export type Locale = "fr" | "en";
 
 export function SignupStep({
   answers,
-  isAuthConfigured,
+  setAnswers: _setAnswers,
+  locale,
+  isPending,
+  state,
+  onGoogleSignIn,
+  onEmailSignUp,
 }: {
   answers: OnboardingAnswers;
-  isAuthConfigured: boolean;
+  setAnswers?: (a: OnboardingAnswers) => void;
+  locale: Locale;
+  isPending: boolean;
+  state: SignupState;
+  onGoogleSignIn: () => void;
+  onEmailSignUp: (formData: FormData) => void;
 }) {
-  const { t, locale } = useLocale();
-  const [state, formAction, isPending] = useActionState(
-    signupAction,
-    initialSignupState,
-  );
-
-  if (!isAuthConfigured) {
-    return (
-      <div className="rounded-2xl border-2 border-ink bg-[var(--brand-orange)] p-6 shadow-brutal">
-        <h3 className="font-display text-2xl font-extrabold tracking-tight text-ink">
-          {t.auth.notConfiguredTitle}
-        </h3>
-        <p className="mt-2 text-sm leading-relaxed text-ink/80">
-          {t.auth.notConfiguredBody}
-        </p>
-      </div>
-    );
-  }
-
-  if (state.status === "success" && state.email) {
-    return (
-      <div className="rounded-2xl border-2 border-ink bg-[var(--brand-lime)] p-6 shadow-brutal">
-        <div className="flex items-start gap-4">
-          <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 border-ink bg-paper">
-            <Mail className="h-5 w-5 text-ink" />
-          </span>
-          <div>
-            <h3 className="font-display text-2xl font-extrabold tracking-tight text-ink">
-              {t.auth.checkEmailTitle}
-            </h3>
-            <p className="mt-2 text-sm text-ink/85">
-              {t.auth.checkEmailBody}{" "}
-              <strong className="font-bold">{state.email}</strong>.
-            </p>
-            <p className="mt-2 text-xs text-ink/65">{t.auth.checkEmailHint}</p>
-            <div className="mt-5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-ink/70">
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              {locale === "fr" ? "Compte créé" : "Account created"}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const { t } = useLocale();
 
   return (
     <div className="space-y-5">
       {/* Google sign-in */}
-      <form action={signInWithGoogleAction}>
+      <form action={signInWithGoogleAction} onSubmit={onGoogleSignIn}>
         <input type="hidden" name="locale" value={locale} />
         <button
           type="submit"
@@ -356,7 +321,7 @@ export function SignupStep({
       </div>
 
       {/* Email/password form */}
-      <form action={formAction} className="space-y-4" noValidate>
+      <form action={onEmailSignUp} className="space-y-4" noValidate>
         <input type="hidden" name="locale" value={locale} />
 
         <div className="space-y-1.5">
