@@ -208,6 +208,8 @@ def _universal_extract(page, html: str, url: str) -> dict:
     image_url = _pick_meta(html, "og:image")
     if not image_url:
         image_url = _extract_css_image(page, url)
+    if image_url and image_url.startswith("http://"):
+        image_url = image_url.replace("http://", "https://", 1)
     result["image_url"] = image_url
 
     # --- VARIANTS (sizes + colors unified) ---

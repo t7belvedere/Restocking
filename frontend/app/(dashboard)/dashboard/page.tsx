@@ -31,7 +31,9 @@ export default async function DashboardPage() {
   return (
     <Suspense fallback={<DashboardLoading />}>
       <AutoRefresh intervalSeconds={60} />
-      <DashboardContent />
+      <div suppressHydrationWarning>
+        <DashboardContent />
+      </div>
     </Suspense>
   );
 }
