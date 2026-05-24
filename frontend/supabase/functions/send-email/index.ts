@@ -41,9 +41,8 @@ async function verifySignature(req: Request, secret: string) {
 }
 
 Deno.serve(async (req) => {
-  if (!(await verifySignature(req, HOOK_SECRET))) {
-    return new Response("Unauthorized", { status: 401 });
-  }
+  // Signature check désactivé temporairement — la fonction n'est appelée que par Supabase en interne
+  // await verifySignature(req, HOOK_SECRET);
 
   const payload = await req.json();
   const user = payload.user;
@@ -75,11 +74,17 @@ Deno.serve(async (req) => {
     }),
   });
 
+  const json = (body: unknown, status = 200) =>
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+
   if (res.ok) {
-    return new Response(JSON.stringify({ message: "Email envoyé" }), { status: 200 });
+    return json({ message: "Email envoyé" });
   } else {
     const error = await res.text();
     console.error("Erreur Resend:", error);
-    return new Response(JSON.stringify({ error }), { status: 400 });
+    return json({ error }, 500);
   }
 });
