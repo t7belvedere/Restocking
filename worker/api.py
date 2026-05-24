@@ -837,6 +837,11 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
         "select color", "select size", "sélectionne ta taille",
         "sélectionne ta taille / couleur", "sélectionnez votre taille",
         "choisissez votre taille", "taille", "couleur", "color", "size",
+        # Brand names that leak into variant extraction
+        "monki", "weekday", "cos", "arket", "other stories",
+        "asos", "bershka", "pullbear", "pull bear", "stradivarius",
+        "oysho", "massimo dutti", "lefties", "uterque",
+        "zara", "hm", "uniqlo", "pimkie", "stüssy", "nike", "adidas",
     }
 
     def _classify_one(token: str) -> tuple[str, str] | None:
