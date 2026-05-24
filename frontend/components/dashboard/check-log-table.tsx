@@ -61,10 +61,10 @@ function statusVariant(status: WatchStatus) {
 }
 
 const SOURCE_LABEL: Record<string, string> = {
-  dataLayer: "dataLayer",
-  add_to_cart_btn: "Bouton panier",
-  variant_attr: "Attribut variante",
-  playwright: "Playwright",
+  dataLayer: "Code de la page",
+  add_to_cart_btn: "Bouton d'achat",
+  variant_attr: "Détail de la taille",
+  playwright: "Analyse complète",
 };
 
 /* ------------------------------------------------------------------ */
