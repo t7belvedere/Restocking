@@ -1,13 +1,5 @@
 import { Tabs } from "expo-router";
-import { View, Text } from "react-native";
-
-function TabIcon({ label, color }: { label: string; color: string }) {
-  return (
-    <View className="h-6 w-6 items-center justify-center">
-      <Text style={{ fontSize: 18, color }}>{label}</Text>
-    </View>
-  );
-}
+import { Text, StyleSheet } from "react-native";
 
 export default function TabLayout() {
   return (
@@ -16,37 +8,41 @@ export default function TabLayout() {
         headerShown: false,
         tabBarActiveTintColor: "#F85C15",
         tabBarInactiveTintColor: "#737373",
-        tabBarStyle: {
-          backgroundColor: "#FFFFFF",
-          borderTopWidth: 1,
-          borderTopColor: "#262626",
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
-        },
+        tabBarStyle: styles.bar,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: "Dashboard",
-          tabBarIcon: ({ color }) => <TabIcon label="H" color={color} />,
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>H</Text>,
         }}
       />
       <Tabs.Screen
         name="add"
         options={{
           title: "Add",
-          tabBarIcon: ({ color }) => <TabIcon label="+" color={color} />,
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22, color }}>+</Text>,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: "Settings",
-          tabBarIcon: ({ color }) => <TabIcon label="S" color={color} />,
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>S</Text>,
         }}
       />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  bar: {
+    backgroundColor: "#FFFFFF",
+    borderTopWidth: 1,
+    borderTopColor: "#262626",
+    height: 60,
+    paddingBottom: 8,
+    paddingTop: 8,
+  },
+});

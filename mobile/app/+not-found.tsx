@@ -1,16 +1,21 @@
 import { Link, Stack } from "expo-router";
-import { View, Text } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 
 export default function NotFound() {
   return (
-    <View className="flex-1 items-center justify-center bg-cream gap-4">
+    <View style={s.container}>
       <Stack.Screen options={{ title: "Not Found" }} />
-      <Text className="font-display text-3xl font-bold text-ink">404</Text>
-      <Link href="/" className="rounded-lg border-2 border-ink bg-primary px-6 py-3">
-        <Text className="font-display text-base font-bold text-primary-foreground">
-          Go home
-        </Text>
+      <Text style={s.title}>404</Text>
+      <Link href="/" style={s.link}>
+        <Text style={s.linkText}>Go home</Text>
       </Link>
     </View>
   );
 }
+
+const s = StyleSheet.create({
+  container: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#F9F8F6", gap: 16 },
+  title: { fontSize: 32, fontWeight: "700", color: "#262626" },
+  link: { borderRadius: 10, borderWidth: 2, borderColor: "#262626", backgroundColor: "#F85C15", paddingHorizontal: 24, paddingVertical: 14 },
+  linkText: { fontSize: 16, fontWeight: "700", color: "#FFF" },
+});
