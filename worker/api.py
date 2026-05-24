@@ -420,8 +420,8 @@ async def health():
 async def analyze(url: str = Query(min_length=1)):
     """Scrape a product URL and return metadata.
 
-    Uses 3-tier fallback. Playwright runs in a thread to avoid
-    asyncio conflicts with FastAPI/uvicorn.
+    All scraping runs via asyncio.to_thread to keep Playwright
+    out of the uvicorn event loop and avoid asyncio conflicts.
     """
     import asyncio as _asyncio
 
@@ -435,10 +435,10 @@ async def analyze(url: str = Query(min_length=1)):
     html: str | None = None
     page = None
 
-    # Level 1 — plain HTTP (async, no thread needed)
+    # Level 1 — plain HTTP
     try:
-        page = await Fetcher.async_get(url, stealthy_headers=True, timeout=15)
-        if page.status in (200, 304):
+        page = await _asyncio.to_thread(Fetcher.get, url, stealthy_headers=True, timeout=15)
+        if getattr(page, "status", 0) in (200, 304):
             html = getattr(page, "html_content", "")
             if html and len(html) < 5000:
                 logger.debug("Level 1 HTML too small (%d bytes) — escalating", len(html))
@@ -446,12 +446,17 @@ async def analyze(url: str = Query(min_length=1)):
     except Exception:
         logger.debug("Level 1 (Fetcher) failed", exc_info=True)
 
-    # Level 2 — Playwright stealth in a thread (avoids asyncio conflict)
+    # Level 2 — Playwright stealth
     if html is None:
         try:
             page = await _asyncio.to_thread(
                 PlayWrightFetcher.fetch,
-                url, stealth=True, disable_resources=True, timeout=25000, wait=2000,
+                url,
+                headless=True,
+                stealth=True,
+                disable_resources=True,
+                timeout=25000,
+                wait=2000,
             )
             html = getattr(page, "html_content", "")
         except Exception:
@@ -462,7 +467,11 @@ async def analyze(url: str = Query(min_length=1)):
         try:
             page = await _asyncio.to_thread(
                 PlayWrightFetcher.fetch,
-                url, stealth=True, timeout=30000, wait=3000,
+                url,
+                headless=True,
+                stealth=True,
+                timeout=30000,
+                wait=3000,
             )
             html = getattr(page, "html_content", "")
         except Exception:
