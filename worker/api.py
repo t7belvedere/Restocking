@@ -909,6 +909,9 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
             "favori", "favoris", "wishlist", "blog", "magazine", "journal",
             "zalando", "zara", "cos", "hm", "uniqlo", "bershka", "pimkie",
             "stüssy", "stussy", "nike", "adidas", "puma",
+            "monki", "weekday", "cos", "arket", "other stories", "and other stories",
+            "asos", "bershka", "pullbear", "pull bear", "stradivarius", "oysho",
+            "massimo dutti", "bershka", "lefties", "uterque",
             # Payment methods
             "american express", "apple pay", "klarna", "paypal", "visa", "mastercard",
             "amex", "cartes bancaires", "cartes", "carte bancaire", "cb", "sepa",
@@ -959,6 +962,10 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
             "cookie", "cookies", "consentement", "consent", "privacy",
             "confidentialité", "confidentialite", "rgpd", "gdpr",
             "optanon", "onetrust", "didomi", "axeptio",
+            "analytics", "personalization", "targeting", "tracking",
+            "functional", "necessary", "marketing", "advertising",
+            "ad storage", "ad user data", "ad personalization",
+            "analytics and personalization",
             # Trustpilot / avis
             "trustpilot", "avis", "reviews", "évaluations", "evaluations",
             "note", "rating", "étoile", "etoile", "stars", "étoiles",
