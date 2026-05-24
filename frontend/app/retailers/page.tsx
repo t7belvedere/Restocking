@@ -191,7 +191,7 @@ export default function RetailersPage() {
                 >
                   <div className="flex items-start justify-between">
                     <span className="font-mono text-[10px] uppercase tracking-widest text-ink/50">
-                      {r.country}
+                      {r.country} · {r.name}
                     </span>
                     <span
                       className={cn(
@@ -213,7 +213,14 @@ export default function RetailersPage() {
                     <p className="max-w-[24ch] text-[11px] leading-snug text-ink/55">
                       {locale === "fr" ? r.note_fr : r.note_en}
                     </p>
-                    <ArrowUpRight className="h-4 w-4 shrink-0 text-ink/30 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-ink" />
+                    <a
+                      href={`https://${r.domain}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${r.name} website`}
+                    >
+                      <ArrowUpRight className="h-4 w-4 shrink-0 text-ink/30 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-ink" />
+                    </a>
                   </div>
                 </article>
               );
