@@ -54,15 +54,15 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
 
   if (!supabase) return response;
 
-  // getSession() refreshes the token proactively; getUser() only reads
-  // the cached session and may miss a refresh window.
+  // Use getUser() instead of getSession() for the proxy guard.
+  // getSession() can return an expired token that getUser() rejects,
+  // causing a redirect loop between the proxy and layout auth checks.
   let isAuthenticated = false;
   try {
-    const { data } = await supabase.auth.getSession();
-    isAuthenticated = Boolean(data.session?.user);
+    const { data } = await supabase.auth.getUser();
+    isAuthenticated = Boolean(data.user);
   } catch {
-    // Token refresh failed — treat as unauthenticated for this request.
-    // The session may still be recoverable on the next request.
+    // Token validation failed — treat as unauthenticated.
   }
 
   const pathname = request.nextUrl.pathname;
