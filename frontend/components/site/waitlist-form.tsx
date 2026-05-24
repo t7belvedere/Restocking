@@ -129,7 +129,7 @@ export function WaitlistForm({
           }}
           required
           className={cn(
-            "h-14 flex-1 rounded-xl border-2 border-ink px-4 font-medium text-ink placeholder:text-ink/40",
+            "h-16 flex-1 rounded-xl border-2 border-ink px-5 font-medium text-ink placeholder:text-ink/40",
             "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-orange)]/40",
             isDark ? "bg-paper" : "bg-paper",
             "shadow-brutal-sm",
@@ -140,7 +140,7 @@ export function WaitlistForm({
           data-testid={`${testIdPrefix}-waitlist-submit`}
           disabled={status.kind === "loading"}
           className={cn(
-            "group inline-flex h-14 items-center justify-center gap-2 rounded-xl border-2 border-ink px-6 font-display text-base font-bold uppercase tracking-wide",
+            "group inline-flex h-16 items-center justify-center gap-2 rounded-xl border-2 border-ink px-6 font-display text-base font-bold uppercase tracking-wide",
             "bg-[var(--brand-orange)] text-ink shadow-brutal hover-press",
             "disabled:cursor-not-allowed disabled:opacity-70",
           )}
