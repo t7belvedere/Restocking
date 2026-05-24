@@ -12,12 +12,11 @@ export async function GET() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          alignItems: "flex-start",
           width: "100%",
           height: "100%",
           background: "#faf7f2",
           padding: "80px 100px",
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: "system-ui, -apple-system, sans-serif",
         }}
       >
         {/* Top accent bar */}
@@ -28,45 +27,46 @@ export async function GET() {
             height: 8,
             background: "#e87b35",
             borderRadius: 4,
-            marginBottom: 48,
+            marginBottom: 56,
           }}
         />
-        {/* Title */}
+        {/* Title — fit in 1000px at 68px */}
         <div
           style={{
             display: "flex",
-            fontSize: 72,
+            flexDirection: "column",
+            fontSize: 64,
             fontWeight: 900,
-            lineHeight: 1,
+            lineHeight: 1.05,
             color: "#1a1a1a",
-            letterSpacing: "-0.03em",
-            marginBottom: 24,
+            letterSpacing: "-0.025em",
+            marginBottom: 28,
+            maxWidth: 1000,
           }}
         >
-          Your size, the moment
-          <br />
-          it comes back.
+          <span>Your size, the moment</span>
+          <span>it comes back.</span>
         </div>
         {/* Subtitle */}
         <div
           style={{
             display: "flex",
-            fontSize: 28,
-            fontWeight: 400,
-            color: "#666",
-            maxWidth: 700,
-            lineHeight: 1.4,
+            fontSize: 26,
+            fontWeight: 500,
+            color: "#555",
+            maxWidth: 750,
+            lineHeight: 1.45,
           }}
         >
-          Size-specific restock alerts for European fashion. Zara, COS,
-          Aritzia, Sézane, Uniqlo and 120+ brands.
+          Size-specific restock alerts for 120+ European
+          fashion brands. Free for 3 products.
         </div>
         {/* Bottom badge */}
         <div
           style={{
             display: "flex",
             position: "absolute",
-            bottom: 60,
+            bottom: 56,
             right: 80,
             alignItems: "center",
             gap: 12,
@@ -75,7 +75,7 @@ export async function GET() {
           <div
             style={{
               display: "flex",
-              fontSize: 22,
+              fontSize: 24,
               fontWeight: 700,
               color: "#1a1a1a",
             }}
@@ -85,8 +85,8 @@ export async function GET() {
           <div
             style={{
               display: "flex",
-              width: 12,
-              height: 12,
+              width: 14,
+              height: 14,
               borderRadius: "50%",
               background: "#e87b35",
             }}
@@ -94,6 +94,9 @@ export async function GET() {
         </div>
       </div>
     ),
-    { ...size },
+    {
+      width: 1200,
+      height: 630,
+    },
   );
 }
