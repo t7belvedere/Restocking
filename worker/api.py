@@ -646,35 +646,51 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
         "choisissez votre taille", "taille", "couleur", "color", "size",
     }
 
-    def _classify_one(token: str) -> str | None:
-        """Classify a single token as 'size', 'color', or None (skip)."""
+    def _classify_one(token: str) -> tuple[str, str] | None:
+        """Classify a single token. Returns (kind, cleaned_value) or None to skip."""
         t = token.strip()
         if not t:
             return None
         low = t.lower()
+        # UI garbage
         if low in _UI_GARBAGE:
+            return None
+        # Vue/Angular template expressions: ${...}
+        if "${" in t:
+            return None
+        # Currency codes and multi-line junk
+        if t.upper() in ("EUR", "GBP", "USD", "CHF", "CAD", "AUD", "SEK", "DKK", "NOK", "PLN"):
+            return None
+        if re.search(r"[\n\r]", t):
+            return None
+        if re.match(r"^(color|colour|couleur|taille|size|choose|select|choisir)\s*:?\s*$", low):
+            return None
+        # Strip leading "color:" or "couleur:" prefix, and trailing colon
+        t = re.sub(r"^(?i:color|couleur)\s*:\s*", "", t).strip()
+        t = re.sub(r"\s*:\s*$", "", t).strip()
+        if not t:
             return None
         # Known color word → color
         if t.upper() in _COLOR_WORDS:
-            return "color"
+            return ("color", t)
         # Exact size token match
         if t.upper() in _SIZE_SET:
-            return "size"
+            return ("size", t)
         # Short uppercase alphanumeric → size
         if re.fullmatch(r"[A-Z0-9 .\-]{1,6}", t) and len(t) <= 8:
-            return "size"
+            return ("size", t)
         # Pure numeric → size
         if t.isdigit():
-            return "size"
+            return ("size", t)
         # Multi-word: check if it contains a known color or size
         words = t.upper().split()
         if any(w in _COLOR_WORDS for w in words):
-            return "color"
+            return ("color", t)
         if any(w in _SIZE_SET for w in words):
-            return "size"
+            return ("size", t)
         # Remaining longer text → color (conservative: multi-word color names)
         if len(t) <= 40:
-            return "color"
+            return ("color", t)
         return None
 
     for v in variants:
@@ -689,13 +705,16 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
             parts = [v_clean]
 
         for part in parts:
-            kind = _classify_one(part)
+            classified = _classify_one(part)
+            if classified is None:
+                continue
+            kind, value = classified
             if kind == "size":
-                if part not in sizes:
-                    sizes.append(part)
+                if value not in sizes:
+                    sizes.append(value)
             elif kind == "color":
-                if part not in colors:
-                    colors.append(part)
+                if value not in colors:
+                    colors.append(value)
 
     _SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL"]
     sizes.sort(key=lambda s: (_SIZE_ORDER.index(s) if s in _SIZE_ORDER else len(_SIZE_ORDER) + int(s) if s.isdigit() else 999))
