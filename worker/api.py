@@ -167,6 +167,141 @@ def _extract_title(html: str) -> str | None:
     return title or None
 
 
+def _universal_extract(page, html: str, url: str) -> dict:
+    """Extract product metadata from a rendered page + raw HTML.
+
+    Uses rendered DOM (Playwright) when available, falls back to
+    regex on raw HTML. Works across all retailers without per-site code.
+    """
+    result: dict = {
+        "name": None,
+        "image_url": None,
+        "price": None,
+        "variants": [],
+        "sizes": [],
+        "colors": [],
+    }
+
+    # --- NAME ---
+    # Priority: og:title meta > h1 > JSON-LD name > <title> tag
+    name = _pick_meta(html, "og:title")
+    if not name:
+        name = _extract_css_text(page, "h1")
+    if not name:
+        name = _extract_jsonld_field(html, "name")
+    if not name:
+        name = _extract_title(html)
+    result["name"] = name
+
+    # --- PRICE ---
+    # Priority: og:price meta > JSON-LD > CSS € symbols
+    price = _pick_price(html)
+    if price is None:
+        price = _extract_css_price(page)
+    result["price"] = price
+
+    # --- IMAGE ---
+    # Priority: og:image meta > DOM largest product image > imagesrcset
+    image_url = _pick_meta(html, "og:image")
+    if not image_url:
+        image_url = _extract_css_image(page, url)
+    result["image_url"] = image_url
+
+    # --- VARIANTS (sizes + colors unified) ---
+    variants = _extract_variants(html)
+    if page is not None:
+        css_sizes = _extract_css_sizes(page)
+        for s in css_sizes:
+            if s not in variants:
+                variants.append(s)
+        css_colors = _extract_css_colors(page)
+        for c in css_colors:
+            if c not in variants:
+                variants.append(c)
+        # Also try <select> dropdowns and radio groups for any retailer
+        dom_variants = _extract_dom_variants(page)
+        for v in dom_variants:
+            if v not in variants:
+                variants.append(v)
+
+    sizes, colors = _classify_variants(variants)
+    result["variants"] = variants
+    result["sizes"] = sizes
+    result["colors"] = colors
+
+    return result
+
+
+def _extract_jsonld_field(html: str, field: str) -> str | None:
+    """Extract a field from JSON-LD Product structured data."""
+    for m in re.finditer(
+        r'<script type="application/ld\+json"[^>]*>(.*?)</script>',
+        html, re.DOTALL,
+    ):
+        try:
+            data = json.loads(m.group(1))
+            if isinstance(data, dict) and data.get("@type") == "Product":
+                val = data.get(field)
+                if isinstance(val, str) and val.strip():
+                    return val.strip()
+        except Exception:
+            pass
+    return None
+
+
+def _extract_dom_variants(page) -> list[str]:
+    """Extract variants from rendered DOM using universal selectors.
+
+    Covers: <select> dropdowns, radio/button groups. Filters out
+    cookie banners and non-product text.
+    """
+    _SKIP_WORDS = {"cookie", "cookies", "checkbox", "fonctionnalité", "publicit",
+                   "analys", "personnali", "préférence", "préference",
+                   "check box", "check-box", "optanon", "privacy", "consent",
+                   "accept", "refuse", "refuser", "accepter", "tout", "fermer",
+                   "close", "save", "saved", "settings", "paramètre", "réglage"}
+    found: set[str] = set()
+
+    # 1. <select> dropdowns — most universal (Shopify, Magento, etc.)
+    try:
+        selects = page.css("select")
+        for sel in selects[:8]:
+            name = (sel.attrib.get("name", "") + sel.attrib.get("id", "")).lower()
+            options = sel.css("option")
+            for opt in options[1:]:  # skip placeholder
+                txt = "".join(opt.get_all_text()).strip() if hasattr(opt, "get_all_text") else ""
+                txt = txt.strip()
+                if not txt or len(txt) > 30:
+                    continue
+                low = txt.lower()
+                if any(w in low for w in _SKIP_WORDS):
+                    continue
+                found.add(txt)
+    except Exception:
+        pass
+
+    # 2. Labels inside fieldset or form (size/color/variant selectors)
+    try:
+        for scope in ("fieldset", "form", "[class*=variant]", "[class*=swatch]",
+                      "[class*=selector]", "[class*=picker]"):
+            containers = page.css(scope)
+            for container in containers[:3]:
+                labels = container.css("label")
+                for lab in labels[:30]:
+                    txt = "".join(lab.get_all_text()).strip() if hasattr(lab, "get_all_text") else ""
+                    txt = txt.strip()
+                    if not txt or len(txt) > 30:
+                        continue
+                    low = txt.lower()
+                    if any(w in low for w in _SKIP_WORDS):
+                        continue
+                    found.add(txt)
+    except Exception:
+        pass
+
+    return list(found)
+
+
 def _extract_css_text(page, selector: str) -> str | None:
     """Extract text from the first matching CSS element on a rendered page."""
     try:
@@ -524,44 +659,11 @@ async def analyze(url: str = Query(min_length=1)):
     if not html:
         raise HTTPException(status_code=502, detail="All fetch levels failed")
 
-    # --- Extraction: try og:meta first (works for most retailers), fall back to CSS ---
-    name = _pick_meta(html, "og:title")
-    if not name:
-        name = _extract_title(html)
-    if not name and page is not None:
-        name = _extract_css_text(page, "h1")
-
-    image_url = _pick_meta(html, "og:image")
-    if not image_url and page is not None:
-        image_url = _extract_css_image(page, url)
-
-    price = _pick_price(html)
-    if price is None and page is not None:
-        price = _extract_css_price(page)
-
-    variants = _extract_variants(html)
-
-    # Extract sizes and colors from rendered page (JS-rendered selectors)
-    if page is not None:
-        css_sizes = _extract_css_sizes(page)
-        for s in css_sizes:
-            if s not in variants:
-                variants.append(s)
-        css_colors = _extract_css_colors(page)
-        for c in css_colors:
-            if c not in variants:
-                variants.append(c)
-
-    # Split into sizes and colors for multi-select UI
-    sizes, colors = _classify_variants(variants)
+    # --- Universal extraction from rendered DOM + raw HTML ---
+    result = _universal_extract(page, html, url)
 
     return {
         "ok": True,
         "url": url,
-        "name": name,
-        "image_url": image_url,
-        "price": price,
-        "variants": variants,   # legacy — full merged list
-        "sizes": sizes,
-        "colors": colors,
+        **result,
     }
