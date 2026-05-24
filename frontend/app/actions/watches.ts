@@ -125,7 +125,8 @@ export async function analyzeUrl(url: string): Promise<AnalyzeResult> {
     };
   }
 
-  const workerApiUrl = process.env.WORKER_API_URL || "http://localhost:8000";
+  const workerApiUrl =
+    process.env.WORKER_API_URL || "https://restocking-production.up.railway.app";
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 35000);
