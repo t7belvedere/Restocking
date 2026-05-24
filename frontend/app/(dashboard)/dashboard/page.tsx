@@ -263,7 +263,7 @@ function EmptyState({ firstName }: { firstName: string | null }) {
         </div>
         <div className="space-y-2">
           <h2 className="font-display text-xl font-extrabold tracking-tight sm:text-2xl">
-            {firstName ? `Prête à traquer, ${firstName} ?` : "Prêt à commencer ?"}
+            {firstName ? `Prêt à traquer, ${firstName} ?` : "Prêt à commencer ?"}
           </h2>
           <p className="mx-auto max-w-sm text-sm leading-relaxed text-ink/60">
             Colle l&apos;URL d&apos;un produit qui t&apos;a échappé, choisis ta taille, et on s&apos;occupe du reste.
