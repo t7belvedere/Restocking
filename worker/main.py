@@ -74,6 +74,9 @@ domain_last_request: dict[str, float] = {}
 # watch_id → number of consecutive IN_STOCK readings since last OUT_OF_STOCK
 consecutive_counts: dict[str, int] = {}
 
+# watch_ids we've already notified for the current IN_STOCK streak
+notified_for_streak: set[str] = set()
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -157,7 +160,6 @@ def _process_watch(watch: dict) -> None:
     name = watch.get("name", "?")
     variant_label = watch.get("variant_label")
     variant_id = watch.get("variant_id")
-    previous_status = watch.get("last_status")  # may be None for new watches
 
     logger.info("watch %s (%s) — checking %s", watch_id, name, url)
 
@@ -187,7 +189,7 @@ def _process_watch(watch: dict) -> None:
 
     # --- Update watch last_status + last_check ---
     update_watch_status(watch_id, status)
-    logger.info("watch %s: status=%s (was %s)", watch_id, status, previous_status)
+    logger.info("watch %s: status=%s", watch_id, status)
 
     # --- Double-confirmation logic ---
     current_count = consecutive_counts.get(watch_id, 0)
@@ -197,17 +199,15 @@ def _process_watch(watch: dict) -> None:
         consecutive_counts[watch_id] = new_count
         logger.debug("watch %s: consecutive IN_STOCK count = %d", watch_id, new_count)
 
-        if new_count >= 2 and previous_status != "IN_STOCK":
-            # Two consecutive IN_STOCK readings after a non-IN_STOCK state → notify
+        if new_count >= 2 and watch_id not in notified_for_streak:
+            # Two consecutive IN_STOCK readings and not yet notified for this streak → notify
             logger.info(
-                "watch %s: double-confirmed IN_STOCK (count=%d, prev=%s) — sending notification",
+                "watch %s: double-confirmed IN_STOCK (count=%d) — sending notification",
                 watch_id,
                 new_count,
-                previous_status,
             )
             _send_notifications(watch, status)
-            # Reset counter after notification so we don't spam
-            consecutive_counts[watch_id] = 0
+            notified_for_streak.add(watch_id)
     else:
         # OUT_OF_STOCK or UNKNOWN — reset the streak
         if current_count > 0:
@@ -218,6 +218,7 @@ def _process_watch(watch: dict) -> None:
                 current_count,
             )
         consecutive_counts[watch_id] = 0
+        notified_for_streak.discard(watch_id)
 
 
 # ---------------------------------------------------------------------------
