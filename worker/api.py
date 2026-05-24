@@ -754,13 +754,28 @@ async def analyze(url: str = Query(min_length=1)):
     page = None
     _was_playwright = False  # track whether we already tried Playwright
 
-    proxy = os.getenv("PROXY_URL")
+    proxy_url = os.getenv("PROXY_URL")
+
+    # For Playwright, proxy must be a dict with server/username/password
+    pw_proxy: dict | None = None
+    if proxy_url:
+        try:
+            from urllib.parse import urlparse as _urlparse
+            _p = _urlparse(proxy_url)
+            pw_proxy = {"server": f"{_p.scheme}://{_p.hostname}:{_p.port or 80}"}
+            if _p.username:
+                pw_proxy["username"] = _p.username
+            if _p.password:
+                pw_proxy["password"] = _p.password
+        except Exception:
+            pw_proxy = None
+            logger.debug("Failed to parse PROXY_URL, ignoring", exc_info=True)
 
     # Level 1 — plain HTTP
     try:
         kwargs = {"stealthy_headers": True, "timeout": 15}
-        if proxy:
-            kwargs["proxy"] = proxy
+        if proxy_url:
+            kwargs["proxy"] = proxy_url
         page = await _asyncio.to_thread(Fetcher.get, url, **kwargs)
         if getattr(page, "status", 0) in (200, 304):
             html = getattr(page, "html_content", "")
@@ -779,11 +794,11 @@ async def analyze(url: str = Query(min_length=1)):
                 "stealth": True,
                 "hide_canvas": True,
                 "disable_resources": True,
-                "timeout": 25000,
-                "wait": 2000,
+                "timeout": 40000,
+                "wait": 3000,
             }
-            if proxy:
-                pw_kwargs["proxy"] = proxy
+            if pw_proxy:
+                pw_kwargs["proxy"] = pw_proxy
             page = await _asyncio.to_thread(
                 PlayWrightFetcher.fetch,
                 url,
@@ -803,8 +818,8 @@ async def analyze(url: str = Query(min_length=1)):
                 "timeout": 30000,
                 "wait": 3000,
             }
-            if proxy:
-                pw3_kwargs["proxy"] = proxy
+            if pw_proxy:
+                pw3_kwargs["proxy"] = pw_proxy
             page = await _asyncio.to_thread(
                 PlayWrightFetcher.fetch,
                 url,

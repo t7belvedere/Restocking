@@ -9,10 +9,24 @@ Raises the last exception if all levels fail.
 """
 
 import os
+from urllib.parse import urlparse as _urlparse
 
 from scrapling.fetchers import Fetcher, PlayWrightFetcher
 
-_proxy = os.getenv("PROXY_URL")
+_proxy_url = os.getenv("PROXY_URL")
+
+# For Playwright, proxy must be a dict {server, username, password}
+_pw_proxy: dict | None = None
+if _proxy_url:
+    try:
+        _p = _urlparse(_proxy_url)
+        _pw_proxy = {"server": f"{_p.scheme}://{_p.hostname}:{_p.port or 80}"}
+        if _p.username:
+            _pw_proxy["username"] = _p.username
+        if _p.password:
+            _pw_proxy["password"] = _p.password
+    except Exception:
+        pass
 
 
 def _pw_kwargs(**overrides):
@@ -24,8 +38,8 @@ def _pw_kwargs(**overrides):
         "disable_resources": True,
     }
     kw.update(overrides)
-    if _proxy:
-        kw["proxy"] = _proxy
+    if _pw_proxy:
+        kw["proxy"] = _pw_proxy
     return kw
 
 
@@ -33,8 +47,8 @@ def _http_kwargs(**overrides):
     """Base HTTP kwargs, with optional proxy."""
     kw = {"stealthy_headers": True}
     kw.update(overrides)
-    if _proxy:
-        kw["proxy"] = _proxy
+    if _proxy_url:
+        kw["proxy"] = _proxy_url
     return kw
 
 
