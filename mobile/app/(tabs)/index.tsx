@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
+import { brutal, brutalSm } from "@/lib/shadows";
 
 // ── Types ────────────────────────────────────────────────────────────────
 type WatchStatus = "IN_STOCK" | "OUT_OF_STOCK" | "UNKNOWN";
@@ -32,8 +33,6 @@ interface Watch {
   is_active: boolean | null;
   created_at: string;
 }
-
-import { brutal, brutalSm } from "@/lib/shadows";
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -113,13 +112,24 @@ function formatFrenchDate(date: Date): string {
   return `${weekday} ${day} ${month}`;
 }
 
+// ── Stat icon (emoji in colored circle) ──────────────────────────────────
+function StatIcon({ emoji, bg }: { emoji: string; bg: string }) {
+  return (
+    <View
+      style={{ backgroundColor: bg }}
+      className="h-10 w-10 items-center justify-center rounded-full"
+    >
+      <Text className="text-base leading-none">{emoji}</Text>
+    </View>
+  );
+}
+
 // ── Status badge ─────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: WatchStatus }) {
   if (status === "IN_STOCK") {
     return (
-      <View className="flex-row items-center gap-1.5 rounded-full border border-ink bg-lime px-2.5 py-1">
-        <View className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
-        <Text className="text-[10px] font-sans-semibold uppercase tracking-widest text-ink">
+      <View className="rounded-full border border-ink/20 bg-lime/40 px-3 py-1">
+        <Text className="font-sans-semibold text-xs uppercase text-ink">
           En stock
         </Text>
       </View>
@@ -127,38 +137,18 @@ function StatusBadge({ status }: { status: WatchStatus }) {
   }
   if (status === "OUT_OF_STOCK") {
     return (
-      <View className="flex-row items-center gap-1.5 rounded-full border border-ink bg-pink px-2.5 py-1">
-        <View className="h-1.5 w-1.5 rounded-full bg-amber-600" />
-        <Text className="text-[10px] font-sans-semibold uppercase tracking-widest text-ink">
+      <View className="rounded-full border border-ink/20 bg-pink/40 px-3 py-1">
+        <Text className="font-sans-semibold text-xs uppercase text-ink">
           Rupture
         </Text>
       </View>
     );
   }
   return (
-    <View className="flex-row items-center gap-1.5 rounded-full border border-ink/20 bg-muted px-2.5 py-1">
-      <View className="h-1.5 w-1.5 rounded-full bg-ink/30" />
-      <Text className="text-[10px] font-sans-semibold uppercase tracking-widest text-ink/50">
+    <View className="rounded-full border border-ink/20 bg-muted px-3 py-1">
+      <Text className="font-sans-semibold text-xs uppercase text-ink/50">
         En attente
       </Text>
-    </View>
-  );
-}
-
-// ── Icon (text-based, no external icon library needed) ───────────────────
-function StatIcon({
-  emoji,
-  bg,
-}: {
-  emoji: string;
-  bg: string;
-}) {
-  return (
-    <View
-      style={{ backgroundColor: bg }}
-      className="mt-0.5 h-8 w-8 items-center justify-center rounded-lg"
-    >
-      <Text className="text-sm leading-none">{emoji}</Text>
     </View>
   );
 }
@@ -195,7 +185,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-cream">
-        <ActivityIndicator size="large" color="#F85C15" />
+        <ActivityIndicator size="large" color="#ff803d" />
       </View>
     );
   }
@@ -226,32 +216,32 @@ export default function Dashboard() {
       label: "Alertes actives",
       value: `${activeWatches.length} / ${maxAlerts}`,
       sub: pausedCount > 0 ? `${pausedCount} en pause` : undefined,
-      emoji: "🔔", // bell
-      iconBg: "rgba(248,92,21,0.12)",
+      emoji: "🔔",
+      iconBg: "rgba(255,128,61,0.20)", // orange
     },
     {
       label: "En stock",
       value: String(inStockCount),
       sub: "En ce moment",
-      emoji: "📈", // chart up
-      iconBg: "rgba(201,240,64,0.5)",
+      emoji: "📈",
+      iconBg: "rgba(200,242,60,0.50)", // lime
     },
     {
       label: "Dernier check",
       value: relativeTime(lastCheck),
       sub: "Worker actif",
-      emoji: "🕐", // clock
-      iconBg: "rgba(41,111,236,0.12)",
+      emoji: "🕐",
+      iconBg: "rgba(54,155,255,0.20)", // blue
     },
     {
       label: "Plan",
       value: plan === "pro" ? "Pro" : "Free",
       sub: plan === "free" ? "Passer à Pro →" : "Gérer →",
-      emoji: "📦", // package
+      emoji: "📦",
       iconBg:
         plan === "pro"
-          ? "rgba(245,158,11,0.18)"
-          : "rgba(38,38,38,0.06)",
+          ? "rgba(245,158,11,0.22)" // amber
+          : "rgba(11,11,11,0.06)",
     },
   ];
 
@@ -265,17 +255,17 @@ export default function Dashboard() {
       <TouchableOpacity activeOpacity={0.9}>
         <View
           className="flex-row items-start gap-3 rounded-2xl border-2 border-ink bg-paper p-4"
-          style={brutalSm}
+          style={brutal}
         >
           {/* Product image */}
           {item.image_url ? (
             <Image
               source={{ uri: item.image_url }}
-              className="h-20 w-20 rounded-xl border border-border"
+              className="h-20 w-20 rounded-xl bg-muted"
               resizeMode="cover"
             />
           ) : (
-            <View className="h-20 w-20 items-center justify-center rounded-xl border border-border bg-muted">
+            <View className="h-20 w-20 items-center justify-center rounded-xl bg-muted">
               <Text className="text-[10px] text-ink/30">Sans visuel</Text>
             </View>
           )}
@@ -283,7 +273,7 @@ export default function Dashboard() {
           {/* Body */}
           <View className="min-w-0 flex-1 gap-1">
             <Text
-              className="font-display text-base leading-tight text-ink"
+              className="font-display text-base font-semibold leading-tight text-ink"
               numberOfLines={2}
             >
               {item.name ?? "Produit sans titre"}
@@ -294,16 +284,14 @@ export default function Dashboard() {
             </Text>
 
             {/* Variant pill + price row */}
-            <View className="flex-row items-center gap-2">
+            <View className="flex-row flex-wrap items-center gap-2">
               {variant ? (
                 <View className="rounded-full border border-ink/20 px-3 py-1">
-                  <Text className="text-[11px] font-sans-medium text-ink">
-                    {variant}
-                  </Text>
+                  <Text className="text-xs text-ink">{variant}</Text>
                 </View>
               ) : null}
               {item.price != null ? (
-                <Text className="font-sans-semibold text-sm text-ink">
+                <Text className="font-sans-medium text-sm text-ink">
                   {formatPrice(item.price, item.currency)}
                 </Text>
               ) : null}
@@ -323,8 +311,8 @@ export default function Dashboard() {
           {/* Status badge */}
           <View className="shrink-0">
             {item.is_active === false ? (
-              <View className="rounded-full border border-ink/20 bg-muted px-2.5 py-1">
-                <Text className="text-[10px] font-sans-semibold uppercase tracking-widest text-ink/50">
+              <View className="rounded-full border border-ink/20 bg-muted px-3 py-1">
+                <Text className="font-sans-semibold text-xs uppercase text-ink/50">
                   En pause
                 </Text>
               </View>
@@ -342,13 +330,13 @@ export default function Dashboard() {
     <View className="items-center px-4 pt-4">
       <View className="w-full rounded-3xl border-2 border-dashed border-ink/30 bg-cream/50 p-8">
         <View className="items-center gap-6">
-          {/* Bell icon with notification badge */}
+          {/* Bell icon in lime rounded-2xl box */}
           <View className="relative">
             <View
               className="h-14 w-14 items-center justify-center rounded-2xl border-2 border-ink bg-lime"
               style={brutalSm}
             >
-              <Text className="text-2xl">{"🔔"}</Text>
+              <Text className="text-2xl">🔔</Text>
             </View>
             <View className="absolute -right-2 -top-2 h-5 w-5 items-center justify-center rounded-full border-2 border-ink bg-orange">
               <Text className="text-[9px] font-sans-bold text-ink">1</Text>
@@ -362,9 +350,8 @@ export default function Dashboard() {
                 : "Prêt à commencer ?"}
             </Text>
             <Text className="mx-auto max-w-sm text-center text-sm leading-relaxed text-ink/60">
-              Colle l&apos;URL d&apos;un produit qui t&apos;a
-              échappé, choisis ta taille, et on s&apos;occupe du
-              reste.
+              Colle l&apos;URL d&apos;un produit qui t&apos;a échappé, choisis
+              ta taille, et on s&apos;occupe du reste.
             </Text>
           </View>
 
@@ -374,7 +361,7 @@ export default function Dashboard() {
             style={brutalSm}
             activeOpacity={0.85}
           >
-            <Text className="text-center font-display-bold text-base uppercase tracking-widest text-ink">
+            <Text className="text-center font-display text-base font-bold uppercase tracking-wide text-ink">
               + Ajouter ma première alerte
             </Text>
           </TouchableOpacity>
@@ -390,79 +377,89 @@ export default function Dashboard() {
   // ── Header + Stats + CTA (rendered as ListHeaderComponent) ─────────────
   const renderHeader = () => (
     <View className="gap-6 px-4 pt-16">
-      {/* ── Greeting header ──────────────────────────────────────────── */}
-      <View className="gap-4">
-        <View>
-          <Text className="text-sm font-sans-medium uppercase tracking-wider text-ink/60">
-            {dateStr}
-          </Text>
-          <Text className="mt-1 font-display text-3xl text-ink">
-            {firstName ? (
-              <>
-                Bonjour{" "}
-                <Text className="font-display text-3xl text-ink">
-                  {firstName}
-                </Text>
-                {" 👋"}
-              </>
-            ) : (
-              "Mes alertes"
-            )}
-          </Text>
-          {firstName ? (
-            <View className="mt-1 h-1 w-16 -rotate-1 bg-lime" />
-          ) : null}
-        </View>
+      {/* ── Header area ────────────────────────────────────────────────── */}
+      <View className="gap-1">
+        {/* Date in French */}
+        <Text className="font-sans-medium text-sm uppercase tracking-wider text-ink/70">
+          {dateStr}
+        </Text>
 
-        {/* ── "Ajouter" quick-add button ────────────────────────────── */}
-        <TouchableOpacity
-          onPress={() => router.push("/(tabs)/add")}
-          className="w-full flex-row items-center justify-center gap-2 rounded-xl border-2 border-ink bg-orange py-3.5"
-          style={brutal}
-          activeOpacity={0.85}
-        >
-          <Text className="font-display-bold text-lg text-ink">+</Text>
-          <Text className="font-display-bold text-base uppercase tracking-widest text-ink">
-            Ajouter une alerte
-          </Text>
-        </TouchableOpacity>
+        {/* Greeting with lime underline */}
+        <Text className="font-display text-3xl tracking-tighter text-ink">
+          {firstName ? (
+            <>
+              Bonjour{" "}
+              <Text className="font-display text-3xl tracking-tighter text-ink">
+                {firstName}
+              </Text>
+            </>
+          ) : (
+            "Mes alertes"
+          )}
+        </Text>
+        {firstName ? (
+          <View className="mt-0.5 h-1 w-16 -rotate-1 bg-lime" />
+        ) : null}
+
+        {/* Stats subtitle */}
+        <Text className="mt-2 font-sans text-sm text-ink/50">
+          {activeWatches.length} alerte{activeWatches.length !== 1 ? "s" : ""}{" "}
+          active{activeWatches.length !== 1 ? "s" : ""}
+          {inStockCount > 0 && `, ${inStockCount} en stock`}
+          {lastCheck && ` — dernière vérif. ${relativeTime(lastCheck)}`}
+        </Text>
       </View>
 
-      {/* ── Stats grid 2x2 ──────────────────────────────────────────── */}
+      {/* ── Stats grid 2x2 ─────────────────────────────────────────────── */}
       <View className="flex-row flex-wrap gap-3">
         {stats.map((s) => (
           <View
             key={s.label}
-            className="w-[47%] rounded-2xl border-2 border-ink/20 bg-cream/50 p-4"
+            className="w-[47%] rounded-2xl border-2 border-ink bg-paper p-4"
             style={brutalSm}
           >
-            <View className="flex-row items-start gap-3">
-              <StatIcon emoji={s.emoji} bg={s.iconBg} />
-              <View className="min-w-0 flex-1">
-                <Text className="text-[10px] font-sans-medium uppercase tracking-wider text-ink/50">
-                  {s.label}
-                </Text>
-                <Text
-                  className="mt-0.5 font-display text-lg text-ink"
-                  numberOfLines={1}
-                >
-                  {s.value}
-                </Text>
-                {s.sub ? (
-                  <Text
-                    className="mt-0.5 text-[10px] text-ink/40"
-                    numberOfLines={1}
-                  >
-                    {s.sub}
-                  </Text>
-                ) : null}
-              </View>
-            </View>
+            {/* Icon in colored circle */}
+            <StatIcon emoji={s.emoji} bg={s.iconBg} />
+
+            {/* Label */}
+            <Text className="mt-2 font-sans-medium text-xs text-ink/70">
+              {s.label}
+            </Text>
+
+            {/* Value */}
+            <Text
+              className="mt-0.5 font-display text-2xl tracking-tighter text-ink"
+              numberOfLines={1}
+            >
+              {s.value}
+            </Text>
+
+            {/* Sub */}
+            {s.sub ? (
+              <Text
+                className="mt-0.5 font-sans text-xs text-ink/50"
+                numberOfLines={1}
+              >
+                {s.sub}
+              </Text>
+            ) : null}
           </View>
         ))}
       </View>
 
-      {/* ── Section heading ──────────────────────────────────────────── */}
+      {/* ── "Ajouter" CTA ──────────────────────────────────────────────── */}
+      <TouchableOpacity
+        onPress={() => router.push("/(tabs)/add")}
+        className="h-14 w-full flex-row items-center justify-center gap-2 rounded-xl border-2 border-ink bg-orange"
+        style={brutal}
+        activeOpacity={0.85}
+      >
+        <Text className="font-display text-base font-bold uppercase tracking-wide text-ink">
+          + Ajouter une alerte
+        </Text>
+      </TouchableOpacity>
+
+      {/* ── Watch list section heading ─────────────────────────────────── */}
       {watches.length > 0 && (
         <View>
           <Text className="font-sans-semibold text-xs uppercase tracking-widest text-ink/40">
@@ -491,8 +488,8 @@ export default function Dashboard() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#F85C15"
-            colors={["#F85C15"]}
+            tintColor="#ff803d"
+            colors={["#ff803d"]}
           />
         }
         showsVerticalScrollIndicator={false}

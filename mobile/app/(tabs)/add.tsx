@@ -111,13 +111,13 @@ export default function AddWatch() {
       } else {
         setError(
           data.error ??
-            "Impossible d'analyser cette URL. Vérifie le lien et réessaie.",
+            "Impossible d'analyser cette URL. Verifie le lien et reessaie.",
         );
         setStep("input");
       }
     } catch {
       setError(
-        "Erreur réseau. Vérifie ta connexion internet et réessaie.",
+        "Erreur reseau. Verifie ta connexion internet et reessaie.",
       );
       setStep("input");
     }
@@ -169,8 +169,6 @@ export default function AddWatch() {
   };
 
   // ── Distinguish size vs colour variants ──────────────────────────────────
-  // The API returns flat `variants`. If each variant has a `type` field we use
-  // it, otherwise we treat everything as a size for now.
   const sizeVariants =
     result?.variants?.filter(
       (v) => !("type" in v) || (v as any).type === "size",
@@ -195,26 +193,26 @@ export default function AddWatch() {
         </View>
 
         <Text className="mb-8 text-center font-display text-3xl font-extrabold text-ink">
-          Alerte créée !
+          Alerte creee !
         </Text>
 
         <View className="w-full max-w-sm gap-3">
           <TouchableOpacity
             onPress={reset}
-            className="items-center rounded-xl border-2 border-ink bg-paper px-6 py-4"
-            style={brutalSm}
+            className="h-12 w-full items-center justify-center rounded-xl border-2 border-ink bg-paper shadow-brutal"
+            activeOpacity={0.8}
           >
-            <Text className="font-sans-semibold text-base text-ink">
+            <Text className="font-display text-sm font-bold uppercase tracking-widest text-ink">
               + Ajouter un autre article
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => router.push("/(tabs)")}
-            className="items-center rounded-xl border-2 border-ink bg-ink px-6 py-4"
-            style={brutal}
+            className="h-12 w-full items-center justify-center rounded-xl border-2 border-ink bg-ink shadow-brutal"
+            activeOpacity={0.8}
           >
-            <Text className="font-display text-base font-bold uppercase tracking-wider text-paper">
+            <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
               Voir mes alertes
             </Text>
           </TouchableOpacity>
@@ -242,52 +240,54 @@ export default function AddWatch() {
         >
           {/* Back link */}
           <TouchableOpacity onPress={goBackToInput} className="mb-5 self-start">
-            <Text className="font-sans text-base text-ink/60">
+            <Text className="font-mono text-xs uppercase tracking-[0.2em] text-ink/60">
               &larr; {t.cancel}
             </Text>
           </TouchableOpacity>
 
           {/* ── Product preview card ──────────────────────────────────── */}
           <View
-            className="rounded-2xl border-2 border-ink bg-paper p-5"
+            className="overflow-hidden rounded-2xl border-2 border-ink bg-paper"
             style={brutal}
           >
             {/* Product image */}
             {result.image_url ? (
               <Image
                 source={{ uri: result.image_url }}
-                className="mb-4 h-52 w-full rounded-xl border-2 border-ink"
+                className="h-52 w-full border-b-2 border-ink"
                 resizeMode="cover"
               />
             ) : null}
 
-            {/* Product name */}
-            {result.name ? (
-              <Text
-                className="font-display text-xl font-bold text-ink"
-                numberOfLines={2}
-              >
-                {result.name}
-              </Text>
-            ) : null}
+            <View className="p-5">
+              {/* Product name */}
+              {result.name ? (
+                <Text
+                  className="font-display text-xl font-bold text-ink"
+                  numberOfLines={2}
+                >
+                  {result.name}
+                </Text>
+              ) : null}
 
-            {/* Domain */}
-            <Text className="mt-1 font-sans text-sm text-ink/60">
-              {extractDomain(url)}
-            </Text>
-
-            {/* Price */}
-            {result.price != null ? (
-              <Text className="mt-2 font-sans-semibold text-lg text-ink">
-                {formatPrice(result.price, result.currency ?? "EUR")}
+              {/* Domain */}
+              <Text className="mt-1 font-mono text-xs uppercase tracking-[0.2em] text-ink/60">
+                {extractDomain(url)}
               </Text>
-            ) : null}
+
+              {/* Price */}
+              {result.price != null ? (
+                <Text className="mt-2 font-display text-lg text-ink">
+                  {formatPrice(result.price, result.currency ?? "EUR")}
+                </Text>
+              ) : null}
+            </View>
           </View>
 
           {/* ── Size selection ────────────────────────────────────────── */}
           {sizeVariants.length > 0 && (
             <View className="mt-6">
-              <Text className="mb-3 font-sans-bold text-xs uppercase tracking-[0.18em] text-ink/60">
+              <Text className="font-display text-xs font-bold uppercase tracking-[0.2em] text-ink mb-3">
                 Taille
               </Text>
               <View className="flex-row flex-wrap gap-2.5">
@@ -310,11 +310,12 @@ export default function AddWatch() {
                             : "border-ink bg-paper"
                       }`}
                       style={isSelected ? brutalSm : undefined}
+                      activeOpacity={0.7}
                     >
                       <Text
                         className={`font-sans-medium text-sm ${
                           isSelected
-                            ? "text-paper"
+                            ? "text-cream"
                             : unavailable
                               ? "text-ink-soft line-through"
                               : "text-ink"
@@ -329,10 +330,10 @@ export default function AddWatch() {
             </View>
           )}
 
-          {/* ── Color selection (only if API returns colour variants) ──── */}
+          {/* ── Color selection ──────────────────────────────────────── */}
           {colorVariants.length > 0 && (
             <View className="mt-6">
-              <Text className="mb-3 font-sans-bold text-xs uppercase tracking-[0.18em] text-ink/60">
+              <Text className="font-display text-xs font-bold uppercase tracking-[0.2em] text-ink mb-3">
                 Couleur
               </Text>
               <View className="flex-row flex-wrap gap-2.5">
@@ -355,11 +356,12 @@ export default function AddWatch() {
                             : "border-ink bg-paper"
                       }`}
                       style={isSelected ? brutalSm : undefined}
+                      activeOpacity={0.7}
                     >
                       <Text
                         className={`font-sans-medium text-sm ${
                           isSelected
-                            ? "text-paper"
+                            ? "text-cream"
                             : unavailable
                               ? "text-ink-soft line-through"
                               : "text-ink"
@@ -377,11 +379,7 @@ export default function AddWatch() {
           {/* ── Enrichment pending banner ──────────────────────────────── */}
           {result.enrichment_pending && (
             <View
-              className="mt-6 rounded-xl border-2 p-4"
-              style={{
-                borderColor: "rgba(248,92,21,0.4)",
-                backgroundColor: "rgba(248,92,21,0.05)",
-              }}
+              className="mt-6 rounded-xl border-2 border-orange/40 bg-orange/5 p-4"
             >
               <Text className="font-sans-medium text-sm leading-relaxed text-ink">
                 {t.enrichmentMessage}
@@ -400,10 +398,10 @@ export default function AddWatch() {
           <View className="mt-8 flex-row gap-3">
             <TouchableOpacity
               onPress={goBackToInput}
-              className="flex-1 items-center rounded-xl border-2 border-ink bg-paper px-6 py-4"
-              style={brutalSm}
+              className="flex-1 h-12 items-center justify-center rounded-xl border-2 border-ink bg-paper shadow-brutal"
+              activeOpacity={0.8}
             >
-              <Text className="font-sans-semibold text-base text-ink">
+              <Text className="font-display text-sm font-bold uppercase tracking-widest text-ink">
                 {t.cancel}
               </Text>
             </TouchableOpacity>
@@ -411,13 +409,13 @@ export default function AddWatch() {
             <TouchableOpacity
               onPress={handleCreate}
               disabled={creating}
-              className="flex-1 items-center rounded-xl border-2 border-ink bg-ink px-6 py-4"
-              style={brutal}
+              className="flex-1 h-12 items-center justify-center rounded-xl border-2 border-ink bg-ink shadow-brutal"
+              activeOpacity={0.8}
             >
               {creating ? (
-                <ActivityIndicator color="#F9F8F6" />
+                <ActivityIndicator color="#fbf8f0" />
               ) : (
-                <Text className="font-display text-base font-bold uppercase tracking-wider text-paper">
+                <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
                   Activer l'alerte
                 </Text>
               )}
@@ -445,7 +443,7 @@ export default function AddWatch() {
         keyboardShouldPersistTaps="handled"
       >
         {/* Heading */}
-        <Text className="font-display text-3xl font-extrabold text-ink">
+        <Text className="font-display text-3xl font-extrabold tracking-tighter text-ink">
           Ajouter une alerte
         </Text>
         <Text className="mt-2 font-sans text-base leading-relaxed text-ink-soft">
@@ -454,7 +452,8 @@ export default function AddWatch() {
 
         {/* URL input */}
         <TextInput
-          className="mt-6 h-14 rounded-xl border-2 border-ink bg-paper px-4 font-sans text-base text-ink"
+          className="mt-6 h-14 w-full rounded-xl border-2 border-ink bg-paper px-4 font-medium text-ink"
+          style={brutalSm}
           placeholder={t.urlPlaceholder}
           placeholderTextColor="#A3A3A3"
           autoCapitalize="none"
@@ -465,20 +464,19 @@ export default function AddWatch() {
           onSubmitEditing={handleAnalyze}
           returnKeyType="go"
           editable={step !== "loading"}
-          style={brutalSm}
         />
 
         {/* Analyse button */}
         <TouchableOpacity
           onPress={handleAnalyze}
           disabled={step === "loading"}
-          className="mt-4 h-14 items-center justify-center rounded-xl border-2 border-ink bg-ink"
-          style={brutal}
+          className="mt-4 h-12 w-full items-center justify-center rounded-xl border-2 border-ink bg-ink shadow-brutal"
+          activeOpacity={0.8}
         >
           {step === "loading" ? (
-            <ActivityIndicator color="#F9F8F6" />
+            <ActivityIndicator color="#fbf8f0" />
           ) : (
-            <Text className="font-display text-base font-bold uppercase tracking-wider text-paper">
+            <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
               Analyser le produit
             </Text>
           )}
@@ -496,7 +494,6 @@ export default function AddWatch() {
           <View className="mt-10 gap-4">
             <SkeletonBar width="w-full" height="h-52" />
             <SkeletonBar width="w-3/4" />
-            <SkeletonBar width="w-5/12" />
             <SkeletonBar width="w-1/3" />
           </View>
         )}

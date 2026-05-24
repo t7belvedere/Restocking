@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
+import { brutalSm } from "@/lib/shadows";
 
 const SIZES = ["XS", "S", "M", "L", "XL"] as const;
 
@@ -25,7 +26,7 @@ const BRANDS = [
   "Adidas",
   "Maje",
   "Sandro",
-  "Sézane",
+  "Sezane",
   "Rouje",
   "A.P.C.",
   "Acne Studios",
@@ -41,7 +42,6 @@ export default function Settings() {
   const [preferredBrands, setPreferredBrands] = useState<string[]>([]);
   const [phoneNumber, setPhoneNumber] = useState("");
 
-  // Derive plan — default to Free; wire to user metadata or profile table in production
   const plan: "free" | "pro" = "free";
 
   const avatarLetter = (user?.email ?? "?")[0].toUpperCase();
@@ -84,10 +84,7 @@ export default function Settings() {
   // ── Render helpers ─────────────────────────────────────────
 
   const sectionLabel = (text: string) => (
-    <Text
-      className="text-xs font-bold uppercase text-ink/60 mb-3"
-      style={{ letterSpacing: 2.88 }}
-    >
+    <Text className="font-display text-xs font-bold uppercase tracking-[0.2em] text-ink mb-3">
       {text}
     </Text>
   );
@@ -105,18 +102,16 @@ export default function Settings() {
       showsVerticalScrollIndicator={false}
     >
       {/* ═══ Header ═══ */}
-      <Text className="font-display text-3xl font-extrabold text-ink tracking-tighter mb-8">
+      <Text className="font-display text-3xl font-extrabold tracking-tighter text-ink mb-8">
         {t.profileTitle}
       </Text>
 
       {/* ═══ Account card ═══ */}
-      <View className="rounded-2xl border-2 border-ink bg-paper p-5 shadow-brutal mb-5">
+      <View className="mb-5 rounded-2xl border-2 border-ink bg-paper p-5 shadow-brutal">
         {/* Avatar + email row */}
-        <View className="flex-row items-center gap-3 mb-3">
-          <View className="h-11 w-11 rounded-full border-2 border-ink bg-lime items-center justify-center">
-            <Text className="text-lg font-bold text-ink">
-              {avatarLetter}
-            </Text>
+        <View className="mb-3 flex-row items-center gap-3">
+          <View className="h-11 w-11 items-center justify-center rounded-full border-2 border-ink bg-lime">
+            <Text className="text-lg font-bold text-ink">{avatarLetter}</Text>
           </View>
           <View className="flex-1">
             <Text className="text-base font-semibold text-ink">
@@ -126,7 +121,7 @@ export default function Settings() {
         </View>
 
         {/* Plan badge */}
-        <View className="flex-row items-center gap-3 mb-4">
+        <View className="mb-4 flex-row items-center gap-3">
           {plan === "free" ? (
             <View className="rounded-full border border-ink/20 bg-muted px-3 py-1">
               <Text className="text-xs font-medium text-ink">
@@ -150,7 +145,7 @@ export default function Settings() {
         </TouchableOpacity>
 
         {/* Separator */}
-        <View className="h-px bg-ink/15 mb-3" />
+        <View className="mb-3 h-px bg-ink/15" />
 
         {/* Sign out */}
         <TouchableOpacity onPress={handleSignOut} activeOpacity={0.7}>
@@ -161,36 +156,36 @@ export default function Settings() {
       </View>
 
       {/* ═══ Notifications card ═══ */}
-      <View className="rounded-2xl border-2 border-ink bg-paper p-5 shadow-brutal mb-5">
+      <View className="mb-5 rounded-2xl border-2 border-ink bg-paper p-5 shadow-brutal">
         {sectionLabel(t.notifications)}
 
         {/* Email — disabled, already verified */}
         <View className="mb-4">
-          <Text className="text-xs font-semibold text-ink mb-1.5">
+          <Text className="font-display text-xs font-bold uppercase tracking-[0.2em] text-ink mb-1.5">
             {t.notificationsEmail}
           </Text>
-          <View className="flex-row items-center rounded-lg border border-ink/20 bg-muted px-4 py-3">
+          <View className="flex-row items-center rounded-xl border-2 border-ink/20 bg-muted px-4 py-3">
             <Text className="flex-1 text-sm text-ink/50" numberOfLines={1}>
               {user?.email ?? ""}
             </Text>
-            <Text className="text-sm text-lime font-semibold ml-2">
+            <Text className="ml-2 text-sm font-semibold text-lime">
               {"✓"} {t.verified}
             </Text>
           </View>
-          <Text className="text-xs text-ink/40 mt-1 ml-0.5">
+          <Text className="ml-0.5 mt-1 text-xs text-ink/40">
             {t.notificationsEmailDesc}
           </Text>
         </View>
 
         {/* SMS / Phone — needs verification */}
         <View>
-          <Text className="text-xs font-semibold text-ink mb-1.5">
+          <Text className="font-display text-xs font-bold uppercase tracking-[0.2em] text-ink mb-1.5">
             {t.notificationsSms}
           </Text>
           <View className="flex-row gap-2">
-            <View className="flex-1 flex-row items-center rounded-lg border border-ink/30 bg-paper px-4 py-3">
+            <View className="flex-1 flex-row items-center rounded-xl border-2 border-ink bg-paper px-4 py-3">
               <TextInput
-                className="flex-1 text-sm text-ink"
+                className="flex-1 text-sm font-medium text-ink"
                 placeholder="+33 6 12 34 56 78"
                 placeholderTextColor="#A3A3A3"
                 keyboardType="phone-pad"
@@ -198,38 +193,40 @@ export default function Settings() {
                 onChangeText={setPhoneNumber}
               />
               {isPhoneVerified && phoneNumber.length > 0 && (
-                <Text className="text-sm text-lime font-semibold ml-2">
+                <Text className="ml-2 text-sm font-semibold text-lime">
                   {"✓"}
                 </Text>
               )}
             </View>
             <TouchableOpacity
-              className="rounded-lg border-2 border-ink bg-paper px-4 py-3 items-center justify-center"
+              className="items-center justify-center rounded-xl border-2 border-ink bg-paper px-4 py-3"
+              style={brutalSm}
               onPress={handleVerifyPhone}
               activeOpacity={0.7}
             >
-              <Text className="text-sm font-semibold text-ink">
+              <Text className="font-display text-xs font-bold uppercase tracking-widest text-ink">
                 {t.verifyPhone}
               </Text>
             </TouchableOpacity>
           </View>
-          <Text className="text-xs text-ink/40 mt-1 ml-0.5">
+          <Text className="ml-0.5 mt-1 text-xs text-ink/40">
             {t.notificationsSmsDesc}
           </Text>
         </View>
       </View>
 
       {/* ═══ Preferences card ═══ */}
-      <View className="rounded-2xl border-2 border-ink bg-paper p-5 shadow-brutal mb-5">
+      <View className="mb-5 rounded-2xl border-2 border-ink bg-paper p-5 shadow-brutal">
         {sectionLabel(t.preferences)}
 
         {/* First name */}
         <View className="mb-4">
-          <Text className="text-xs font-semibold text-ink mb-1.5">
+          <Text className="font-display text-xs font-bold uppercase tracking-[0.2em] text-ink mb-1.5">
             {t.firstName}
           </Text>
           <TextInput
-            className="rounded-lg border border-ink/30 bg-paper px-4 py-3 text-sm text-ink"
+            className="h-12 w-full rounded-xl border-2 border-ink bg-paper px-4 font-medium text-ink"
+            style={brutalSm}
             placeholder={t.firstNamePlaceholder}
             placeholderTextColor="#A3A3A3"
             value={firstName}
@@ -239,7 +236,7 @@ export default function Settings() {
 
         {/* Default size */}
         <View className="mb-5">
-          <Text className="text-xs font-semibold text-ink mb-2">
+          <Text className="font-display text-xs font-bold uppercase tracking-[0.2em] text-ink mb-2">
             {t.defaultSize}
           </Text>
           <View className="flex-row flex-wrap gap-2">
@@ -248,19 +245,16 @@ export default function Settings() {
               return (
                 <TouchableOpacity
                   key={size}
-                  onPress={() =>
-                    setDefaultSize(isSelected ? null : size)
-                  }
+                  onPress={() => setDefaultSize(isSelected ? null : size)}
                   activeOpacity={0.7}
-                  className={`rounded-lg border-2 px-4 py-2.5 ${
-                    isSelected
-                      ? "border-ink bg-ink"
-                      : "border-ink bg-paper"
+                  className={`rounded-full border-2 px-4 py-2.5 ${
+                    isSelected ? "border-ink bg-ink" : "border-ink bg-paper"
                   }`}
+                  style={isSelected ? brutalSm : undefined}
                 >
                   <Text
                     className={`font-mono text-sm font-medium ${
-                      isSelected ? "text-paper" : "text-ink"
+                      isSelected ? "text-cream" : "text-ink"
                     }`}
                   >
                     {size}
@@ -273,7 +267,7 @@ export default function Settings() {
 
         {/* Preferred brands */}
         <View>
-          <Text className="text-xs font-semibold text-ink mb-2">
+          <Text className="font-display text-xs font-bold uppercase tracking-[0.2em] text-ink mb-2">
             {t.preferredBrands}
           </Text>
           <View className="flex-row flex-wrap gap-2">
@@ -284,15 +278,16 @@ export default function Settings() {
                   key={brand}
                   onPress={() => toggleBrand(brand)}
                   activeOpacity={0.7}
-                  className={`rounded-lg border-2 px-3 py-2 ${
+                  className={`rounded-full border-2 px-3 py-2 ${
                     isSelected
                       ? "border-ink bg-ink"
                       : "border-ink/30 bg-paper"
                   }`}
+                  style={isSelected ? brutalSm : undefined}
                 >
                   <Text
                     className={`font-mono text-xs font-medium ${
-                      isSelected ? "text-paper" : "text-ink/70"
+                      isSelected ? "text-cream" : "text-ink/70"
                     }`}
                   >
                     {brand}
@@ -306,7 +301,7 @@ export default function Settings() {
 
       {/* ═══ Language row ═══ */}
       <TouchableOpacity
-        className="rounded-2xl border-2 border-ink bg-paper p-5 shadow-brutal mb-5 flex-row items-center justify-between"
+        className="mb-5 flex-row items-center justify-between rounded-2xl border-2 border-ink bg-paper p-5 shadow-brutal"
         onPress={() => setLocale(locale === "fr" ? "en" : "fr")}
         activeOpacity={0.7}
       >
@@ -316,16 +311,17 @@ export default function Settings() {
         <View className="flex-row items-center gap-2">
           <TouchableOpacity
             onPress={() => setLocale("fr")}
-            className={`px-3 py-1.5 rounded-md border ${
+            className={`rounded-full border-2 px-3 py-1.5 ${
               locale === "fr"
                 ? "border-ink bg-ink"
                 : "border-ink/30 bg-paper"
             }`}
+            style={locale === "fr" ? brutalSm : undefined}
             activeOpacity={0.7}
           >
             <Text
               className={`text-xs font-semibold ${
-                locale === "fr" ? "text-paper" : "text-ink/50"
+                locale === "fr" ? "text-cream" : "text-ink/50"
               }`}
             >
               FR
@@ -333,16 +329,17 @@ export default function Settings() {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => setLocale("en")}
-            className={`px-3 py-1.5 rounded-md border ${
+            className={`rounded-full border-2 px-3 py-1.5 ${
               locale === "en"
                 ? "border-ink bg-ink"
                 : "border-ink/30 bg-paper"
             }`}
+            style={locale === "en" ? brutalSm : undefined}
             activeOpacity={0.7}
           >
             <Text
               className={`text-xs font-semibold ${
-                locale === "en" ? "text-paper" : "text-ink/50"
+                locale === "en" ? "text-cream" : "text-ink/50"
               }`}
             >
               EN
@@ -352,17 +349,11 @@ export default function Settings() {
       </TouchableOpacity>
 
       {/* ═══ Danger zone ═══ */}
-      <View className="rounded-2xl border-2 border-red-500/40 bg-red-50/30 p-5">
-        <Text
-          className="text-xs font-bold uppercase text-red-500 mb-2"
-          style={{ letterSpacing: 2.88 }}
-        >
+      <View className="rounded-2xl border-2 border-destructive/40 bg-destructive/5 p-5">
+        <Text className="font-display text-xs font-bold uppercase tracking-[0.2em] text-destructive mb-2">
           {t.dangerZone}
         </Text>
-        <TouchableOpacity
-          onPress={handleDeleteAccount}
-          activeOpacity={0.7}
-        >
+        <TouchableOpacity onPress={handleDeleteAccount} activeOpacity={0.7}>
           <Text className="text-sm font-semibold text-destructive">
             {t.deleteAccount}
           </Text>
