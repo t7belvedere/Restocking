@@ -102,7 +102,7 @@ export default function RegisterScreen() {
         >
           {/* App logo */}
           <View className="mb-8 items-center gap-3">
-            <AppLogo size={48} />
+            <AppLogo size={64} />
             <View className="flex-row items-baseline">
               <Text className="font-display text-2xl tracking-tighter text-ink">
                 restocking

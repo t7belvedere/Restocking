@@ -10,10 +10,11 @@ import { Link } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { brutalSm, brutal, brutalXl } from "@/lib/shadows";
-import { supabase } from "@/lib/supabase";
+import { GoogleIcon } from "@/components/GoogleIcon";
+import { AppLogo } from "@/components/AppLogo";
 
 export default function LoginScreen() {
-  const { signIn } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const { t } = useI18n();
 
   const [email, setEmail] = useState("");
@@ -30,13 +31,11 @@ export default function LoginScreen() {
   };
 
   const handleGoogleSignIn = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo:
-          typeof window !== "undefined" ? window.location.origin : "",
-      },
-    });
+    setError("");
+    setLoading(true);
+    const { error: err } = await signInWithGoogle();
+    if (err) setError(err);
+    setLoading(false);
   };
 
   return (
@@ -67,25 +66,20 @@ export default function LoginScreen() {
           className="mt-8 rounded-3xl border-2 border-ink bg-paper p-7"
           style={brutalXl}
         >
-          {/* Logo wordmark */}
-          <View className="mb-8 items-center">
-            <View className="flex-row items-baseline">
-              <Text className="font-display text-2xl tracking-tighter text-ink">
-                restocking
-              </Text>
-              <Text className="font-display text-2xl tracking-tighter text-orange">
-                .
-              </Text>
-            </View>
+          {/* App logo */}
+          <View className="mb-8 items-center gap-3">
+            <AppLogo size={64} />
           </View>
 
           {/* Google OAuth button */}
           <Pressable
             onPress={handleGoogleSignIn}
-            className="h-12 w-full flex-row items-center justify-center rounded-xl border-2 border-ink bg-paper"
+            disabled={loading}
+            className="h-12 w-full flex-row items-center justify-center gap-3 rounded-xl border-2 border-ink bg-paper"
             style={brutal}
           >
-            <Text className="font-display text-sm font-bold uppercase tracking-widest text-ink">
+            <GoogleIcon size={20} />
+            <Text className="font-sans-semibold text-sm text-ink">
               {t.googleContinue}
             </Text>
           </Pressable>
