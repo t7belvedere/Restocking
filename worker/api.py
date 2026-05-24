@@ -83,15 +83,36 @@ def _pick_price(html: str) -> float | None:
                         return float(p)
         except Exception:
             pass
-    # 3. Regex fallback — take the highest price found (product > shipping fees)
-    prices: list[float] = []
-    for m in re.finditer(r"(\d{1,4}(?:[.,]\d{2})?)\s*€", html):
+    # 3. Meta description price (Zalando, others: "pour 327,00 €")
+    desc = _pick_meta(html, "description")
+    if desc:
+        m = re.search(r"pour\s+(\d{1,4}(?:[.,]\d{2})?)\s*€", desc, re.I)
+        if m:
+            try:
+                return float(m.group(1).replace(",", "."))
+            except (ValueError, TypeError):
+                pass
+
+    # 4. Regex fallback — take the first substantial price from <head> if possible
+    head_match = re.search(r"<head[^>]*>(.*?)</head>", html, re.DOTALL)
+    search_scope = head_match.group(1) if head_match else html
+    # Prefer prices in structured data / meta section (within <head>)
+    for m in re.finditer(r"(\d{1,4}(?:[.,]\d{2})?)\s*€", search_scope):
         try:
-            prices.append(float(m.group(1).replace(",", ".")))
+            price = float(m.group(1).replace(",", "."))
+            if price > 1:  # skip 0.xx€ trivial amounts
+                return price
         except (ValueError, TypeError):
             pass
-    if prices:
-        return max(prices)
+
+    # 5. Fallback: first reasonable price anywhere in the HTML
+    for m in re.finditer(r"(\d{1,4}(?:[.,]\d{2})?)\s*€", html):
+        try:
+            price = float(m.group(1).replace(",", "."))
+            if price > 1:
+                return price
+        except (ValueError, TypeError):
+            pass
     return None
 
 
