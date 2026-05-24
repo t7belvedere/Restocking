@@ -6,7 +6,7 @@ import {
   SUPABASE_ANON_KEY,
 } from "./env";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/upgrade"];
+const PROTECTED_PREFIXES = ["/dashboard", "/upgrade", "/admin"];
 const AUTH_PREFIXES = ["/login", "/signup"];
 
 /**

@@ -13,7 +13,7 @@ export default async function AdminLayout({
   const { data: { user } } = await supabase.auth.getUser();
   
   if (user?.email !== "th3drata@gmail.com") {
-    redirect("/"); // Or return a specific error
+    redirect("/dashboard");
   }
 
   return (
