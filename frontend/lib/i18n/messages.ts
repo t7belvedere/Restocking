@@ -119,22 +119,45 @@ export const messages = {
         {
           title: "Détection à 4 étages",
           body:
-            "On lit le dataLayer e-commerce, l’état du bouton « Ajouter au panier » et les attributs de variante. Playwright en fallback pour les SPAs récalcitrantes.",
+            "On lit le dataLayer e-commerce, l'état du bouton « Ajouter au panier » et les attributs de variante. Playwright en fallback pour les SPAs récalcitrantes. Chaque signal est scoré indépendamment pour éviter qu'un faux positif ne déclenche une alerte.",
         },
         {
           title: "Double confirmation",
           body:
-            "Une variante doit être détectée IN_STOCK deux fois consécutivement pour déclencher l’alerte. Adieu les fausses alertes nocturnes.",
+            "Une variante doit être détectée IN_STOCK deux fois consécutivement pour déclencher l'alerte. Ça veut dire que si un article revient pendant 30 secondes à cause d'un panier abandonné, on ne te réveille pas à 3h du matin. Adieu les fausses alertes nocturnes.",
         },
         {
           title: "Respect des retailers",
           body:
-            "Lecture publique uniquement, pas de scraping agressif, rotation propre, max 1 requête simultanée par domaine. On joue franc.",
+            "Lecture publique uniquement, pas de scraping agressif, rotation propre des user-agents, max 1 requête simultanée par domaine. On lit la même page que toi, au même rythme qu'un humain. On ne bypass jamais d'authentification et on n'automatise aucun achat.",
         },
         {
           title: "Hébergé en Europe",
           body:
-            "Données stockées en région Frankfurt (Supabase EU), conforme RGPD. Ton e-mail t’appartient.",
+            "Données stockées en région Frankfurt (Supabase EU), chiffrées au repos et en transit. Conforme RGPD. Ton e-mail et tes URLs de surveillance t'appartiennent — exportables ou supprimables en un clic. On ne croise pas tes données avec des régies pub ou des tiers.",
+        },
+        {
+          title: "Notifications email et SMS",
+          body:
+            "Email instantané avec lien direct sur la fiche produit pré-remplie à ta taille. SMS en option sur le plan Pro pour les drops hyper compétitifs. L'alerte inclut le nom du produit, la taille, la couleur, le prix et un lien pour acheter directement. Pas de newsletter déguisée.",
+        },
+      ],
+      whyTitle: "Pourquoi restocking plutôt qu'une alerte native ?",
+      whyItems: [
+        {
+          title: "Vitesse",
+          body:
+            "Les alertes officielles des marques arrivent par lots, souvent 2 à 24h après le restock réel. Nous vérifions chaque produit individuellement, sans file d'attente. Médiane mesurée : 2 min 40 sur le plan Pro.",
+        },
+        {
+          title: "Taille spécifique",
+          body:
+            "Les marques t'envoient une alerte générique pour le produit, pas pour ta taille. Si la taille S revient et que tu fais du M, tu reçois une notif pour rien. Restocking ne te ping que pour la variante exacte que tu suis.",
+        },
+        {
+          title: "Multi-marques, un seul outil",
+          body:
+            "Pas besoin de créer un compte chez Zara, un chez COS, un chez Sézane et d'espérer que leurs alertes fonctionnent. Un seul dashboard, toutes tes marques, toutes tes tailles.",
         },
       ],
     },
@@ -242,6 +265,31 @@ export const messages = {
           a:
             "Non. On gagne notre vie avec le plan Pro. Ton e-mail reste chez nous, point. Lis notre charte (lien dans le footer) — c’est court et clair.",
         },
+        {
+          q: "Vous surveillez quelles boutiques ?",
+          a:
+            "Zara, COS, Aritzia, Uniqlo, Sézane, Mango, Arket, ASOS, Ganni, Massimo Dutti, & Other Stories et 50+ autres au lancement. Toutes les marques listées sur notre page Marques sont couvertes — avec des parseurs optimisés pour les 23 premières. Les autres passent par notre bot universel qui détecte la structure en temps réel.",
+        },
+        {
+          q: "Comment ça marche techniquement ?",
+          a:
+            "Notre worker scrape la page produit toutes les 5 minutes (Pro) ou 30 minutes (Free). On utilise quatre stratégies en cascade : lecture du dataLayer e-commerce, inspection de l'état du bouton Ajouter au panier, vérification des attributs de variante, et analyse textuelle de la page. Pour les sites complexes, on active un navigateur headless (Playwright) en fallback. Aucune donnée n'est aspirée en masse — uniquement la fiche que tu suis.",
+        },
+        {
+          q: "Pourquoi vos alertes sont plus rapides que les alertes officielles ?",
+          a:
+            "Les marques envoient leurs alertes natives par lots — souvent avec 2 à 24 heures de retard. Nous, on vérifie chaque produit individuellement en continu. Quand ton article revient, t'es prévenu dans la minute. C'est pas de la magie, c'est juste qu'on ne fait pas la queue dans le batch email de la marque.",
+        },
+        {
+          q: "Je peux surveiller combien de produits ?",
+          a:
+            "3 sur le plan Free, 20 sur le plan Pro. Chaque variante (taille + couleur) compte comme un produit. Si tu veux suivre un même t-shirt en S et en M, ça compte pour 2 slots. Tu peux changer tes alertes actives à tout moment depuis le dashboard.",
+        },
+        {
+          q: "Vous supportez les sites hors Europe ?",
+          a:
+            "Notre focus est l'Europe, mais on surveille déjà des marques nord-américaines (Aritzia, Reformation, Khaite). Si le site est en français ou en anglais et que le produit a une fiche publique, ça devrait fonctionner. Dis-nous quelle marque te manque sur notre page Marques — on priorise les plus demandées sous 2 semaines.",
+        },
       ],
     },
     manifesto: {
@@ -251,6 +299,9 @@ export const messages = {
         "On en a marre de checker. Marre des alertes natives qui arrivent quand c’est déjà reparti. Marre des outils techniques qui te demandent un selector CSS pour surveiller un t-shirt en taille S.",
         "Restocking, c’est l’outil qu’on aurait voulu pour soi. Une URL, une taille, un ping. Pas plus.",
         "Trois personnes basées entre Paris, Lyon et Berlin. Pas de levée, pas d’IA Bullshit, pas de revente de données. Juste un service qui te rend la mode européenne moins frustrante.",
+        "On a commencé ce projet après avoir raté un manteau COS pour la troisième fois. Taille S, bleu marine. Revenu en stock à 4h du matin, reparti à 4h07. Aucune alerte reçue. C’est là qu’on a compris que le système était cassé.",
+        "Aujourd’hui notre moteur scanne les fiches produit de 120+ marques toutes les 5 minutes. On lit le dataLayer e-commerce, l’état du bouton Ajouter au panier, les attributs de variante — rien de magique, juste du travail bien fait. Sans casser les couilles aux retailers.",
+        "On ne te spamme pas. On ne te vend pas. On te ping quand c’est vraiment revenu, dans ta taille, sur le produit que tu vises. Point. Pas de faux positifs grâce à la double confirmation.",
         "On bosse pour que tu portes ce que tu aimes — pas pour que tu achètes ce qui reste.",
       ],
       signature: "— l’équipe restocking",
@@ -510,22 +561,45 @@ export const messages = {
         {
           title: "4-layer detection",
           body:
-            "We parse the e-commerce dataLayer, the state of the Add-to-Cart button, the variant attributes. Playwright as fallback for stubborn SPAs.",
+            "We parse the e-commerce dataLayer, the state of the Add-to-Cart button, and variant attributes. Playwright as fallback for stubborn SPAs. Each signal is scored independently to prevent false positives from triggering an alert.",
         },
         {
           title: "Double confirmation",
           body:
-            "A variant must be detected IN_STOCK twice in a row before triggering an alert. No more 3am ghost alerts.",
+            "A variant must be detected IN_STOCK twice in a row before triggering an alert. That means if an item comes back for 30 seconds due to an abandoned cart, we won't wake you up at 3am. No more ghost alerts.",
         },
         {
           title: "Retailer-friendly",
           body:
-            "Public reads only, no aggressive scraping, clean rotation, max 1 request at a time per domain. We play fair.",
+            "Public reads only, no aggressive scraping, clean user-agent rotation, max 1 request at a time per domain. We read the same page you see, at human speed. We never bypass authentication and never automate purchases.",
         },
         {
           title: "Hosted in Europe",
           body:
-            "Data stored in Frankfurt (Supabase EU), GDPR compliant. Your email belongs to you.",
+            "Data stored in Frankfurt (Supabase EU), encrypted at rest and in transit. GDPR compliant. Your email and watch URLs belong to you — exportable or deletable in one click. We never cross-reference your data with ad networks or third parties.",
+        },
+        {
+          title: "Email and SMS alerts",
+          body:
+            "Instant email with a direct link to the product page pre-filled with your size. Optional SMS on the Pro plan for highly competitive drops. Each alert includes the product name, size, colour, price, and a one-click purchase link. No disguised newsletter.",
+        },
+      ],
+      whyTitle: "Why restocking over a brand's own alert?",
+      whyItems: [
+        {
+          title: "Speed",
+          body:
+            "Brands send their native alerts in batches — often 2 to 24 hours after the actual restock. We check each product individually, no queue. Median measured: 2 min 40 on the Pro plan.",
+        },
+        {
+          title: "Size-specific",
+          body:
+            "Brands send a generic product alert, not your size. If size S comes back and you wear M, you get a useless notification. Restocking only pings you for the exact variant you're watching.",
+        },
+        {
+          title: "Multi-brand, one dashboard",
+          body:
+            "No need to create accounts at Zara, COS, Sézane and pray their alerts work. One dashboard, all your brands, all your sizes.",
         },
       ],
     },
@@ -633,6 +707,31 @@ export const messages = {
           a:
             "No. We make a living from the Pro plan. Your email stays with us, full stop. Read our policy (footer link) — it’s short and clear.",
         },
+        {
+          q: "Which stores do you monitor?",
+          a:
+            "Zara, COS, Aritzia, Uniqlo, Sézane, Mango, Arket, ASOS, Ganni, Massimo Dutti, & Other Stories and 50+ more at launch. Every brand listed on our Stores page is covered — with optimized parsers for the first 23. The rest go through our universal bot which detects structure in real-time.",
+        },
+        {
+          q: "How does it work technically?",
+          a:
+            "Our worker scrapes the product page every 5 minutes (Pro) or 30 minutes (Free). We use four cascading strategies: reading the e-commerce dataLayer, inspecting the Add-to-Cart button state, checking variant attributes, and text analysis of the page. For complex sites, we fall back to a headless browser (Playwright). No bulk data harvesting — only the specific product you follow.",
+        },
+        {
+          q: "Why are your alerts faster than the brand’s own?",
+          a:
+            "Brands send their native alerts in batches — often 2 to 24 hours after the actual restock. We check each product individually, continuously. When your item comes back, you know within a minute. It’s not magic, it’s just that we’re not queuing in the brand’s batch email system.",
+        },
+        {
+          q: "How many products can I track?",
+          a:
+            "3 on the Free plan, 20 on Pro. Each variant (size + colour) counts as one product. If you want to track the same t-shirt in S and M, that’s 2 slots. You can swap your active alerts anytime from the dashboard.",
+        },
+        {
+          q: "Do you support non-European stores?",
+          a:
+            "Our focus is Europe, but we already monitor some North American brands (Aritzia, Reformation, Khaite). If the site is in English or French and the product has a public page, it should work. Tell us which brand you’re missing on our Stores page — we prioritise the most requested within 2 weeks.",
+        },
       ],
     },
     manifesto: {
@@ -642,6 +741,9 @@ export const messages = {
         "We’re tired of checking. Tired of native alerts arriving once it’s already gone. Tired of technical tools asking for a CSS selector just to watch a size S t-shirt.",
         "Restocking is the tool we wished we had. One URL, one size, one ping. That’s it.",
         "Three people based in Paris, Lyon and Berlin. No fundraise, no AI bullshit, no data resale. Just a service that makes European fashion a little less frustrating.",
+        "We started this after missing a COS coat for the third time. Size S, navy blue. Came back at 4am, gone by 4:07. No alert received. That’s when we knew the system was broken.",
+        "Today our engine scans product pages from 120+ brands every 5 minutes. We read the e-commerce dataLayer, the Add-to-Cart button state, the variant attributes — nothing magical, just solid engineering. Without pissing off retailers.",
+        "We don’t spam you. We don’t sell you. We ping you when it’s truly back, in your size, for the product you want. Full stop. No false positives thanks to double confirmation.",
         "We work so you wear what you love — not what’s left.",
       ],
       signature: "— the restocking team",

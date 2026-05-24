@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Clipboard, Bell, Sparkles, ShieldCheck, MapPin, RefreshCcw } from "lucide-react";
+import { ArrowRight, BellOff, Clipboard, Bell, Sparkles, ShieldCheck, MapPin, RefreshCcw, Zap, Sliders } from "lucide-react";
 import { useLocale } from "@/components/site/locale-provider";
 import { WaitlistForm } from "@/components/site/waitlist-form";
 import {
@@ -24,7 +24,8 @@ const STEP_BGS = [
 
 const STEP_ICONS = [Clipboard, Sparkles, Bell];
 
-const DETAIL_ICONS = [RefreshCcw, ShieldCheck, MapPin, ShieldCheck];
+const DETAIL_ICONS = [RefreshCcw, ShieldCheck, MapPin, ShieldCheck, Bell];
+const WHY_ICONS = [Zap, Sliders, BellOff];
 
 export default function HowItWorksPage() {
   const { t } = useLocale();
@@ -124,6 +125,37 @@ export default function HowItWorksPage() {
                         {d.body}
                       </p>
                     </div>
+                  </div>
+                </StaggerItem>
+              );
+            })}
+          </StaggerContainer>
+        </div>
+      </section>
+
+      {/* WHY RESTOCKING */}
+      <section className="border-b-2 border-ink bg-cream" data-testid="why-restocking">
+        <div className="container mx-auto max-w-6xl px-5 py-20 lg:px-8 lg:py-24">
+          <ScrollReveal>
+            <h2 className="font-display text-4xl font-extrabold leading-tight tracking-tighter md:text-5xl">
+              {t.how.whyTitle}
+            </h2>
+          </ScrollReveal>
+          <StaggerContainer className="mt-12 grid gap-6 md:grid-cols-3">
+            {t.how.whyItems.map((item, i) => {
+              const Icon = WHY_ICONS[i];
+              return (
+                <StaggerItem key={item.title} data-testid={`why-${i}`}>
+                  <div className="group rounded-3xl border-2 border-ink bg-paper p-6 shadow-brutal hover-lift">
+                    <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl border-2 border-ink bg-[var(--brand-orange)]">
+                      <Icon className="h-5 w-5 text-ink" />
+                    </span>
+                    <h3 className="mt-5 font-display text-xl font-bold tracking-tight text-ink">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-ink/70">
+                      {item.body}
+                    </p>
                   </div>
                 </StaggerItem>
               );
