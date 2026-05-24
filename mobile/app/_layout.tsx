@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import "../global.css";
 import { Stack } from "expo-router";
 import { AuthProvider } from "@/lib/auth";
@@ -49,6 +50,17 @@ export default function RootLayout() {
   });
 
   if (!fontsLoaded) {
+    return null;
+  }
+
+  // If fonts don't load within 3s, show app anyway with system fonts
+  const [showAnyway, setShowAnyway] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setShowAnyway(true), 3000);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (!showAnyway && !fontsLoaded) {
     return null;
   }
 
