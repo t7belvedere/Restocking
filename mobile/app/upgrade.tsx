@@ -60,7 +60,7 @@ export default function UpgradeScreen() {
         >
           <View className="mb-1 self-start rounded-full border-2 border-ink bg-lime px-3 py-1">
             <Text className="font-display text-xs font-bold uppercase tracking-wider text-ink">
-              {t.mostPopular ?? "Le plus populaire"}
+              Le plus populaire
             </Text>
           </View>
           <Text className="mt-4 font-display text-3xl font-extrabold text-ink">
