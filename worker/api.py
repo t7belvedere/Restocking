@@ -760,6 +760,7 @@ async def analyze(url: str = Query(min_length=1)):
             pw_kwargs = {
                 "headless": True,
                 "stealth": True,
+                "hide_canvas": True,
                 "disable_resources": True,
                 "timeout": 25000,
                 "wait": 2000,
@@ -781,6 +782,7 @@ async def analyze(url: str = Query(min_length=1)):
             pw3_kwargs = {
                 "headless": True,
                 "stealth": True,
+                "hide_canvas": True,
                 "timeout": 30000,
                 "wait": 3000,
             }

@@ -20,6 +20,7 @@ def _pw_kwargs(**overrides):
     kw = {
         "headless": True,
         "stealth": True,
+        "hide_canvas": True,
         "disable_resources": True,
     }
     kw.update(overrides)
