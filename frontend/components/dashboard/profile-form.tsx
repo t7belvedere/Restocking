@@ -116,7 +116,7 @@ export function ProfileForm({ initial, email, plan }: Props) {
         </h1>
       </div>
 
-      {/* Email & plan card */}
+      {/* Account card */}
       <div className="rounded-2xl border bg-card p-5">
         <div className="flex items-center gap-4">
           <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-muted text-foreground">
@@ -141,11 +141,7 @@ export function ProfileForm({ initial, email, plan }: Props) {
                 <Crown className="h-3 w-3" />
                 Pro
               </>
-            ) : (
-              locale === "fr"
-                ? "Gratuit"
-                : "Free"
-            )}
+            ) : locale === "fr" ? "Gratuit" : "Free"}
           </span>
         </div>
 
@@ -168,8 +164,98 @@ export function ProfileForm({ initial, email, plan }: Props) {
         </div>
       </div>
 
+      {/* Notifications */}
+      <div className="space-y-6 rounded-2xl border bg-card p-5">
+        <div>
+          <h2 className="font-display text-lg font-semibold tracking-tight">
+            {locale === "fr" ? "Notifications" : "Notifications"}
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            {locale === "fr"
+              ? "On te prévient par email (tous les plans) et par SMS (Pro uniquement)."
+              : "We notify you by email (all plans) and SMS (Pro only)."}
+          </p>
+        </div>
+
+        {/* Email */}
+        <div className="space-y-2">
+          <Label>
+            {locale === "fr" ? "Email" : "Email"}
+          </Label>
+          <Input
+            value={email}
+            disabled
+            className="bg-muted/50"
+          />
+          <p className="text-xs text-muted-foreground">
+            <CheckCircle2 className="mr-1 inline h-3 w-3 text-emerald-600" />
+            {locale === "fr"
+              ? "Les alertes restock sont envoyées à cette adresse."
+              : "Restock alerts are sent to this address."}
+          </p>
+        </div>
+
+        {/* Phone */}
+        <div className="space-y-2">
+          <Label htmlFor="profile-phone">
+            {locale === "fr" ? "Téléphone (SMS)" : "Phone (SMS)"}
+          </Label>
+          <Input
+            id="profile-phone"
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="+33 6 12 34 56 78"
+            disabled={plan !== "pro"}
+          />
+          {plan !== "pro" ? (
+            <p className="text-xs text-muted-foreground">
+              <Crown className="mr-1 inline h-3 w-3 text-amber-500" />
+              {locale === "fr"
+                ? "Les SMS sont réservés au plan Pro."
+                : "SMS notifications are for Pro plan only."}
+            </p>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              {locale === "fr"
+                ? "On t'envoie un SMS dès qu'un produit revient en stock."
+                : "We'll text you as soon as a product is back in stock."}
+            </p>
+          )}
+        </div>
+
+        {/* Save */}
+        <div className="flex items-center gap-3 pt-2">
+          <Button onClick={handleSave} disabled={isPending} size="lg" className="w-full gap-2 sm:w-auto">
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : saved ? (
+              <CheckCircle2 className="h-4 w-4" />
+            ) : (
+              <ArrowRight className="h-4 w-4" />
+            )}
+            {isPending
+              ? (locale === "fr" ? "Sauvegarde…" : "Saving…")
+              : saved
+                ? (locale === "fr" ? "Sauvegardé !" : "Saved!")
+                : (locale === "fr" ? "Sauvegarder" : "Save")}
+          </Button>
+        </div>
+      </div>
+
       {/* Preferences */}
       <div className="space-y-6 rounded-2xl border bg-card p-5">
+        <div>
+          <h2 className="font-display text-lg font-semibold tracking-tight">
+            {locale === "fr" ? "Préférences" : "Preferences"}
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            {locale === "fr"
+              ? "Tes marques et ta taille habituelle nous aident à mieux te servir."
+              : "Your brands and usual size help us serve you better."}
+          </p>
+        </div>
+
         {/* First name */}
         <div className="space-y-2">
           <Label htmlFor="profile-name">
@@ -181,27 +267,6 @@ export function ProfileForm({ initial, email, plan }: Props) {
             onChange={(e) => setName(e.target.value)}
             placeholder={locale === "fr" ? "Ton prénom" : "Your first name"}
           />
-        </div>
-
-        {/* Phone */}
-        <div className="space-y-2">
-          <Label htmlFor="profile-phone">
-            {locale === "fr" ? "Téléphone (SMS, plan Pro)" : "Phone (SMS, Pro plan)"}
-          </Label>
-          <Input
-            id="profile-phone"
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="+33 6 12 34 56 78"
-          />
-          {plan === "free" ? (
-            <p className="text-xs text-muted-foreground">
-              {locale === "fr"
-                ? "Les SMS sont réservés au plan Pro."
-                : "SMS is reserved for Pro plan."}
-            </p>
-          ) : null}
         </div>
 
         {/* Size */}
