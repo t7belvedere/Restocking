@@ -375,6 +375,10 @@ export const messages = {
       },
     },
     profile: {
+      settingsTitle: "Paramètres",
+      settingsSub: "Compte, sécurité et notifications.",
+      preferencesTitle: "Préférences",
+      preferencesSub: "Tes marques et ta taille habituelle nous aident à mieux te servir.",
       changeEmailTitle: "Changer d'email",
       changeEmailDesc: "Un email de confirmation sera envoyé à la nouvelle adresse. Ton ancien email reste actif jusqu'à confirmation.",
       newEmailLabel: "Nouvel email",
@@ -391,6 +395,10 @@ export const messages = {
       changePasswordSuccess: "Mot de passe mis à jour.",
       passwordMismatch: "Les mots de passe ne correspondent pas.",
       passwordTooShort: "8 caractères minimum.",
+      saveButton: "Sauvegarder",
+      saving: "Sauvegarde…",
+      saved: "Sauvegardé !",
+      saveError: "Erreur lors de la sauvegarde.",
     },
     auth: {
       signIn: "Se connecter",
@@ -836,6 +844,10 @@ export const messages = {
       },
     },
     profile: {
+      settingsTitle: "Settings",
+      settingsSub: "Account, security and notifications.",
+      preferencesTitle: "Preferences",
+      preferencesSub: "Your brands and usual size help us serve you better.",
       changeEmailTitle: "Change email",
       changeEmailDesc: "A confirmation email will be sent to the new address. Your old email stays active until confirmed.",
       newEmailLabel: "New email",
@@ -852,6 +864,10 @@ export const messages = {
       changePasswordSuccess: "Password updated.",
       passwordMismatch: "Passwords don't match.",
       passwordTooShort: "8 characters minimum.",
+      saveButton: "Save",
+      saving: "Saving…",
+      saved: "Saved!",
+      saveError: "Error saving.",
     },
     auth: {
       signIn: "Sign in",

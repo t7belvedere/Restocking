@@ -208,17 +208,22 @@ export function ProfileForm({ initial, email, plan }: Props) {
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
-      {/* Page header */}
-      <div>
-        <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
-          {locale === "fr" ? "Paramètres" : "Settings"}
-        </p>
-        <h1 className="font-display text-4xl font-semibold tracking-tight">
-          {locale === "fr" ? "Profil" : "Profile"}
-        </h1>
-      </div>
+      {/* Settings section */}
+      <section>
+        <div className="mb-6">
+          <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+            {locale === "fr" ? "Compte" : "Account"}
+          </p>
+          <h2 className="font-display text-3xl font-semibold tracking-tight">
+            {t.profile.settingsTitle}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t.profile.settingsSub}
+          </p>
+        </div>
 
-      {/* Account card */}
+        <div className="space-y-6">
+          {/* Account card */}
       <div className="rounded-2xl border bg-card p-5">
         <div className="flex items-center gap-4">
           <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-muted text-foreground">
@@ -497,119 +502,107 @@ export function ProfileForm({ initial, email, plan }: Props) {
           )}
         </div>
 
-        {/* Save */}
-        <div className="flex items-center gap-3 pt-2">
-          <Button onClick={handleSave} disabled={isPending} size="lg" className="w-full gap-2 sm:w-auto">
-            {isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : saved ? (
-              <CheckCircle2 className="h-4 w-4" />
-            ) : (
-              <ArrowRight className="h-4 w-4" />
-            )}
-            {isPending
-              ? (locale === "fr" ? "Sauvegarde…" : "Saving…")
-              : saved
-                ? (locale === "fr" ? "Sauvegardé !" : "Saved!")
-                : (locale === "fr" ? "Sauvegarder" : "Save")}
-          </Button>
         </div>
-      </div>
+        </div>
+      </section>
 
-      {/* Preferences */}
-      <div className="space-y-6 rounded-2xl border bg-card p-5">
-        <div>
-          <h2 className="font-display text-lg font-semibold tracking-tight">
-            {locale === "fr" ? "Préférences" : "Preferences"}
+      {/* Preferences section */}
+      <section>
+        <div className="mb-6">
+          <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+            {locale === "fr" ? "Personnalisation" : "Personalization"}
+          </p>
+          <h2 className="font-display text-3xl font-semibold tracking-tight">
+            {t.profile.preferencesTitle}
           </h2>
-          <p className="text-xs text-muted-foreground">
-            {locale === "fr"
-              ? "Tes marques et ta taille habituelle nous aident à mieux te servir."
-              : "Your brands and usual size help us serve you better."}
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t.profile.preferencesSub}
           </p>
         </div>
 
-        {/* First name */}
-        <div className="space-y-2">
-          <Label htmlFor="profile-name">
-            {locale === "fr" ? "Prénom" : "First name"}
-          </Label>
-          <Input
-            id="profile-name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder={locale === "fr" ? "Ton prénom" : "Your first name"}
-          />
-        </div>
+        <div className="space-y-6">
+          <div className="space-y-6 rounded-2xl border bg-card p-5">
+            {/* First name */}
+            <div className="space-y-2">
+              <Label htmlFor="profile-name">
+                {locale === "fr" ? "Prénom" : "First name"}
+              </Label>
+              <Input
+                id="profile-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={locale === "fr" ? "Ton prénom" : "Your first name"}
+              />
+            </div>
 
-        {/* Size */}
-        <div className="space-y-2">
-          <Label>
-            {locale === "fr" ? "Taille habituelle" : "Usual size"}
-          </Label>
-          <div className="flex flex-wrap gap-2">
-            {sizes.map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setSize(size === s ? null : s)}
-                className={cn(
-                  "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all active:scale-[0.97]",
-                  size === s
-                    ? "border-foreground bg-foreground text-background shadow-sm"
-                    : "border-border bg-background hover:border-foreground/40 hover:bg-muted",
+            {/* Size */}
+            <div className="space-y-2">
+              <Label>
+                {locale === "fr" ? "Taille habituelle" : "Usual size"}
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {sizes.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setSize(size === s ? null : s)}
+                    className={cn(
+                      "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all active:scale-[0.97]",
+                      size === s
+                        ? "border-foreground bg-foreground text-background shadow-sm"
+                        : "border-border bg-background hover:border-foreground/40 hover:bg-muted",
+                    )}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Brands */}
+            <div className="space-y-2">
+              <Label>
+                {locale === "fr" ? "Marques suivies" : "Followed brands"}
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {ONBOARDING_BRANDS.map((b) => (
+                  <button
+                    key={b}
+                    type="button"
+                    onClick={() => toggleBrand(b)}
+                    className={cn(
+                      "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all active:scale-[0.97]",
+                      brands.includes(b)
+                        ? "border-foreground bg-foreground text-background shadow-sm"
+                        : "border-border bg-background hover:border-foreground/40 hover:bg-muted",
+                    )}
+                  >
+                    {b}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Save */}
+            <div className="flex items-center gap-3 pt-2">
+              <Button onClick={handleSave} disabled={isPending} size="lg" className="w-full gap-2 sm:w-auto">
+                {isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : saved ? (
+                  <CheckCircle2 className="h-4 w-4" />
+                ) : (
+                  <ArrowRight className="h-4 w-4" />
                 )}
-              >
-                {s}
-              </button>
-            ))}
+                {isPending
+                  ? t.profile.saving
+                  : saved
+                    ? t.profile.saved
+                    : t.profile.saveButton}
+              </Button>
+            </div>
           </div>
-        </div>
 
-        {/* Brands */}
-        <div className="space-y-2">
-          <Label>
-            {locale === "fr" ? "Marques suivies" : "Followed brands"}
-          </Label>
-          <div className="flex flex-wrap gap-2">
-            {ONBOARDING_BRANDS.map((b) => (
-              <button
-                key={b}
-                type="button"
-                onClick={() => toggleBrand(b)}
-                className={cn(
-                  "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all active:scale-[0.97]",
-                  brands.includes(b)
-                    ? "border-foreground bg-foreground text-background shadow-sm"
-                    : "border-border bg-background hover:border-foreground/40 hover:bg-muted",
-                )}
-              >
-                {b}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Save */}
-        <div className="flex items-center gap-3 pt-2">
-          <Button onClick={handleSave} disabled={isPending} size="lg" className="w-full gap-2 sm:w-auto">
-            {isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : saved ? (
-              <CheckCircle2 className="h-4 w-4" />
-            ) : (
-              <ArrowRight className="h-4 w-4" />
-            )}
-            {isPending
-              ? (locale === "fr" ? "Sauvegarde…" : "Saving…")
-              : saved
-                ? (locale === "fr" ? "Sauvegardé !" : "Saved!")
-                : (locale === "fr" ? "Sauvegarder" : "Save")}
-          </Button>
-        </div>
-      </div>
-
-      {/* Danger zone */}
+          {/* Danger zone */}
       <div className="rounded-2xl border-2 border-[oklch(0.55_0.22_27)]/40 bg-[oklch(0.97_0.04_27)]/30 p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -665,6 +658,8 @@ export function ProfileForm({ initial, email, plan }: Props) {
           </AlertDialog>
         </div>
       </div>
+        </div>
+      </section>
     </div>
   );
 }
