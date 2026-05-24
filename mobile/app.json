@@ -44,15 +44,7 @@
       ],
       "expo-web-browser",
       "expo-font",
-      "expo-splash-screen",
-      [
-        "expo-build-properties",
-        {
-          "ios": {
-            "useFrameworks": "dynamic"
-          }
-        }
-      ]
+      "expo-splash-screen"
     ],
     "extra": {
       "router": {},
