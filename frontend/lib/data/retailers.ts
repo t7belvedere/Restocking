@@ -93,7 +93,7 @@ export const RETAILERS: Retailer[] = [
     note_fr: "Denim japonais surveillé", note_en: "Japanese denim watched" },
   { name: "Jacquemus", domain: "jacquemus.com", country: "FR", status: "beta", wordmark: "italiana-caps",
     note_fr: "Drops chaotiques", note_en: "Chaotic drops" },
-  { name: "Lemaire", domain: "lemaire.com", country: "FR", status: "beta", wordmark: "italiana-caps",
+  { name: "Lemaire", domain: "lemaire.fr", country: "FR", status: "beta", wordmark: "italiana-caps",
     note_fr: "Pré-orders incluses", note_en: "Pre-orders included" },
   { name: "POLÈNE", domain: "polene-paris.com", country: "FR", status: "optimized", wordmark: "serif-bold",
     note_fr: "Numéro Un & Neuf", note_en: "Numéro Un & Neuf" },
@@ -178,7 +178,7 @@ export const RETAILERS: Retailer[] = [
   // ── NICHE / NEW WAVE ─────────────────────────────────────────────
   { name: "The Frankie Shop", domain: "thefrankieshop.com", country: "EU", status: "beta", wordmark: "bricolage-wide",
     note_fr: "Boxy blazers + tailoring", note_en: "Boxy blazers + tailoring" },
-  { name: "Lisa Yang", domain: "lisayang.com", country: "SE", status: "beta", wordmark: "italiana-thin",
+  { name: "Lisa Yang", domain: "lisa-yang.com", country: "SE", status: "beta", wordmark: "italiana-thin",
     note_fr: "Cashmere convoité", note_en: "Cashmere hunt" },
   { name: "KHAITE", domain: "khaite.com", country: "US", status: "beta", wordmark: "italiana-caps",
     note_fr: "Drops très limités", note_en: "Very limited drops" },
