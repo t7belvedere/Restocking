@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/site/locale-provider";
+import { Zap } from "lucide-react";
 import type { WatchStatus } from "@/lib/supabase/types";
 
 type RT = { now?: string; sec: (n: number) => string; min: (n: number) => string; hour: (n: number) => string; day: (n: number) => string };
@@ -37,12 +38,6 @@ function freshness(iso: string | null): "live" | "warm" | "cold" {
   return "cold";
 }
 
-const STATUS_COLORS: Record<WatchStatus, string> = {
-  IN_STOCK: "bg-emerald-500",
-  OUT_OF_STOCK: "bg-amber-500",
-  UNKNOWN: "bg-muted-foreground/50",
-};
-
 export function LiveStatus({
   lastCheck,
   status,
@@ -56,6 +51,7 @@ export function LiveStatus({
   const td = t.watchDetail;
   const relative = useRelativeTime(lastCheck, td.relativeTime, td.neverChecked);
   const fresh = freshness(lastCheck);
+  const isInStock = status === "IN_STOCK";
 
   const STATUS_LABEL: Record<WatchStatus, string> = {
     IN_STOCK: td.inStock,
@@ -65,40 +61,68 @@ export function LiveStatus({
 
   if (!isActive) {
     return (
-      <div className="flex items-center gap-2.5 rounded-full border-2 border-ink/20 bg-muted/50 px-4 py-1.5">
-        <span className="flex h-2.5 w-2.5 rounded-full bg-muted-foreground/40" />
+      <div className="flex items-center gap-2.5 rounded-full border-2 border-ink/15 bg-muted/40 px-4 py-1.5">
+        <span className="flex h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />
         <span className="text-sm font-medium text-muted-foreground">{td.paused}</span>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-2.5 rounded-full border-2 border-ink/20 bg-cream px-4 py-1.5">
+    <div
+      className={cn(
+        "flex items-center gap-2.5 rounded-full border-2 px-4 py-1.5 transition-all duration-500",
+        isInStock && fresh === "live"
+          ? "border-emerald-400/60 bg-emerald-50 shadow-[0_0_12px_rgba(16,185,129,0.15)]"
+          : "border-ink/20 bg-cream",
+      )}
+    >
       <span className="relative flex h-2.5 w-2.5">
-        <span
-          className={cn(
-            "absolute inset-0 rounded-full",
-            fresh === "live"
-              ? "animate-ping bg-emerald-400/60"
-              : fresh === "warm"
-                ? "animate-ping bg-amber-400/40"
-                : "",
-          )}
-        />
-        <span
-          className={cn(
-            "relative inline-flex h-2.5 w-2.5 rounded-full",
-            fresh === "live"
-              ? "bg-emerald-500"
-              : fresh === "warm"
-                ? "bg-amber-500"
-                : "bg-muted-foreground/40",
-          )}
-        />
+        {isInStock && fresh === "live" ? (
+          <>
+            <span className="absolute inset-0 animate-ping rounded-full bg-emerald-400/70" />
+            <span className="absolute inset-0 animate-ping rounded-full bg-emerald-400/40 animation-delay-500" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+          </>
+        ) : (
+          <>
+            <span
+              className={cn(
+                "absolute inset-0 rounded-full",
+                fresh === "live"
+                  ? "animate-ping bg-emerald-400/60"
+                  : fresh === "warm"
+                    ? "animate-ping bg-amber-400/40"
+                    : "",
+              )}
+            />
+            <span
+              className={cn(
+                "relative inline-flex h-2.5 w-2.5 rounded-full",
+                fresh === "live"
+                  ? "bg-emerald-500"
+                  : fresh === "warm"
+                    ? "bg-amber-500"
+                    : "bg-muted-foreground/40",
+              )}
+            />
+          </>
+        )}
       </span>
-      <span className="text-sm font-medium text-ink/80">
+
+      <span
+        className={cn(
+          "text-sm font-medium",
+          isInStock && fresh === "live" ? "text-emerald-800" : "text-ink/80",
+        )}
+      >
         {STATUS_LABEL[status]}
       </span>
+
+      {isInStock && fresh === "live" && (
+        <Zap className="h-3.5 w-3.5 text-[var(--brand-orange)] animate-pulse shrink-0" />
+      )}
+
       <span className="text-xs text-ink/40">·</span>
       <span
         className={cn(

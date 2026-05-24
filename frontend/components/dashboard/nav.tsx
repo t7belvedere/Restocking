@@ -88,7 +88,7 @@ export function DashboardNav({ email, plan }: DashboardNavProps) {
               <DropdownMenuItem onClick={() => router.push("/dashboard/profile")}>
                 Préférences
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push("/dashboard/profile")}>
+              <DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
                 Paramètres du compte
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push("/upgrade")}>

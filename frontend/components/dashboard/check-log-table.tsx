@@ -1,15 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { useLocale } from "@/components/site/locale-provider";
 import { type WatchStatus } from "@/lib/supabase/types";
 import type { CheckLog } from "@/lib/supabase/types";
@@ -41,16 +32,30 @@ function RelativeTimeCell({ iso }: { iso: string }) {
   }, [iso, rt]);
 
   return (
-    <time dateTime={iso} className="font-mono text-xs text-muted-foreground tabular-nums">
+    <time dateTime={iso} className="font-mono text-[11px] text-ink/40 tabular-nums">
       {label}
     </time>
   );
 }
 
-function statusVariant(status: WatchStatus) {
-  if (status === "IN_STOCK") return "success" as const;
-  if (status === "OUT_OF_STOCK") return "warning" as const;
-  return "muted" as const;
+function sourceLabel(source: string | null, labels: Record<string, string>): string {
+  if (!source) return "—";
+  return labels[source] ?? source;
+}
+
+function sourceIcon(source: string | null): string {
+  switch (source) {
+    case "dataLayer":
+      return "{ }";
+    case "add_to_cart_btn":
+      return "🛒";
+    case "variant_attr":
+      return "📐";
+    case "playwright":
+      return "🌐";
+    default:
+      return "·";
+  }
 }
 
 export function CheckLogTable({ logs, watchPrice }: { logs: CheckLog[]; watchPrice?: number | null }) {
@@ -84,59 +89,127 @@ export function CheckLogTable({ logs, watchPrice }: { logs: CheckLog[]; watchPri
   };
 
   return (
-    <div className="overflow-x-auto rounded-2xl border-2 border-ink/20 bg-card">
-      <Table>
-        <TableHeader>
-          <TableRow className="border-ink/20 bg-cream/70">
-            <TableHead className="font-display text-xs font-bold uppercase tracking-widest">
-              {td.tableDate}
-            </TableHead>
-            <TableHead className="font-display text-xs font-bold uppercase tracking-widest">
-              {td.tableStatus}
-            </TableHead>
-            <TableHead className="hidden font-display text-xs font-bold uppercase tracking-widest sm:table-cell">
-              {td.tableSource}
-            </TableHead>
-            <TableHead className="text-right font-display text-xs font-bold uppercase tracking-widest">
-              {td.tablePrice}
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {logs.map((log, i) => (
-            <TableRow
-              key={log.id}
-              className={cn(
-                "animate-[rise-in_400ms_cubic-bezier(0.16,1,0.3,1)_forwards] border-ink/10 opacity-0",
-                log.status === "IN_STOCK" && "bg-emerald-50/60",
-              )}
-              style={{
-                animationDelay: `${Math.min(i * 50, 800)}ms`,
-              }}
-            >
-              <TableCell>
-                <RelativeTimeCell iso={log.checked_at} />
-              </TableCell>
-              <TableCell>
-                <Badge variant={statusVariant(log.status)} className="rounded-full">
-                  {log.status === "IN_STOCK" && (
-                    <span className="mr-1 inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+    <div className="rounded-2xl border-2 border-ink/20 bg-card overflow-hidden">
+      {/* Visual timeline */}
+      <div className="relative px-5 py-4 sm:px-6">
+        {/* Vertical line */}
+        <div className="absolute left-[31px] top-0 bottom-0 w-0.5 bg-ink/8 sm:left-[35px]" />
+
+        <div className="space-y-0">
+          {logs.map((log, i) => {
+            const isInStock = log.status === "IN_STOCK";
+            const isOutOfStock = log.status === "OUT_OF_STOCK";
+            const prevLog = logs[i + 1];
+            const statusChanged = prevLog && prevLog.status !== log.status;
+            const priceChanged =
+              prevLog && log.price != null && prevLog.price != null && log.price !== prevLog.price;
+            const priceDiff =
+              priceChanged && prevLog && log.price != null && prevLog.price != null
+                ? log.price - prevLog.price
+                : 0;
+
+            return (
+              <div
+                key={log.id}
+                className="relative flex gap-4 pb-4 last:pb-0 animate-[rise-in_400ms_cubic-bezier(0.16,1,0.3,1)_forwards] opacity-0"
+                style={{ animationDelay: `${Math.min(i * 50, 800)}ms` }}
+              >
+                {/* Timeline node */}
+                <div className="relative z-10 flex shrink-0 flex-col items-center">
+                  <div
+                    className={cn(
+                      "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all sm:h-9 sm:w-9",
+                      isInStock &&
+                        "border-emerald-400 bg-emerald-100 shadow-[0_0_8px_rgba(16,185,129,0.3)]",
+                      isOutOfStock && "border-amber-300 bg-amber-50",
+                      !isInStock && !isOutOfStock && "border-ink/15 bg-muted/50",
+                    )}
+                  >
+                    {isInStock ? (
+                      <span className="relative flex h-2.5 w-2.5">
+                        <span className="absolute inset-0 animate-ping rounded-full bg-emerald-500/50" />
+                        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                      </span>
+                    ) : isOutOfStock ? (
+                      <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+                    ) : (
+                      <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/40" />
+                    )}
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div
+                  className={cn(
+                    "min-w-0 flex-1 rounded-xl px-3.5 py-2.5 transition-colors",
+                    isInStock && "bg-emerald-50/60",
+                    statusChanged && isInStock && "bg-emerald-100/80 ring-1 ring-emerald-400/30",
                   )}
-                  {STATUS_LABEL[log.status]}
-                </Badge>
-              </TableCell>
-              <TableCell className="hidden text-sm text-muted-foreground sm:table-cell">
-                {log.signal_source
-                  ? (SOURCE_LABEL[log.signal_source] ?? log.signal_source)
-                  : "—"}
-              </TableCell>
-              <TableCell className="text-right font-mono text-sm font-medium tabular-nums">
-                {formatPrice(log.price ?? watchPrice)}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                          isInStock &&
+                            "bg-emerald-200/70 text-emerald-800",
+                          isOutOfStock &&
+                            "bg-amber-100 text-amber-800",
+                          !isInStock && !isOutOfStock &&
+                            "bg-muted text-ink/50",
+                        )}
+                      >
+                        {isInStock && (
+                          <span className="relative flex h-1.5 w-1.5">
+                            <span className="absolute inset-0 animate-ping rounded-full bg-emerald-500/60" />
+                            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                          </span>
+                        )}
+                        {STATUS_LABEL[log.status]}
+                      </span>
+
+                      {statusChanged && (
+                        <span className="hidden sm:inline-flex items-center gap-0.5 rounded-full bg-[var(--brand-orange)]/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[var(--brand-orange)]">
+                          {isInStock ? "▲ Restock!" : "▼ Épuisé"}
+                        </span>
+                      )}
+
+                      {priceChanged && priceDiff !== 0 && (
+                        <span
+                          className={cn(
+                            "hidden sm:inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest",
+                            priceDiff > 0
+                              ? "bg-red-100 text-red-700"
+                              : "bg-emerald-100 text-emerald-700",
+                          )}
+                        >
+                          {priceDiff > 0 ? "▲" : "▼"}{" "}
+                          {formatPrice(Math.abs(priceDiff))}
+                        </span>
+                      )}
+                    </div>
+
+                    <RelativeTimeCell iso={log.checked_at} />
+                  </div>
+
+                  {/* Source + price row */}
+                  <div className="mt-1.5 flex items-center justify-between gap-3">
+                    <span className="inline-flex items-center gap-1 text-[10px] text-ink/40">
+                      <span className="font-mono text-[9px] opacity-60">
+                        {sourceIcon(log.signal_source)}
+                      </span>
+                      {sourceLabel(log.signal_source, SOURCE_LABEL)}
+                    </span>
+                    <span className="font-mono text-xs font-medium tabular-nums text-ink/70">
+                      {formatPrice(log.price ?? watchPrice)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { Bell, Clock, Layers, Plus, Sparkles, TrendingUp } from "lucide-react";
+import { Bell, Clock, Layers, Plus, Sparkles, TrendingUp, Zap } from "lucide-react";
 import { Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { WatchList, WatchListSkeleton } from "@/components/dashboard/watch-list";
 import { AutoRefresh } from "@/components/dashboard/auto-refresh";
+import { NextCheckCountdown } from "@/components/dashboard/next-check-countdown";
 import { QuickAddBrand } from "@/components/dashboard/quick-add-brand";
 import { cn } from "@/lib/utils";
 import { getSubscription, getCurrentUser, getWatches } from "@/lib/data/watches";
@@ -63,7 +64,7 @@ function DashboardLoading({ locale }: { locale: Locale }) {
       </div>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-24 animate-pulse rounded-2xl bg-muted/60" />
+          <div key={i} className="h-28 animate-pulse rounded-2xl bg-muted/60" />
         ))}
       </div>
       <WatchListSkeleton />
@@ -92,6 +93,8 @@ async function DashboardContent({ locale }: { locale: Locale }) {
     .sort((a, b) => new Date(b!).getTime() - new Date(a!).getTime())[0] ?? null;
 
   const stocked = inStockCount(watches);
+  const checkIntervalMin = subscription.plan === "pro" ? 5 : 30;
+  const isPro = subscription.plan === "pro";
 
   const dateStr = new Date().toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US", {
     weekday: "long",
@@ -107,14 +110,19 @@ async function DashboardContent({ locale }: { locale: Locale }) {
       icon: Bell,
       color: "text-[var(--brand-orange)]",
       bg: "bg-[var(--brand-orange)]/10",
+      ring: "ring-[var(--brand-orange)]/20",
+      progress: activeCount / Math.max(max, 1),
+      progressColor: "bg-[var(--brand-orange)]",
     },
     {
       label: t.stats.inStock,
       value: String(stocked),
-      sub: t.stats.inStockSub,
+      sub: stocked > 0 ? t.stats.inStockSub : t.stats.inStockSub,
       icon: TrendingUp,
-      color: "text-emerald-600",
-      bg: "bg-emerald-50",
+      color: stocked > 0 ? "text-emerald-600" : "text-ink/40",
+      bg: stocked > 0 ? "bg-emerald-50" : "bg-muted/30",
+      ring: "ring-emerald-500/20",
+      alert: stocked > 0,
     },
     {
       label: t.stats.lastCheck,
@@ -123,15 +131,18 @@ async function DashboardContent({ locale }: { locale: Locale }) {
       icon: Clock,
       color: "text-[var(--brand-blue)]",
       bg: "bg-[var(--brand-blue)]/10",
+      ring: "ring-[var(--brand-blue)]/20",
+      live: true,
     },
     {
       label: t.stats.plan,
-      value: subscription.plan === "pro" ? "Pro" : "Free",
+      value: isPro ? "Pro" : "Free",
       sub: t.stats.manage,
       subHref: "/upgrade",
       icon: Layers,
-      color: subscription.plan === "pro" ? "text-amber-600" : "text-ink/60",
-      bg: subscription.plan === "pro" ? "bg-amber-50" : "bg-muted/50",
+      color: isPro ? "text-amber-600" : "text-ink/50",
+      bg: isPro ? "bg-amber-50" : "bg-muted/30",
+      ring: isPro ? "ring-amber-500/20" : "ring-ink/10",
     },
   ];
 
@@ -139,7 +150,7 @@ async function DashboardContent({ locale }: { locale: Locale }) {
     <div className="space-y-8">
       {/* Greeting + header */}
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
+        <div className="flex-1">
           <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
             {dateStr}
           </p>
@@ -153,7 +164,9 @@ async function DashboardContent({ locale }: { locale: Locale }) {
                     className="absolute inset-x-[-4px] bottom-1 -z-0 block h-[0.25em] -rotate-1 bg-[var(--brand-lime)]"
                   />
                 </span>{" "}
-                👋
+                <span className="inline-block animate-[wave_1.2s_ease-in-out_infinite] origin-[70%_70%]">
+                  👋
+                </span>
               </>
             ) : (
               <span>{t.greeting(null)}</span>
@@ -161,50 +174,89 @@ async function DashboardContent({ locale }: { locale: Locale }) {
           </h1>
         </div>
 
-        {!isLimitReached ? (
-          <Link
-            href="/dashboard/add"
-            className={cn(
-              buttonVariants({ size: "lg" }),
-              "w-full gap-2 rounded-xl border-2 border-ink bg-[var(--brand-orange)] font-display font-bold uppercase tracking-widest text-ink shadow-brutal-sm hover:shadow-brutal hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all sm:w-auto",
-            )}
-          >
-            <Plus className="h-4 w-4" />
-            {t.addAlert}
-          </Link>
-        ) : (
-          <Link
-            href="/upgrade"
-            className={cn(
-              buttonVariants({ variant: "default", size: "lg" }),
-              "w-full gap-2 rounded-xl border-2 border-ink bg-ink font-display font-bold uppercase tracking-widest text-cream shadow-brutal-sm hover:shadow-brutal hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all sm:w-auto",
-            )}
-          >
-            <Sparkles className="h-4 w-4" />
-            {t.upgradeToPro}
-          </Link>
-        )}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Next check countdown — builds anticipation */}
+          <NextCheckCountdown
+            lastCheck={lastCheck}
+            intervalMinutes={checkIntervalMin}
+            plan={subscription.plan}
+          />
+
+          {!isLimitReached ? (
+            <Link
+              href="/dashboard/add"
+              className={cn(
+                buttonVariants({ size: "lg" }),
+                "group relative w-full gap-2 overflow-hidden rounded-xl border-2 border-ink bg-[var(--brand-orange)] font-display font-bold uppercase tracking-widest text-ink shadow-brutal-sm transition-all hover:shadow-brutal hover:-translate-x-0.5 hover:-translate-y-0.5 sm:w-auto",
+              )}
+            >
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+              <Plus className="relative h-4 w-4" />
+              <span className="relative">{t.addAlert}</span>
+            </Link>
+          ) : (
+            <Link
+              href="/upgrade"
+              className={cn(
+                buttonVariants({ variant: "default", size: "lg" }),
+                "group relative w-full gap-2 overflow-hidden rounded-xl border-2 border-ink bg-ink font-display font-bold uppercase tracking-widest text-cream shadow-brutal-sm transition-all hover:shadow-brutal hover:-translate-x-0.5 hover:-translate-y-0.5 sm:w-auto",
+              )}
+            >
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+              <Sparkles className="relative h-4 w-4" />
+              <span className="relative">{t.upgradeToPro}</span>
+            </Link>
+          )}
+        </div>
       </header>
 
-      {/* Stats bar */}
+      {/* Stats bar — enhanced with progress, rings, and live indicators */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {stats.map((s) => {
           const card = (
             <Card
               key={s.label}
               className={cn(
-                "rounded-2xl border-2 border-ink/20 bg-cream/50 shadow-none transition-shadow hover:shadow-brutal-sm",
+                "group relative overflow-hidden rounded-2xl border-2 border-ink/20 bg-cream/50 shadow-none transition-all duration-300",
+                "hover:border-ink/40 hover:shadow-brutal-sm hover:-translate-y-0.5",
+                s.alert && "border-emerald-400/60 bg-emerald-50/30",
               )}
             >
-              <CardContent className="flex items-start gap-3 p-4">
-                <span className={cn("mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg", s.bg)}>
-                  <s.icon className={cn("h-4 w-4", s.color)} />
+              {/* Progress bar at bottom */}
+              {s.progress !== undefined && (
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted/50">
+                  <div
+                    className={cn(
+                      "h-full transition-all duration-700 ease-out",
+                      s.progressColor,
+                    )}
+                    style={{ width: `${Math.min(s.progress * 100, 100)}%` }}
+                  />
+                </div>
+              )}
+
+              <CardContent className="relative flex items-start gap-3 p-4 pb-5">
+                <span
+                  className={cn(
+                    "mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-300",
+                    s.bg,
+                    "group-hover:scale-105",
+                    s.live && "ring-2 ring-offset-1 ring-offset-cream animate-pulse",
+                    s.ring,
+                  )}
+                >
+                  <s.icon className={cn("h-4.5 w-4.5", s.color)} />
                 </span>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="text-[11px] font-medium uppercase tracking-wider text-ink/50">
                     {s.label}
                   </p>
-                  <p className="mt-0.5 truncate font-display text-lg font-bold tracking-tight">
+                  <p
+                    className={cn(
+                      "mt-0.5 truncate font-display text-xl font-bold tracking-tight",
+                      s.alert && "text-emerald-700",
+                    )}
+                  >
                     {s.value}
                   </p>
                   {s.sub && (
@@ -230,16 +282,21 @@ async function DashboardContent({ locale }: { locale: Locale }) {
         <QuickAddBrand brands={preferredBrands} />
       )}
 
-      {/* Limit warning */}
+      {/* Limit warning — more urgent feel */}
       {isLimitReached && watches.length > 0 ? (
-        <div className="flex flex-col gap-4 rounded-2xl border-2 border-ink bg-[var(--brand-orange)]/10 p-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="font-display text-sm font-bold uppercase tracking-widest">
-              {t.limitReached}
-            </p>
-            <p className="mt-0.5 text-sm text-ink/70">
-              {t.limitBody(activeCount, subscription.plan, max)}
-            </p>
+        <div className="flex flex-col gap-4 rounded-2xl border-2 border-[var(--brand-orange)]/40 bg-[var(--brand-orange)]/5 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-orange)]/20">
+              <Zap className="h-4 w-4 text-[var(--brand-orange)]" />
+            </span>
+            <div>
+              <p className="font-display text-sm font-bold uppercase tracking-widest">
+                {t.limitReached}
+              </p>
+              <p className="mt-0.5 text-sm text-ink/70">
+                {t.limitBody(activeCount, subscription.plan, max)}
+              </p>
+            </div>
           </div>
           <Link
             href="/upgrade"
@@ -269,10 +326,10 @@ function EmptyState({ firstName, t }: { firstName: string | null; t: DashboardMe
     <Card className="rounded-3xl border-2 border-dashed border-ink/30 bg-cream/50">
       <CardContent className="flex flex-col items-center gap-6 p-8 text-center sm:p-14">
         <div className="relative">
-          <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-ink bg-[var(--brand-lime)] shadow-brutal sm:h-16 sm:w-16">
-            <Bell className="h-6 w-6 text-ink sm:h-7 sm:w-7" />
+          <span className="inline-flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-ink bg-[var(--brand-lime)] shadow-brutal transition-transform hover:rotate-3">
+            <Bell className="h-7 w-7 text-ink" />
           </span>
-          <span className="absolute -right-2 -top-2 inline-flex h-5 w-5 items-center justify-center rounded-full border-2 border-ink bg-[var(--brand-orange)] text-[9px] font-black text-ink sm:h-6 sm:w-6 sm:text-[10px]">
+          <span className="absolute -right-2 -top-2 inline-flex h-6 w-6 items-center justify-center rounded-full border-2 border-ink bg-[var(--brand-orange)] text-[10px] font-black text-ink animate-bounce">
             1
           </span>
         </div>
@@ -288,11 +345,12 @@ function EmptyState({ firstName, t }: { firstName: string | null; t: DashboardMe
           href="/dashboard/add"
           className={cn(
             buttonVariants({ size: "lg" }),
-            "w-full gap-2 rounded-xl border-2 border-ink bg-[var(--brand-orange)] px-8 font-display font-bold uppercase tracking-widest text-ink shadow-brutal hover:shadow-brutal-lg hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all sm:w-auto",
+            "group relative w-full gap-2 overflow-hidden rounded-xl border-2 border-ink bg-[var(--brand-orange)] px-8 font-display font-bold uppercase tracking-widest text-ink shadow-brutal transition-all hover:shadow-brutal-lg hover:-translate-x-0.5 hover:-translate-y-0.5 sm:w-auto",
           )}
         >
-          <Plus className="h-4 w-4" />
-          {t.emptyCta}
+          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+          <Plus className="relative h-4 w-4" />
+          <span className="relative">{t.emptyCta}</span>
         </Link>
         <p className="text-xs text-ink/30">
           {t.emptyFooter}
