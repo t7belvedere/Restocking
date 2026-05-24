@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 
 export type ProfileData = {
   first_name?: string;
@@ -38,5 +38,34 @@ export async function updateProfile(data: ProfileData): Promise<ProfileResult> {
   if (error) {
     return { ok: false, error: "Impossible de sauvegarder. Réessaie." };
   }
+  return { ok: true };
+}
+
+export async function deleteAccount(): Promise<ProfileResult> {
+  const supabase = await createClient();
+  if (!supabase) {
+    return { ok: false, error: "Non authentifié." };
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { ok: false, error: "Session expirée." };
+  }
+
+  // Delete auth user via admin client (service role bypasses RLS)
+  const admin = createAdminClient();
+  if (!admin) {
+    return { ok: false, error: "Erreur serveur — impossible de supprimer le compte." };
+  }
+
+  const { error } = await admin.auth.admin.deleteUser(user.id);
+  if (error) {
+    return { ok: false, error: "Erreur lors de la suppression. Réessaie." };
+  }
+
+  // Cascade deletes on watches → check_logs, notifications handle the rest
+
   return { ok: true };
 }

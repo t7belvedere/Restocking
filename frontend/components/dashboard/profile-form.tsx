@@ -9,6 +9,7 @@ import {
   ExternalLink,
   Loader2,
   LogOut,
+  Trash2,
   User,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -16,9 +17,20 @@ import { useLocale } from "@/components/site/locale-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
-import { updateProfile, type ProfileData } from "@/app/actions/profile";
+import { updateProfile, deleteAccount, type ProfileData } from "@/app/actions/profile";
 import { ONBOARDING_BRANDS, EU_SIZES, LETTER_SIZES } from "@/components/auth/onboarding-steps";
 
 type Props = {
@@ -32,6 +44,7 @@ export function ProfileForm({ initial, email, plan }: Props) {
   const { t, locale } = useLocale();
   const [isPending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const [name, setName] = useState(initial.first_name ?? "");
   const [size, setSize] = useState<string | null>(initial.preferred_size ?? null);
@@ -72,6 +85,20 @@ export function ProfileForm({ initial, email, plan }: Props) {
       return;
     }
     router.replace("/login");
+    router.refresh();
+  }
+
+  async function handleDelete() {
+    setDeleting(true);
+    const res = await deleteAccount();
+    if (!res.ok) {
+      toast.error(res.error ?? "Erreur lors de la suppression.");
+      setDeleting(false);
+      return;
+    }
+    // Sign out locally then redirect to home
+    await supabase?.auth.signOut();
+    router.replace("/");
     router.refresh();
   }
 
@@ -218,6 +245,63 @@ export function ProfileForm({ initial, email, plan }: Props) {
                 ? (locale === "fr" ? "Sauvegardé !" : "Saved!")
                 : (locale === "fr" ? "Sauvegarder" : "Save")}
           </Button>
+        </div>
+      </div>
+
+      {/* Danger zone */}
+      <div className="rounded-2xl border-2 border-[oklch(0.55_0.22_27)]/40 bg-[oklch(0.97_0.04_27)]/30 p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-bold text-[oklch(0.4_0.2_27)]">
+              {locale === "fr" ? "Zone dangereuse" : "Danger zone"}
+            </p>
+            <p className="mt-0.5 text-xs text-[oklch(0.45_0.18_27)]/80">
+              {locale === "fr"
+                ? "Supprimer définitivement ton compte et toutes tes données. Cette action est irréversible."
+                : "Permanently delete your account and all data. This cannot be undone."}
+            </p>
+          </div>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="shrink-0 gap-1.5 border-[oklch(0.55_0.22_27)]/60 text-[oklch(0.45_0.2_27)] hover:bg-[oklch(0.55_0.22_27)]/10"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                {locale === "fr" ? "Supprimer mon compte" : "Delete my account"}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  {locale === "fr"
+                    ? "Supprimer ton compte ?"
+                    : "Delete your account?"}
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  {locale === "fr"
+                    ? "Toutes tes alertes, ton historique et tes données seront définitivement effacés. Tu ne pourras pas revenir en arrière."
+                    : "All your alerts, history, and data will be permanently erased. This cannot be undone."}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>
+                  {locale === "fr" ? "Annuler" : "Cancel"}
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="bg-[oklch(0.55_0.22_27)] text-white hover:bg-[oklch(0.48_0.2_27)]"
+                >
+                  {deleting
+                    ? (locale === "fr" ? "Suppression…" : "Deleting…")
+                    : (locale === "fr" ? "Supprimer définitivement" : "Delete forever")}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </div>
