@@ -24,8 +24,8 @@ export default function Login() {
   const handleLogin = async () => {
     setError("");
     setLoading(true);
-    const { error } = await signIn(email, password);
-    if (error) setError(error);
+    const res = await signIn(email, password);
+    if (res.error) setError(res.error);
     setLoading(false);
   };
 
@@ -70,7 +70,7 @@ export default function Login() {
             </Text>
             <TextInput
               className="rounded-lg border-2 border-ink bg-paper px-4 py-3.5 font-sans text-base text-ink"
-              placeholder="········"
+              placeholder="..."
               placeholderTextColor="#737373"
               secureTextEntry
               value={password}
@@ -107,9 +107,7 @@ export default function Login() {
         </View>
 
         <View className="mt-4 flex-row justify-center gap-x-1">
-          <Text className="font-sans text-sm text-ink-soft">
-            {t.noAccount}
-          </Text>
+          <Text className="font-sans text-sm text-ink-soft">{t.noAccount}</Text>
           <Link href="/(auth)/register" className="py-1">
             <Text className="font-sans text-sm font-bold text-primary underline">
               {t.signUp}

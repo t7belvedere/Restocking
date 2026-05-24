@@ -1,10 +1,15 @@
 import "react-native-reanimated";
 import "../global.css";
-
 import { Stack } from "expo-router";
 import { AuthProvider } from "@/lib/auth";
 import { I18nProvider } from "@/lib/i18n";
 import { PushRegistration } from "@/components/push-registration";
+
+export { ErrorBoundary } from "expo-router";
+
+export const unstable_settings = {
+  initialRouteName: "(tabs)",
+};
 
 export default function RootLayout() {
   return (

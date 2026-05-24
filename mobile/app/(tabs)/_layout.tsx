@@ -1,5 +1,13 @@
 import { Tabs } from "expo-router";
-import { House, Plus, Settings } from "lucide-react-native";
+import { View, Text } from "react-native";
+
+function TabIcon({ label, color }: { label: string; color: string }) {
+  return (
+    <View className="h-6 w-6 items-center justify-center">
+      <Text style={{ fontSize: 18, color }}>{label}</Text>
+    </View>
+  );
+}
 
 export default function TabLayout() {
   return (
@@ -16,34 +24,27 @@ export default function TabLayout() {
           paddingBottom: 8,
           paddingTop: 8,
         },
-        tabBarLabelStyle: {
-          fontFamily: "DM Sans",
-          fontSize: 12,
-          fontWeight: "600",
-        },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: "Dashboard",
-          tabBarIcon: ({ color, size }) => <House size={size} color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon label="H" color={color} />,
         }}
       />
       <Tabs.Screen
         name="add"
         options={{
-          title: "Add Watch",
-          tabBarIcon: ({ color, size }) => <Plus size={size} color={color} />,
+          title: "Add",
+          tabBarIcon: ({ color }) => <TabIcon label="+" color={color} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: "Settings",
-          tabBarIcon: ({ color, size }) => (
-            <Settings size={size} color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabIcon label="S" color={color} />,
         }}
       />
     </Tabs>

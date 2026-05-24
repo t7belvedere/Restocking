@@ -25,9 +25,9 @@ export default function Register() {
   const handleRegister = async () => {
     setError("");
     setLoading(true);
-    const { error } = await signUp(email, password);
-    if (error) {
-      setError(error);
+    const res = await signUp(email, password);
+    if (res.error) {
+      setError(res.error);
     } else {
       setSent(true);
     }
@@ -85,7 +85,7 @@ export default function Register() {
             </Text>
             <TextInput
               className="rounded-lg border-2 border-ink bg-paper px-4 py-3.5 font-sans text-base text-ink"
-              placeholder="········"
+              placeholder="..."
               placeholderTextColor="#737373"
               secureTextEntry
               value={password}

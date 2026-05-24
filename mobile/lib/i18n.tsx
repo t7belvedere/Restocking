@@ -1,5 +1,5 @@
-import * as Localization from "expo-localization";
 import { createContext, useContext, useState, type ReactNode } from "react";
+import { Platform } from "react-native";
 
 type Locale = "fr" | "en";
 
@@ -38,8 +38,7 @@ const translations = {
       "Le site bloque l'extraction automatique. L'alerte sera créée et les détails ajoutés automatiquement.",
     emailSent:
       "Email envoyé ! Vérifie ta boîte de réception pour le lien de réinitialisation.",
-    checkEmail:
-      "Vérifie ta boîte mail pour confirmer ton inscription.",
+    checkEmail: "Vérifie ta boîte mail pour confirmer ton inscription.",
   },
   en: {
     dashboard: "Dashboard",
@@ -73,12 +72,24 @@ const translations = {
     urlPlaceholder: "https://www.zara.com/en/...",
     enrichmentMessage:
       "The site blocks automatic extraction. Your alert will be created and details added automatically.",
-    emailSent:
-      "Email sent! Check your inbox for the reset link.",
-    checkEmail:
-      "Check your email to confirm your registration.",
+    emailSent: "Email sent! Check your inbox for the reset link.",
+    checkEmail: "Check your email to confirm your registration.",
   },
 };
+
+function getDeviceLocale(): Locale {
+  if (Platform.OS === "web") {
+    const lang = navigator.language;
+    return lang.startsWith("en") ? "en" : "fr";
+  }
+  try {
+    const Localization = require("expo-localization");
+    const code = Localization.getLocales?.()?.[0]?.languageCode ?? "fr";
+    return code === "en" ? "en" : "fr";
+  } catch {
+    return "fr";
+  }
+}
 
 type I18nContextType = {
   locale: Locale;
@@ -97,12 +108,8 @@ export function useI18n() {
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const deviceLocale = Localization.getLocales?.()?.[0]?.languageCode ?? "fr";
-  const initialLocale: Locale =
-    deviceLocale === "en" ? "en" : "fr";
-
+  const initialLocale = getDeviceLocale();
   const [locale, setLocale] = useState<Locale>(initialLocale);
-
   const t = translations[locale];
 
   return (

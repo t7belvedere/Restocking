@@ -24,9 +24,9 @@ export default function ForgotPassword() {
   const handleReset = async () => {
     setError("");
     setLoading(true);
-    const { error } = await resetPassword(email);
-    if (error) {
-      setError(error);
+    const res = await resetPassword(email);
+    if (res.error) {
+      setError(res.error);
     } else {
       setSent(true);
     }
@@ -106,7 +106,7 @@ export default function ForgotPassword() {
         <View className="mt-6 flex-row justify-center">
           <Link href="/(auth)/login" className="py-1">
             <Text className="font-sans text-sm font-bold text-primary underline">
-              ← {t.signIn}
+              {t.signIn}
             </Text>
           </Link>
         </View>
