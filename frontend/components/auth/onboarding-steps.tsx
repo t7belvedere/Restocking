@@ -76,7 +76,8 @@ export function BrandStep({
   answers: OnboardingAnswers;
   setAnswers: (a: OnboardingAnswers) => void;
 }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  const [custom, setCustom] = useState("");
 
   const toggle = (brand: string) => {
     const exists = answers.preferred_brands.includes(brand);
@@ -88,8 +89,20 @@ export function BrandStep({
     });
   };
 
+  function addCustom() {
+    const v = custom.trim();
+    if (!v) return;
+    if (!answers.preferred_brands.includes(v)) {
+      setAnswers({
+        ...answers,
+        preferred_brands: [...answers.preferred_brands, v],
+      });
+    }
+    setCustom("");
+  }
+
   return (
-    <div>
+    <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
         {ONBOARDING_BRANDS.map((brand) => (
           <button
@@ -101,6 +114,30 @@ export function BrandStep({
             {brand}
           </button>
         ))}
+      </div>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          placeholder={locale === "fr" ? "Autre marque…" : "Other brand…"}
+          value={custom}
+          onChange={(e) => setCustom(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addCustom();
+            }
+          }}
+          className="h-11 flex-1 rounded-full border-2 border-dashed border-ink/30 bg-paper px-4 text-sm font-medium text-ink placeholder:text-ink/40 focus-visible:outline-none focus-visible:border-ink/60"
+        />
+        <button
+          type="button"
+          onClick={addCustom}
+          disabled={!custom.trim()}
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-ink/30 bg-paper text-ink/50 hover:border-ink/60 hover:text-ink disabled:opacity-30 transition-colors"
+          aria-label={locale === "fr" ? "Ajouter" : "Add"}
+        >
+          +
+        </button>
       </div>
     </div>
   );
