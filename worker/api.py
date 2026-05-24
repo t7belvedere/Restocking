@@ -2,7 +2,10 @@
 
 import json
 import logging
+import os
+import random
 import re
+import time
 from urllib.parse import urlparse
 
 from dotenv import load_dotenv
@@ -566,6 +569,69 @@ def _extract_css_price(page) -> float | None:
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+# ---------------------------------------------------------------------------
+# OTP phone verification
+# ---------------------------------------------------------------------------
+
+# { phone: { code, expires_at } }
+_pending_otps: dict[str, dict] = {}
+
+TWILIO_SID = os.getenv("TWILIO_ACCOUNT_SID", "")
+TWILIO_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "")
+TWILIO_FROM = os.getenv("TWILIO_PHONE_NUMBER", "")
+
+
+@app.post("/send-otp")
+async def send_otp(phone: str = Query(min_length=6)):
+    """Send a 6-digit OTP code to the given phone number via Twilio."""
+    if not TWILIO_SID or not TWILIO_TOKEN:
+        raise HTTPException(status_code=503, detail="Twilio not configured")
+
+    # Rate limit: 60s between sends for the same number
+    existing = _pending_otps.get(phone)
+    if existing and time.monotonic() - existing.get("last_sent", 0) < 60:
+        raise HTTPException(status_code=429, detail="Too soon — wait 60 seconds")
+
+    code = str(random.randint(100000, 999999))
+
+    # Send via Twilio
+    try:
+        from twilio.rest import Client as TwilioClient
+        client = TwilioClient(TWILIO_SID, TWILIO_TOKEN)
+        client.messages.create(
+            body=f"Restocking — code de vérification : {code}",
+            from_=TWILIO_FROM,
+            to=phone,
+        )
+    except Exception:
+        logger.exception("Twilio send failed for %s", phone)
+        raise HTTPException(status_code=502, detail="Could not send SMS")
+
+    _pending_otps[phone] = {"code": code, "expires_at": time.monotonic() + 300, "last_sent": time.monotonic()}
+    logger.info("OTP sent to %s", phone)
+    return {"ok": True}
+
+
+@app.post("/verify-otp")
+async def verify_otp(phone: str = Query(min_length=6), code: str = Query(min_length=6, max_length=6)):
+    """Verify a 6-digit OTP code."""
+    entry = _pending_otps.get(phone)
+    if not entry:
+        raise HTTPException(status_code=404, detail="No pending OTP for this number")
+
+    if time.monotonic() > entry["expires_at"]:
+        del _pending_otps[phone]
+        raise HTTPException(status_code=410, detail="OTP expired")
+
+    if entry["code"] != code:
+        raise HTTPException(status_code=403, detail="Invalid code")
+
+    del _pending_otps[phone]
+    logger.info("Phone %s verified", phone)
+    return {"ok": True, "verified": True}
+
 
 async def debug_apc():
     """Debug endpoint — fetch APC and show extraction results."""

@@ -31,6 +31,7 @@ import {
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { updateProfile, deleteAccount, type ProfileData } from "@/app/actions/profile";
+import { sendPhoneOtp, verifyPhoneOtp } from "@/app/actions/phone-verification";
 import { ONBOARDING_BRANDS, EU_SIZES, LETTER_SIZES } from "@/components/auth/onboarding-steps";
 
 type Props = {
@@ -48,6 +49,13 @@ export function ProfileForm({ initial, email, plan }: Props) {
 
   const [name, setName] = useState(initial.first_name ?? "");
   const [phone, setPhone] = useState(initial.phone ?? "");
+  const [phoneVerified, setPhoneVerified] = useState(
+    Boolean((initial as any).phone_verified),
+  );
+  const [otpCode, setOtpCode] = useState("");
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [showOtpInput, setShowOtpInput] = useState(false);
   const [size, setSize] = useState<string | null>(initial.preferred_size ?? null);
   const [brands, setBrands] = useState<string[]>(initial.preferred_brands ?? []);
 
@@ -59,6 +67,49 @@ export function ProfileForm({ initial, email, plan }: Props) {
     setBrands((prev) =>
       prev.includes(b) ? prev.filter((x) => x !== b) : [...prev, b],
     );
+  }
+
+  async function handleSendOtp() {
+    if (!phone.trim()) {
+      toast.error(
+        locale === "fr"
+          ? "Entre d'abord ton numéro de téléphone."
+          : "Enter your phone number first.",
+      );
+      return;
+    }
+    setSendingOtp(true);
+    const res = await sendPhoneOtp(phone.trim());
+    setSendingOtp(false);
+    if (res.ok) {
+      setShowOtpInput(true);
+      toast.success(
+        locale === "fr"
+          ? "Code envoyé par SMS. Vérifie ton téléphone."
+          : "Code sent via SMS. Check your phone.",
+      );
+    } else {
+      toast.error(res.error ?? "Erreur");
+    }
+  }
+
+  async function handleVerifyOtp() {
+    if (otpCode.length !== 6) return;
+    setVerifyingOtp(true);
+    const res = await verifyPhoneOtp(phone.trim(), otpCode);
+    setVerifyingOtp(false);
+    if (res.ok) {
+      setPhoneVerified(true);
+      setShowOtpInput(false);
+      setOtpCode("");
+      // Save phone_verified in user metadata
+      await updateProfile({ phone: phone.trim() });
+      toast.success(
+        locale === "fr" ? "Téléphone vérifié !" : "Phone verified!",
+      );
+    } else {
+      toast.error(res.error ?? "Code incorrect");
+    }
   }
 
   function handleSave() {
@@ -200,14 +251,67 @@ export function ProfileForm({ initial, email, plan }: Props) {
           <Label htmlFor="profile-phone">
             {locale === "fr" ? "Téléphone (SMS)" : "Phone (SMS)"}
           </Label>
-          <Input
-            id="profile-phone"
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="+33 6 12 34 56 78"
-            disabled={plan !== "pro"}
-          />
+          <div className="flex gap-2">
+            <Input
+              id="profile-phone"
+              type="tel"
+              value={phone}
+              onChange={(e) => {
+                setPhone(e.target.value);
+                setPhoneVerified(false);
+              }}
+              placeholder="+33 6 12 34 56 78"
+              disabled={plan !== "pro"}
+              className="flex-1"
+            />
+            {plan === "pro" && phone.trim() ? (
+              <Button
+                type="button"
+                variant={phoneVerified ? "outline" : "default"}
+                size="sm"
+                onClick={phoneVerified ? undefined : handleSendOtp}
+                disabled={sendingOtp || phoneVerified}
+                className="shrink-0 gap-1.5"
+              >
+                {sendingOtp ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : phoneVerified ? (
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                ) : null}
+                {phoneVerified
+                  ? (locale === "fr" ? "Vérifié" : "Verified")
+                  : (locale === "fr" ? "Vérifier" : "Verify")}
+              </Button>
+            ) : null}
+          </div>
+
+          {showOtpInput ? (
+            <div className="flex gap-2 pt-1">
+              <Input
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                placeholder="000000"
+                className="w-28 text-center font-mono tracking-[0.5em]"
+              />
+              <Button
+                type="button"
+                variant="default"
+                size="sm"
+                onClick={handleVerifyOtp}
+                disabled={verifyingOtp || otpCode.length !== 6}
+                className="gap-1.5"
+              >
+                {verifyingOtp ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : null}
+                {locale === "fr" ? "Valider" : "Confirm"}
+              </Button>
+            </div>
+          ) : null}
+
           {plan !== "pro" ? (
             <p className="text-xs text-muted-foreground">
               <Crown className="mr-1 inline h-3 w-3 text-amber-500" />
@@ -217,9 +321,13 @@ export function ProfileForm({ initial, email, plan }: Props) {
             </p>
           ) : (
             <p className="text-xs text-muted-foreground">
-              {locale === "fr"
-                ? "On t'envoie un SMS dès qu'un produit revient en stock."
-                : "We'll text you as soon as a product is back in stock."}
+              {phoneVerified
+                ? (locale === "fr"
+                    ? "Téléphone vérifié. On t'envoie un SMS dès qu'un produit revient."
+                    : "Phone verified. We'll text you when a product restocks.")
+                : (locale === "fr"
+                    ? "Clique sur Vérifier pour recevoir un code par SMS."
+                    : "Click Verify to receive a code via SMS.")}
             </p>
           )}
         </div>

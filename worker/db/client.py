@@ -54,12 +54,15 @@ def get_user_email(user_id: str) -> str | None:
 
 
 def get_user_phone(user_id: str) -> str | None:
-    """Fetch user phone from user_metadata via Supabase Admin API."""
+    """Fetch verified user phone from user_metadata via Supabase Admin API."""
     try:
         response = supabase.auth.admin.get_user(user_id)
         if response.user and response.user.user_metadata:
-            phone = response.user.user_metadata.get("phone")
-            return phone if phone else None
+            meta = response.user.user_metadata
+            phone = meta.get("phone")
+            verified = meta.get("phone_verified", False)
+            if phone and verified:
+                return phone
     except Exception:
         pass
     return None
