@@ -16,9 +16,20 @@ export function isSupabaseConfigured(): boolean {
 }
 
 export function getSiteUrl(): string {
+  // Explicit override always wins.
   if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
   if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL;
-  if (process.env.VERCEL_ENV === "production") return "https://www.restocking.app";
-  if (process.env.NEXT_PUBLIC_VERCEL_URL) return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
+
+  // On Vercel (any env — production, preview): use the deployment URL
+  // or hard-code production domain when on the main site.
+  if (process.env.VERCEL) {
+    // Vercel sets VERCEL_URL to the deployment hostname in preview;
+    // in production we want the canonical domain.
+    const vercelUrl = process.env.NEXT_PUBLIC_VERCEL_URL;
+    if (vercelUrl) return `https://${vercelUrl}`;
+    return "https://www.restocking.app";
+  }
+
+  // Local dev
   return "http://localhost:3000";
 }
