@@ -634,6 +634,11 @@ async def _universal_extract(page, html: str, url: str) -> dict:
         image_url = _pick_meta(html, "og:image")
     if image_url and image_url.startswith("http://"):
         image_url = image_url.replace("http://", "https://", 1)
+    # Fix double-URL bug in source HTML (e.g. Na-KD og:image has doubled domain)
+    if image_url:
+        second_http = image_url.find("http", 8)
+        if second_http > 0:
+            image_url = image_url[second_http:]
     result["image_url"] = image_url
 
     # Download the product image as base64.
