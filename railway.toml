@@ -1,0 +1,14 @@
+[build]
+builder = "nixpacks"
+watch = ["worker/**"]
+
+[build.nixpacksPlan.phases.setup]
+cmds = [
+  "cd worker && pip install -r requirements.txt",
+  "cd worker && playwright install --with-deps chromium"
+]
+
+[deploy]
+startCommand = "cd worker && python main.py"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
