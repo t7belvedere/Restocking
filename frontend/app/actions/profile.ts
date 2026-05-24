@@ -5,6 +5,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 export type ProfileData = {
   first_name?: string;
   phone?: string;
+  phone_verified?: boolean;
   preferred_size?: string | null;
   preferred_brands?: string[];
 };
@@ -32,6 +33,10 @@ export async function updateProfile(data: ProfileData): Promise<ProfileResult> {
       ...user.user_metadata,
       first_name: data.first_name ?? user.user_metadata.first_name,
       phone: data.phone !== undefined ? data.phone : user.user_metadata.phone,
+      phone_verified:
+        data.phone_verified !== undefined
+          ? data.phone_verified
+          : user.user_metadata.phone_verified,
       preferred_size: data.preferred_size !== undefined ? data.preferred_size : user.user_metadata.preferred_size,
       preferred_brands: data.preferred_brands ?? user.user_metadata.preferred_brands,
     },

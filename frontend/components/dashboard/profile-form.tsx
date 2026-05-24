@@ -103,7 +103,7 @@ export function ProfileForm({ initial, email, plan }: Props) {
       setShowOtpInput(false);
       setOtpCode("");
       // Save phone_verified in user metadata
-      await updateProfile({ phone: phone.trim() });
+      await updateProfile({ phone: phone.trim(), phone_verified: true });
       toast.success(
         locale === "fr" ? "Téléphone vérifié !" : "Phone verified!",
       );
