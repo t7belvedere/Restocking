@@ -17,25 +17,31 @@ supabase: Client = create_client(_url, _key)
 
 
 def get_active_watches() -> list[dict]:
-    """Return all active watches with subscription plan.
-
-    Email is not fetched here — use get_user_email(user_id) when needed.
-    """
-    response = (
+    """Return all active watches with plan info from subscriptions."""
+    watches_resp = (
         supabase.table("watches")
-        .select("*, subscriptions!inner(plan)")
+        .select("*")
         .eq("is_active", True)
         .execute()
     )
-    rows = response.data or []
-    result = []
+    rows: list[dict] = watches_resp.data or []
+    if not rows:
+        return []
+
+    user_ids = list({row["user_id"] for row in rows})
+    subs_resp = (
+        supabase.table("subscriptions")
+        .select("user_id, plan")
+        .in_("user_id", user_ids)
+        .execute()
+    )
+    plan_map: dict[str, str] = {
+        s["user_id"]: s["plan"] for s in (subs_resp.data or [])
+    }
+
     for row in rows:
-        flat = dict(row)
-        subs = flat.pop("subscriptions", None)
-        if subs:
-            flat["plan"] = subs.get("plan") if isinstance(subs, dict) else (subs[0].get("plan") if subs else None)
-        result.append(flat)
-    return result
+        row["plan"] = plan_map.get(row["user_id"], "free")
+    return rows
 
 
 def get_user_email(user_id: str) -> str | None:

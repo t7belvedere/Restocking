@@ -1,3 +1,4 @@
+from typing import Any
 from urllib.parse import urlparse
 from scraper.retailers.zara import parse_zara
 from scraper.retailers.cos import parse_cos
@@ -9,7 +10,7 @@ def _wrap_zara(page, variant_label, variant_id, url=""):
 
 
 # Map domain keywords → parser callable
-_REGISTRY: dict[str, callable] = {
+_REGISTRY: dict[str, Any] = {
     "zara.com": _wrap_zara,
     "cos.com": parse_cos,
 }

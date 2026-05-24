@@ -1,6 +1,6 @@
 # Scraping
 scrapling==0.2.99
-playwright==1.49.0
+playwright>=1.49.1
 
 # Supabase
 supabase==2.10.0
