@@ -33,21 +33,11 @@ export function SiteHeader({ isAuthenticated = false }: Props) {
   const handleLocaleChange = useCallback(
     (l: Locale) => {
       setLocale(l);
-      // Navigate to the locale-prefixed URL
-      let newPath = pathname;
-      // Strip existing locale prefix if present
-      if (newPath.startsWith("/en/") || newPath === "/en") {
-        newPath = newPath.replace(/^\/en/, "") || "/";
-      } else if (newPath.startsWith("/fr/") || newPath === "/fr") {
-        newPath = newPath.replace(/^\/fr/, "") || "/";
-      }
-      // Add new locale prefix (only for non-default: en)
-      if (l !== "fr") {
-        newPath = `/${l}${newPath}`;
-      }
-      router.push(newPath);
+      // Set cookie so server re-renders with correct locale on next navigation
+      document.cookie = `restocking.locale=${l};path=/;max-age=31536000;SameSite=Lax`;
+      router.refresh();
     },
-    [pathname, router, setLocale],
+    [router, setLocale],
   );
 
   const items = getNavItems(t);
