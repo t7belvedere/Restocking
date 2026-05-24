@@ -92,8 +92,8 @@ export function CheckLogTable({ logs, watchPrice }: { logs: CheckLog[]; watchPri
     <div className="rounded-2xl border-2 border-ink/20 bg-card overflow-hidden">
       {/* Visual timeline */}
       <div className="relative px-5 py-4 sm:px-6">
-        {/* Vertical line */}
-        <div className="absolute left-[31px] top-0 bottom-0 w-0.5 bg-ink/8 sm:left-[35px]" />
+        {/* Vertical line — centered on the 32px (sm:36px) node dots */}
+        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-ink/8 sm:left-[18px]" />
 
         <div className="space-y-0">
           {logs.map((log, i) => {

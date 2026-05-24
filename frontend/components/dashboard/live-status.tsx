@@ -89,9 +89,9 @@ export function LiveStatus({
             <span
               className={cn(
                 "absolute inset-0 rounded-full",
-                fresh === "live"
+                isInStock && fresh === "live"
                   ? "animate-ping bg-emerald-400/60"
-                  : fresh === "warm"
+                  : status === "OUT_OF_STOCK" && fresh !== "cold"
                     ? "animate-ping bg-amber-400/40"
                     : "",
               )}
@@ -99,9 +99,9 @@ export function LiveStatus({
             <span
               className={cn(
                 "relative inline-flex h-2.5 w-2.5 rounded-full",
-                fresh === "live"
+                isInStock
                   ? "bg-emerald-500"
-                  : fresh === "warm"
+                  : status === "OUT_OF_STOCK"
                     ? "bg-amber-500"
                     : "bg-muted-foreground/40",
               )}
@@ -127,9 +127,9 @@ export function LiveStatus({
       <span
         className={cn(
           "font-mono text-xs",
-          fresh === "live"
+          isInStock && fresh === "live"
             ? "text-emerald-700"
-            : fresh === "warm"
+            : status === "OUT_OF_STOCK" && fresh !== "cold"
               ? "text-amber-700"
               : "text-ink/40",
         )}
