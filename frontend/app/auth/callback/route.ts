@@ -44,5 +44,30 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // Apply onboarding answers from cookie if present
+  const onboardingCookie = request.cookies.get("onboarding_answers");
+  let onboarding: Record<string, unknown> | null = null;
+  if (onboardingCookie?.value) {
+    try {
+      onboarding = JSON.parse(decodeURIComponent(onboardingCookie.value));
+      await supabase.auth.updateUser({
+        data: {
+          first_name: (onboarding as any).first_name || "",
+          preferred_brands: (onboarding as any).preferred_brands || [],
+          preferred_size: (onboarding as any).preferred_size || null,
+          missed_product_url: (onboarding as any).missed_product_url || null,
+        },
+      });
+    } catch { /* ignore malformed cookie */ }
+    // Clear the cookie
+    redirectResponse.cookies.set("onboarding_answers", "", { maxAge: 0, path: "/" });
+  }
+
+  // If user provided a product URL during onboarding, redirect to add-watch page
+  if (onboarding && (onboarding as any).missed_product_url) {
+    destination.pathname = "/dashboard/add";
+    destination.searchParams.set("url", (onboarding as any).missed_product_url);
+  }
+
   return redirectResponse;
 }

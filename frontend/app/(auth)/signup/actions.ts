@@ -14,6 +14,22 @@ export type SignupState = {
   locale?: "fr" | "en";
 };
 
+function parseOnboarding(formData: FormData): Record<string, unknown> {
+  try {
+    const raw = formData.get("onboarding");
+    if (typeof raw === "string" && raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        first_name: parsed.first_name || "",
+        preferred_brands: parsed.preferred_brands || [],
+        preferred_size: parsed.preferred_size || null,
+        missed_product_url: parsed.missed_product_url || null,
+      };
+    }
+  } catch { /* ignore */ }
+  return {};
+}
+
 function msg(locale: "fr" | "en", fr: string, en: string) {
   return locale === "fr" ? fr : en;
 }
@@ -71,7 +87,10 @@ export async function signupAction(
     email,
     password,
     options: {
-      data: { locale },
+      data: {
+        locale,
+        ...parseOnboarding(formData),
+      },
       emailRedirectTo: `${getSiteUrl()}/auth/confirm`,
     },
   });
