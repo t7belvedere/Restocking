@@ -50,7 +50,8 @@ Deno.serve(async (req) => {
 
   // Récupérer la langue choisie lors de l'inscription (fr par défaut)
   const locale = user?.user_metadata?.locale === "fr" ? "fr" : "en";
-  const isRecovery = emailData?.email_action_type === "recovery";
+  const emailType = emailData?.type; // "signup" | "recovery" | "magiclink" | "email_change" | "invite"
+  const isRecovery = emailType === "recovery";
 
   let html: string;
   let subject: string;
