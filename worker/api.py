@@ -145,6 +145,13 @@ def _extract_variants(html: str) -> list[str]:
         except Exception:
             pass
 
+    # 2d. Magento configurable product options (Subdued, other Magento stores)
+    #      Pattern: "label":"Taille","options":[{"label":"34",...}]
+    for size_key in ("Taille", "Taglia", "Size", "Größe", "Talla"):
+        found.update(_extract_magento_options(html, size_key))
+    for color_key in ("Couleur", "Colore", "Color", "Colour", "Farbe"):
+        found.update(_extract_magento_options(html, color_key))
+
     # 3. data-color attributes
     for m in re.finditer(r'data-color=["\']([^"\']{1,32})["\']', html, re.IGNORECASE):
         found.add(m.group(1).strip())
@@ -254,6 +261,41 @@ def _extract_jsonld_field(html: str, field: str) -> str | None:
     return None
 
 
+def _extract_magento_options(html: str, label: str) -> list[str]:
+    """Extract options from Magento configurable product JSON.
+
+    Pattern: {"label":"Taille","options":[{"label":"34",...}]}
+    Uses bracket counting to handle nested arrays/objects.
+    """
+    found: list[str] = []
+    m = re.search(
+        rf'"label"\s*:\s*"{re.escape(label)}"\s*,\s*"options"\s*:\s*\[',
+        html,
+    )
+    if not m:
+        return found
+    start = m.end() - 1  # position of [
+    depth = 0
+    end = start
+    for i in range(start, min(start + 10000, len(html))):
+        if html[i] == "[":
+            depth += 1
+        elif html[i] == "]":
+            depth -= 1
+            if depth == 0:
+                end = i + 1
+                break
+    try:
+        options = json.loads(html[start:end])
+        for opt in options:
+            val = opt.get("label", "").strip()
+            if val:
+                found.append(val)
+    except Exception:
+        pass
+    return found
+
+
 def _extract_dom_variants(page) -> list[str]:
     """Extract variants from rendered DOM using universal selectors.
 
@@ -332,9 +374,16 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
     sizes: list[str] = []
     colors: list[str] = []
 
+    _UI_GARBAGE = {
+        "qté", "qte", "quantité", "quantity", "rechercher", "search", "add to cart",
+        "ajouter au panier", "acheter", "buy", "select", "sélectionner",
+        "choisir", "choose", "submit", "envoyer",
+    }
     for v in variants:
         v_clean = v.strip()
         if not v_clean:
+            continue
+        if v_clean.lower() in _UI_GARBAGE:
             continue
         # Known color words (even short ones) → color
         if v_clean.upper() in _COLOR_WORDS:
