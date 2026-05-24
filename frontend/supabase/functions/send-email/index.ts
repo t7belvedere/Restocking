@@ -1,8 +1,15 @@
 import { templateFr, templateEn } from "./templates.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+const HOOK_SECRET = Deno.env.get("HOOK_SECRET");
 
 Deno.serve(async (req) => {
+  // Sécurité : Vérifier le secret du webhook
+  const signature = req.headers.get("x-webhook-signature");
+  if (HOOK_SECRET && signature !== HOOK_SECRET) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
   const payload = await req.json();
   const user = payload.user;
   const emailData = payload.email_data;
