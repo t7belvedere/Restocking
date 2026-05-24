@@ -28,13 +28,12 @@ export default function SignupPage() {
         <section className="relative">
           <div className="absolute -right-4 -top-6 hidden h-20 w-20 -rotate-6 rounded-2xl border-2 border-ink bg-[var(--brand-lime)] md:block" />
           <div className="relative rounded-3xl border-2 border-ink bg-paper p-7 shadow-brutal-xl md:p-9">
-            <Link
-              href="/"
+            <div
               data-testid="signup-back-home"
               className="mb-7 inline-block"
             >
               <Logo size="md" />
-            </Link>
+            </div>
             <SignupForm isAuthConfigured={isConfigured} />
           </div>
         </section>

@@ -38,9 +38,10 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
 
   if (!supabase) return response;
 
-  // getClaims validates the JWT signature (preferred over getSession on the server).
-  const { data } = await supabase.auth.getClaims();
-  const isAuthenticated = Boolean(data?.claims?.sub);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isAuthenticated = Boolean(user);
 
   const pathname = request.nextUrl.pathname;
   const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
