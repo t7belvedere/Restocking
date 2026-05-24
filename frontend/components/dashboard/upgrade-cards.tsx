@@ -1,39 +1,37 @@
 "use client";
 
-import { Check, Sparkles } from "lucide-react";
-import { toast } from "sonner";
+import { Check, Sparkles, ExternalLink } from "lucide-react";
+import { useTransition } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { createCheckoutSession, createPortalSession } from "@/app/actions/stripe";
 
 interface UpgradeCardsProps {
   currentPlan: "free" | "pro";
 }
 
 export function UpgradeCards({ currentPlan }: UpgradeCardsProps) {
-  function notifySoon(label: string) {
-    toast.info(`Paiement bientôt disponible — on vous préviendra ! (${label})`);
+  const [pending, startTransition] = useTransition();
+
+  function checkout(interval: "monthly" | "annual") {
+    startTransition(() => createCheckoutSession(interval));
+  }
+
+  function portal() {
+    startTransition(() => createPortalSession());
   }
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
-      <Card
-        className={cn(
-          "relative",
-          currentPlan === "free" && "ring-1 ring-foreground/10",
-        )}
-      >
+      <Card className={cn("relative", currentPlan === "free" && "ring-1 ring-foreground/10")}>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="font-display text-xl">Free</CardTitle>
-            {currentPlan === "free" ? (
-              <Badge variant="muted">Plan actuel</Badge>
-            ) : null}
+            {currentPlan === "free" ? <Badge variant="muted">Plan actuel</Badge> : null}
           </div>
-          <p className="text-sm text-muted-foreground">
-            Pour démarrer en douceur.
-          </p>
+          <p className="text-sm text-muted-foreground">Pour démarrer en douceur.</p>
         </CardHeader>
         <CardContent className="space-y-5">
           <div>
@@ -45,23 +43,13 @@ export function UpgradeCards({ currentPlan }: UpgradeCardsProps) {
             <Feature>Vérification toutes les 15 min</Feature>
             <Feature>Notifications email</Feature>
           </ul>
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            disabled={currentPlan === "free"}
-          >
-            {currentPlan === "free" ? "Plan actuel" : "Repasser en Free"}
+          <Button type="button" variant="outline" className="w-full" disabled>
+            {currentPlan === "free" ? "Plan actuel" : "Plan Free"}
           </Button>
         </CardContent>
       </Card>
 
-      <Card
-        className={cn(
-          "relative overflow-hidden border-foreground/15 bg-gradient-to-b from-accent/40 to-card",
-          currentPlan === "pro" && "ring-1 ring-foreground/20",
-        )}
-      >
+      <Card className={cn("relative overflow-hidden border-foreground/15 bg-gradient-to-b from-accent/40 to-card", currentPlan === "pro" && "ring-1 ring-foreground/20")}>
         <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/60 blur-3xl" />
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -77,9 +65,7 @@ export function UpgradeCards({ currentPlan }: UpgradeCardsProps) {
               <Badge variant="default">Recommandé</Badge>
             )}
           </div>
-          <p className="text-sm text-muted-foreground">
-            Pour ne rien rater, jamais.
-          </p>
+          <p className="text-sm text-muted-foreground">Pour ne rien rater, jamais.</p>
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="flex items-baseline gap-2">
@@ -96,23 +82,22 @@ export function UpgradeCards({ currentPlan }: UpgradeCardsProps) {
             <Feature>Notifications email + SMS</Feature>
             <Feature>Historique illimité</Feature>
           </ul>
-          <div className="flex flex-col gap-2">
-            <Button
-              type="button"
-              size="lg"
-              onClick={() => notifySoon("Pro mensuel")}
-            >
-              Choisir Pro mensuel
+
+          {currentPlan === "pro" ? (
+            <Button type="button" variant="outline" size="lg" className="w-full" onClick={portal} disabled={pending}>
+              <ExternalLink className="mr-2 h-4 w-4" />
+              Gérer mon abonnement
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              onClick={() => notifySoon("Pro annuel")}
-            >
-              Choisir Pro annuel
-            </Button>
-          </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <Button type="button" size="lg" onClick={() => checkout("monthly")} disabled={pending}>
+                {pending ? "Redirection…" : "Choisir Pro mensuel — 7,99 €/mois"}
+              </Button>
+              <Button type="button" variant="outline" size="lg" onClick={() => checkout("annual")} disabled={pending}>
+                {pending ? "Redirection…" : "Choisir Pro annuel — 59 €/an"}
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
