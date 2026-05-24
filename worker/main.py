@@ -19,6 +19,7 @@ import logging
 import os
 import random
 import re
+import threading
 import time
 import urllib.parse
 from datetime import datetime, timezone
@@ -277,8 +278,25 @@ def _process_watch(watch: dict) -> None:
 # Main loop
 # ---------------------------------------------------------------------------
 
+def _start_api_server() -> None:
+    """Launch the FastAPI server in a background daemon thread."""
+    import uvicorn
+
+    port = int(os.getenv("PORT", "8000"))
+    logger.info("API server starting on port %d", port)
+
+    # Run in a daemon thread so it doesn't block the main process exiting
+    config = uvicorn.Config("api:app", host="0.0.0.0", port=port, log_level="info")
+    server = uvicorn.Server(config)
+
+    thread = threading.Thread(target=server.run, daemon=True)
+    thread.start()
+
+
 def run() -> None:
-    """Start the infinite polling loop."""
+    """Start the API server and the infinite polling loop."""
+    _start_api_server()
+
     logger.info(
         "Worker starting — PRO interval=%ds, FREE interval=%ds, loop_sleep=%ds",
         CHECK_INTERVAL_PRO,

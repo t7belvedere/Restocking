@@ -121,24 +121,16 @@ export async function analyzeUrl(url: string): Promise<AnalyzeResult> {
     };
   }
 
+  const workerApiUrl = process.env.WORKER_API_URL || "http://localhost:8000";
+
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 6500);
+  const timer = setTimeout(() => controller.abort(), 35000);
 
   try {
-    const res = await fetch(parsed.toString(), {
-      method: "GET",
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-        "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Sec-Fetch-Dest": "document",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Site": "none",
-        "Sec-Fetch-User": "?1",
-        "Upgrade-Insecure-Requests": "1",
-      },
+    const apiUrl = new URL("/analyze", workerApiUrl);
+    apiUrl.searchParams.set("url", parsed.toString());
+
+    const res = await fetch(apiUrl.toString(), {
       signal: controller.signal,
       cache: "no-store",
     });
@@ -156,19 +148,14 @@ export async function analyzeUrl(url: string): Promise<AnalyzeResult> {
       };
     }
 
-    const html = await res.text();
-    const name = pickMeta(html, "og:title");
-    const image_url = pickMeta(html, "og:image");
-    const price = pickPrice(html);
-    const variants = extractVariants(html);
-
+    const data = await res.json();
     return {
-      ok: true,
-      url: parsed.toString(),
-      name,
-      image_url,
-      price,
-      variants,
+      ok: data.ok === true,
+      url: data.url ?? parsed.toString(),
+      name: data.name ?? null,
+      image_url: data.image_url ?? null,
+      price: data.price ?? null,
+      variants: Array.isArray(data.variants) ? data.variants : [],
     };
   } catch (err) {
     const aborted = err instanceof Error && err.name === "AbortError";
