@@ -245,17 +245,22 @@ export function AddWatchForm() {
             <div className="flex flex-wrap gap-2">
               {sizes.map((s) => {
                 const active = selectedSize === s;
+                const inStock = analysis?.sizes_status?.[s] ?? true;
                 return (
                   <button
                     key={s}
                     type="button"
-                    onClick={() => setSelectedSize(active ? null : s)}
+                    disabled={!inStock}
+                    onClick={() => { if (inStock) setSelectedSize(active ? null : s); }}
                     className={cn(
                       "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
                       "active:scale-[0.97]",
-                      active
+                      !inStock && "opacity-40 line-through cursor-not-allowed border-muted-foreground/20 text-muted-foreground",
+                      inStock && active
                         ? "border-foreground bg-foreground text-background shadow-sm"
-                        : "border-border bg-background hover:border-foreground/40 hover:bg-muted",
+                        : inStock
+                          ? "border-border bg-background hover:border-foreground/40 hover:bg-muted"
+                          : "",
                     )}
                   >
                     {s}
@@ -271,17 +276,22 @@ export function AddWatchForm() {
             <div className="flex flex-wrap gap-2">
               {colors.map((c) => {
                 const active = selectedColor === c;
+                const inStock = analysis?.colors_status?.[c] ?? true;
                 return (
                   <button
                     key={c}
                     type="button"
-                    onClick={() => setSelectedColor(active ? null : c)}
+                    disabled={!inStock}
+                    onClick={() => { if (inStock) setSelectedColor(active ? null : c); }}
                     className={cn(
                       "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
                       "active:scale-[0.97]",
-                      active
+                      !inStock && "opacity-40 line-through cursor-not-allowed border-muted-foreground/20 text-muted-foreground",
+                      inStock && active
                         ? "border-foreground bg-foreground text-background shadow-sm"
-                        : "border-border bg-background hover:border-foreground/40 hover:bg-muted",
+                        : inStock
+                          ? "border-border bg-background hover:border-foreground/40 hover:bg-muted"
+                          : "",
                     )}
                   >
                     {c}

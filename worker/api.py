@@ -454,6 +454,56 @@ async def _download_image_base64(image_url: str, page_url: str) -> str | None:
     return None
 
 
+def _detect_oos_variants(page, variants: list[str]) -> set[str]:
+    """Return the subset of *variants* that appear out-of-stock in the DOM.
+
+    Checks for common OOS signals: disabled attribute, "épuisé"/"sold out"
+    text, opacity/pointer-events-none classes on size/color buttons.
+    """
+    if page is None or not variants:
+        return set()
+
+    oos: set[str] = set()
+    _OOS_CLASSES = {"opacity-20", "pointer-events-none", "sold-out", "out-of-stock",
+                    "unavailable", "disabled", "line-through"}
+    _OOS_WORDS = {"épuisé", "epuise", "sold out", "out of stock", "rupture",
+                  "indisponible", "unavailable", "épuisée"}
+
+    try:
+        # Scan size/color buttons and labels
+        for sel in ("label", "button", "[class*=size]", "[class*=swatch]",
+                     "[class*=variant]", "[class*=selector] button"):
+            for el in page.css(sel):
+                txt = (el.get_all_text() or "").strip().lower() if hasattr(el, "get_all_text") else ""
+                cls = (el.attrib.get("class") or "").lower()
+                disabled = el.attrib.get("disabled")
+                aria_disabled = el.attrib.get("aria-disabled", "")
+
+                # Check if this element is marked OOS
+                is_oos = (
+                    disabled is not None or
+                    aria_disabled == "true" or
+                    any(w in cls for w in _OOS_CLASSES) or
+                    any(w in txt for w in _OOS_WORDS)
+                )
+                if not is_oos:
+                    continue
+
+                # Find which variant this element corresponds to
+                for v in variants:
+                    v_lower = v.lower()
+                    # For single-letter sizes (S, M, L), require word boundary
+                    if len(v) == 1:
+                        if re.search(rf"\b{re.escape(v_lower)}\b", txt):
+                            oos.add(v)
+                    elif v_lower in txt:
+                        oos.add(v)
+    except Exception:
+        pass
+
+    return oos
+
+
 async def _universal_extract(page, html: str, url: str) -> dict:
     """Extract product metadata from a rendered page + raw HTML.
 
@@ -468,6 +518,8 @@ async def _universal_extract(page, html: str, url: str) -> dict:
         "variants": [],
         "sizes": [],
         "colors": [],
+        "sizes_status": {},  # { "XS": true, "XL": false, ... }
+        "colors_status": {},  # { "blanc": true, "marron": true, ... }
     }
 
     # --- NAME ---
@@ -534,6 +586,13 @@ async def _universal_extract(page, html: str, url: str) -> dict:
     result["variants"] = variants
     result["sizes"] = sizes
     result["colors"] = colors
+
+    # Detect which sizes/colors are out of stock
+    oos = _detect_oos_variants(page, variants)
+    for s in sizes:
+        result["sizes_status"][s] = s not in oos
+    for c in colors:
+        result["colors_status"][c] = c not in oos
 
     return result
 

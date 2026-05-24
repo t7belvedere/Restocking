@@ -18,6 +18,8 @@ export type AnalyzeResult = {
   variants: string[];
   sizes: string[];
   colors: string[];
+  sizes_status?: Record<string, boolean>;
+  colors_status?: Record<string, boolean>;
   enrichment_pending?: boolean;
   error?: "FETCH_FAILED" | "INVALID_URL" | "TIMEOUT";
 };
