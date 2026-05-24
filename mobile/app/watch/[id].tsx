@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useAuth } from "@/lib/auth";
+import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
 import { brutal, brutalSm } from "@/lib/shadows";
 import {
@@ -51,11 +52,13 @@ interface CheckLog {
   price?: number | null;
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  IN_STOCK: "En stock",
-  OUT_OF_STOCK: "Rupture",
-  UNKNOWN: "En attente",
-};
+function getStatusLabel(t: any, status: string): string {
+  switch (status) {
+    case "IN_STOCK": return t.inStock;
+    case "OUT_OF_STOCK": return t.outOfStock;
+    default: return t.waiting;
+  }
+}
 
 const STATUS_COLOR: Record<string, string> = {
   IN_STOCK: "bg-lime",
@@ -84,6 +87,7 @@ function formatRelativeTime(iso: string): string {
 export default function WatchDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuth();
+  const { t, locale } = useI18n();
   const router = useRouter();
 
   const [watch, setWatch] = useState<Watch | null>(null);
@@ -142,12 +146,12 @@ export default function WatchDetailScreen() {
 
   const handleDelete = () => {
     Alert.alert(
-      "Supprimer l'alerte ?",
-      "Cette action est irréversible. L'historique sera perdu.",
+      t.deleteWatchTitle,
+      t.deleteWatchMessage,
       [
-        { text: "Annuler", style: "cancel" },
+        { text: t.cancel, style: "cancel" },
         {
-          text: "Supprimer",
+          text: t.deleteConfirm,
           style: "destructive",
           onPress: async () => {
             setDeleting(true);
@@ -170,12 +174,12 @@ export default function WatchDetailScreen() {
   if (!watch) {
     return (
       <View className="flex-1 items-center justify-center bg-cream px-6">
-        <Text className="font-display text-xl text-ink">Produit introuvable</Text>
+        <Text className="font-display text-xl text-ink">{t.notFound}</Text>
         <TouchableOpacity
           onPress={() => router.back()}
           className="mt-6 rounded-xl border-2 border-ink bg-ink px-6 py-3"
         >
-          <Text className="font-display text-sm font-bold text-cream">Retour</Text>
+          <Text className="font-display text-sm font-bold text-cream">{t.back}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -264,7 +268,7 @@ export default function WatchDetailScreen() {
                     fill={status === "IN_STOCK" ? "#059669" : status === "OUT_OF_STOCK" ? "#d97706" : "#9ca3af"}
                   />
                   <Text className="font-mono text-xs font-bold uppercase tracking-wider text-ink">
-                    {STATUS_LABEL[status] ?? status}
+                    {getStatusLabel(t, status)}
                   </Text>
                 </View>
               </View>
@@ -272,7 +276,7 @@ export default function WatchDetailScreen() {
               {!watch.is_active && (
                 <View className="rounded-full bg-ink/10 px-3 py-1.5">
                   <Text className="font-mono text-xs font-bold uppercase text-ink/50">
-                    En pause
+                    {t.paused}
                   </Text>
                 </View>
               )}
@@ -285,13 +289,13 @@ export default function WatchDetailScreen() {
           className="mt-5 flex-row flex-wrap gap-4 rounded-2xl border-2 border-ink bg-paper p-4"
           style={brutal}
         >
-          <MetaItem icon={<Tag size={14} color="#0b0b0b" />} label="Variante" value={watch.variant_label ?? watch.size ?? "—"} />
+          <MetaItem icon={<Tag size={14} color="#0b0b0b" />} label={t.variant} value={watch.variant_label ?? watch.size ?? "—"} />
           <MetaItem
             icon={<Euro size={14} color="#0b0b0b" />}
-            label="Prix"
+            label={t.price}
             value={
               watch.price
-                ? new Intl.NumberFormat("fr-FR", {
+                ? new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {
                     style: "currency",
                     currency: watch.currency || "EUR",
                   }).format(watch.price)
@@ -300,7 +304,7 @@ export default function WatchDetailScreen() {
           />
           <MetaItem
             icon={<Clock size={14} color="#0b0b0b" />}
-            label="Dernier check"
+            label={t.lastChecked}
             value={watch.last_check ? formatRelativeTime(watch.last_check) : "—"}
           />
         </View>
@@ -323,12 +327,12 @@ export default function WatchDetailScreen() {
                 {watch.is_active ? (
                   <>
                     <Pause size={16} color="#0b0b0b" />
-                    <Text className="font-display text-sm font-bold text-ink">Mettre en pause</Text>
+                    <Text className="font-display text-sm font-bold text-ink">{t.pause}</Text>
                   </>
                 ) : (
                   <>
                     <Play size={16} color="#0b0b0b" />
-                    <Text className="font-display text-sm font-bold text-ink">Réactiver</Text>
+                    <Text className="font-display text-sm font-bold text-ink">{t.reactivate}</Text>
                   </>
                 )}
               </>
@@ -352,14 +356,14 @@ export default function WatchDetailScreen() {
         {/* Check log history */}
         <View className="mt-8">
           <Text className="mb-4 font-display text-lg font-bold text-ink">
-            Historique des vérifications
+            {t.checkLog}
           </Text>
 
           {logs.length === 0 ? (
             <View className="items-center rounded-2xl border-2 border-dashed border-ink/20 py-10">
               <Clock size={24} color="#0b0b0b" style={{ opacity: 0.3 }} />
               <Text className="mt-3 font-sans text-sm text-ink/40">
-                En attente du premier check…
+                {t.pendingFirstCheck}
               </Text>
             </View>
           ) : (
@@ -384,7 +388,7 @@ export default function WatchDetailScreen() {
                         }`}
                       />
                       <Text className="font-sans text-sm font-medium text-ink">
-                        {STATUS_LABEL[log.status] ?? log.status}
+                        {getStatusLabel(t, log.status)}
                       </Text>
                       {log.signal_source && (
                         <Text className="font-mono text-[10px] text-ink/30">

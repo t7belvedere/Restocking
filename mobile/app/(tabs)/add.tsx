@@ -140,10 +140,10 @@ export default function AddScreen() {
         {step === "input" && (
           <View style={{ gap: 24, marginTop: 40 }}>
             <Text className="font-display text-3xl font-extrabold text-ink">
-              Ajouter une alerte
+              {t.addAlert}
             </Text>
             <Text className="font-sans text-base font-semibold text-ink-soft">
-              Colle l'URL du produit que tu veux surveiller
+              {t.pasteProductUrl}
             </Text>
 
             <View>
@@ -181,7 +181,7 @@ export default function AddScreen() {
                 <ActivityIndicator color="#fbf8f0" />
               ) : (
                 <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
-                  Analyser le produit
+                  {t.analyzeProduct}
                 </Text>
               )}
             </TouchableOpacity>
@@ -205,7 +205,7 @@ export default function AddScreen() {
         {step === "preview" && product && (
           <View style={{ gap: 24, marginTop: 40 }}>
             <Text className="font-display text-3xl font-extrabold text-ink">
-              Ajouter une alerte
+              {t.addAlert}
             </Text>
 
             {/* Product preview card */}
@@ -222,7 +222,7 @@ export default function AddScreen() {
               ) : (
                 <View className="mb-4 h-48 w-full items-center justify-center rounded-xl border border-ink/20 bg-muted">
                   <Text className="font-mono text-sm text-ink-soft">
-                    Pas d'image
+                    {t.noImage}
                   </Text>
                 </View>
               )}
@@ -330,7 +330,7 @@ export default function AddScreen() {
                   <ActivityIndicator color="#fbf8f0" />
                 ) : (
                   <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
-                    Activer l'alerte
+                    {t.activateAlert}
                   </Text>
                 )}
               </TouchableOpacity>
@@ -354,12 +354,11 @@ export default function AddScreen() {
             </View>
 
             <Text className="font-display text-3xl font-extrabold text-ink text-center">
-              Alerte creee !
+              {t.alertCreated}
             </Text>
 
             <Text className="font-sans text-base text-ink-soft text-center leading-relaxed">
-              Ton alerte est active. Tu seras notifie des que le produit sera de
-              retour en stock.
+              {t.alertActiveDesc}
             </Text>
 
             <View className="flex-row gap-3" style={{ marginTop: 8 }}>
@@ -370,7 +369,7 @@ export default function AddScreen() {
                 activeOpacity={0.8}
               >
                 <Text className="font-display text-sm font-bold uppercase tracking-widest text-ink">
-                  Ajouter un autre
+                  {t.addAnother}
                 </Text>
               </TouchableOpacity>
 
@@ -381,7 +380,7 @@ export default function AddScreen() {
                 activeOpacity={0.8}
               >
                 <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
-                  Voir mes alertes
+                  {t.seeMyAlerts}
                 </Text>
               </TouchableOpacity>
             </View>
