@@ -27,12 +27,19 @@ const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 const STORAGE_KEY = "restocking.locale";
 
-export function LocaleProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
+export function LocaleProvider({
+  children,
+  initialLocale,
+}: {
+  children: React.ReactNode;
+  initialLocale?: Locale;
+}) {
+  const [locale, setLocaleState] = useState<Locale>(initialLocale ?? DEFAULT_LOCALE);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    if (initialLocale) return; // Server already set the locale
     if (typeof window === "undefined") return;
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY) as Locale | null;
@@ -46,7 +53,7 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // ignore
     }
-  }, []);
+  }, [initialLocale]);
 
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);

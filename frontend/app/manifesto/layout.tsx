@@ -4,7 +4,13 @@ export const metadata: Metadata = {
   title: "Manifesto",
   description:
     "On en a marre de checker. Restocking, c'est l'outil qu'on aurait voulu pour soi. Une URL, une taille, un ping. Pas plus.",
-  alternates: { canonical: "https://www.restocking.app/manifesto" },
+  alternates: {
+    canonical: "https://www.restocking.app/manifesto",
+    languages: {
+      fr: "https://www.restocking.app/manifesto",
+      en: "https://www.restocking.app/en/manifesto",
+    },
+  },
   openGraph: { title: "Manifesto — restocking" },
 };
 

@@ -114,15 +114,28 @@ export default async function RootLayout({
 }) {
   const isAuthenticated = await getAuthState();
 
+  // Read locale from middleware cookie (server-side)
+  let locale = "fr";
+  try {
+    const { cookies } = await import("next/headers");
+    const cookieStore = await cookies();
+    const cookieLocale = cookieStore.get("restocking.locale")?.value;
+    if (cookieLocale && ["fr", "en"].includes(cookieLocale)) {
+      locale = cookieLocale;
+    }
+  } catch {
+    // cookies() not available (e.g. static generation)
+  }
+
   return (
     <html
-      lang="fr"
+      lang={locale}
       suppressHydrationWarning
       className={`${bricolage.variable} ${dmSans.variable} ${dmMono.variable} ${italiana.variable} ${playfair.variable} ${anton.variable}`}
     >
       <body className="min-h-dvh bg-cream text-ink antialiased">
         <OrganizationJsonLd />
-        <LocaleProvider>
+        <LocaleProvider initialLocale={locale as "fr" | "en"}>
           <SiteHeader isAuthenticated={isAuthenticated} />
           {children}
           <SiteFooter />

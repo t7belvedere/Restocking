@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useCallback } from "react";
 import { LayoutDashboard, LogIn, Menu, X } from "lucide-react";
 import { Logo } from "@/components/site/logo";
 import { useLocale } from "@/components/site/locale-provider";
@@ -27,7 +27,28 @@ type Props = {
 export function SiteHeader({ isAuthenticated = false }: Props) {
   const { t, locale, setLocale } = useLocale();
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+
+  const handleLocaleChange = useCallback(
+    (l: Locale) => {
+      setLocale(l);
+      // Navigate to the locale-prefixed URL
+      let newPath = pathname;
+      // Strip existing locale prefix if present
+      if (newPath.startsWith("/en/") || newPath === "/en") {
+        newPath = newPath.replace(/^\/en/, "") || "/";
+      } else if (newPath.startsWith("/fr/") || newPath === "/fr") {
+        newPath = newPath.replace(/^\/fr/, "") || "/";
+      }
+      // Add new locale prefix (only for non-default: en)
+      if (l !== "fr") {
+        newPath = `/${l}${newPath}`;
+      }
+      router.push(newPath);
+    },
+    [pathname, router, setLocale],
+  );
 
   const items = getNavItems(t);
 
@@ -64,7 +85,7 @@ export function SiteHeader({ isAuthenticated = false }: Props) {
         </nav>
 
         <div className="flex items-center gap-2">
-          <LocaleSwitch locale={locale} onChange={setLocale} />
+          <LocaleSwitch locale={locale} onChange={handleLocaleChange} />
 
           {isAuthenticated ? (
             <Link
