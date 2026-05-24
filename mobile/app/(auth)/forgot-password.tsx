@@ -1,11 +1,25 @@
 import { useState } from "react";
 import {
-  View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView,
-  Platform, ScrollView, ActivityIndicator,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { Link } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
+import { KeyRound, Mail } from "lucide-react-native";
+
+const shadowBrutalSm = {
+  shadowColor: "#262626",
+  shadowOffset: { width: 2, height: 2 },
+  shadowOpacity: 1,
+  shadowRadius: 0,
+} as const;
 
 export default function ForgotPassword() {
   const { resetPassword } = useAuth();
@@ -27,16 +41,31 @@ export default function ForgotPassword() {
     setLoading(false);
   };
 
+  /* ── Success state: email sent ── */
   if (sent) {
     return (
       <View className="flex-1 items-center justify-center bg-cream px-8">
-        <Text className="text-center text-2xl font-bold text-ink">
+        {/* Lime circle with check icon */}
+        <View className="mb-6 h-20 w-20 items-center justify-center rounded-full bg-lime">
+          <Mail size={32} color="#262626" strokeWidth={2} />
+        </View>
+
+        <Text className="mb-2 text-center font-display text-3xl font-extrabold tracking-tighter text-ink">
+          Email envoye !
+        </Text>
+        <Text className="mb-8 text-center text-base text-ink/70">
           {t.emailSent}
         </Text>
-        <Link href="/(auth)/login" className="mt-6">
-          <Text className="text-sm font-bold text-primary underline">
-            {t.signIn}
-          </Text>
+
+        <Link href="/(auth)/login" asChild>
+          <TouchableOpacity
+            className="h-12 items-center justify-center rounded-xl border-2 border-ink bg-ink px-8 shadow-brutal"
+            activeOpacity={0.8}
+          >
+            <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
+              {t.signIn}
+            </Text>
+          </TouchableOpacity>
         </Link>
       </View>
     );
@@ -48,50 +77,71 @@ export default function ForgotPassword() {
       className="flex-1 bg-cream"
     >
       <ScrollView
-        contentContainerClassName="flex-1 justify-center px-8"
+        contentContainerClassName="flex-1 justify-center px-6"
         keyboardShouldPersistTaps="handled"
       >
-        <View className="mb-10">
-          <Text className="font-extrabold text-5xl text-ink tracking-tighter">
-            restocking
-          </Text>
-          <Text className="mt-2 text-lg text-ink-soft">
-            {t.forgotPassword}
+        {/* ── Wordmark ── */}
+        <View className="mb-2 items-center">
+          <Text className="font-italiana text-5xl tracking-tight text-ink">
+            restocking<Text className="text-orange">.</Text>
           </Text>
         </View>
-        <View className="gap-4">
-          <Text className="text-sm font-semibold text-ink">{t.email}</Text>
-          <TextInput
-            className="mb-2 rounded-lg border-2 border-ink bg-paper px-4 py-3.5 text-base text-ink"
-            placeholder="hello@example.com"
-            placeholderTextColor="#737373"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            value={email}
-            onChangeText={setEmail}
-            onSubmitEditing={handleReset}
-          />
-          {error ? <Text className="text-sm text-destructive">{error}</Text> : null}
-          <TouchableOpacity
-            onPress={handleReset}
-            disabled={loading}
-            className="mt-2 rounded-lg border-2 border-ink bg-primary px-6 py-4 shadow-brutal"
-            activeOpacity={0.8}
-          >
-            {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text className="text-center text-lg font-bold text-primary-foreground">
-                {t.sendReset}
-              </Text>
-            )}
-          </TouchableOpacity>
+
+        {/* ── Key icon in lime circle ── */}
+        <View className="mb-6 items-center">
+          <View className="h-16 w-16 items-center justify-center rounded-full bg-lime/30">
+            <KeyRound size={28} color="#262626" strokeWidth={2} />
+          </View>
         </View>
-        <View className="mt-4 flex-row justify-center">
+
+        {/* ── Heading ── */}
+        <Text className="text-center font-display text-3xl font-extrabold tracking-tighter text-ink">
+          {t.forgotPassword}
+        </Text>
+        <Text className="mb-8 mt-2 text-center text-base text-ink/70">
+          Entre ton email pour recevoir un lien de reinitialisation.
+        </Text>
+
+        {/* ── Email input ── */}
+        <TextInput
+          className="mb-3 h-12 rounded-xl border-2 border-ink bg-paper px-4 text-base text-ink"
+          style={shadowBrutalSm}
+          placeholder="hello@example.com"
+          placeholderTextColor="#A3A3A3"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          value={email}
+          onChangeText={setEmail}
+          onSubmitEditing={handleReset}
+        />
+
+        {/* ── Error message ── */}
+        {error ? (
+          <Text className="mb-3 text-center text-sm text-destructive">{error}</Text>
+        ) : null}
+
+        {/* ── Submit button ── */}
+        <TouchableOpacity
+          onPress={handleReset}
+          disabled={loading}
+          className="h-12 items-center justify-center rounded-xl border-2 border-ink bg-ink shadow-brutal"
+          activeOpacity={0.8}
+        >
+          {loading ? (
+            <ActivityIndicator color="#F9F8F6" />
+          ) : (
+            <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
+              {t.sendReset}
+            </Text>
+          )}
+        </TouchableOpacity>
+
+        {/* ── Back to login ── */}
+        <View className="mt-6 flex-row justify-center">
           <Link href="/(auth)/login">
-            <Text className="text-sm font-bold text-primary underline">
-              {t.signIn}
+            <Text className="font-mono text-xs uppercase tracking-[0.2em] text-ink/60">
+              Retour
             </Text>
           </Link>
         </View>

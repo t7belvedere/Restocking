@@ -1,11 +1,25 @@
 import { useState } from "react";
 import {
-  View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView,
-  Platform, ScrollView, ActivityIndicator,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { Link } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
+import { supabase } from "@/lib/supabase";
+
+const shadowBrutalSm = {
+  shadowColor: "#262626",
+  shadowOffset: { width: 2, height: 2 },
+  shadowOpacity: 1,
+  shadowRadius: 0,
+} as const;
 
 export default function Login() {
   const { signIn } = useAuth();
@@ -14,6 +28,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleLogin = async () => {
     setError("");
@@ -23,69 +38,147 @@ export default function Login() {
     setLoading(false);
   };
 
+  const handleGoogleSignIn = async () => {
+    setError("");
+    setGoogleLoading(true);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: Platform.OS === "web" ? undefined : "restocking://auth/callback",
+      },
+    });
+    if (error) setError(error.message);
+    setGoogleLoading(false);
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1 bg-cream"
     >
       <ScrollView
-        contentContainerClassName="flex-1 justify-center px-8"
+        contentContainerClassName="flex-1 justify-center px-6"
         keyboardShouldPersistTaps="handled"
       >
-        <View className="mb-10">
-          <Text className="font-extrabold text-5xl text-ink tracking-tighter">
-            restocking
+        {/* ── Wordmark ── */}
+        <View className="mb-2 items-center">
+          <Text className="font-italiana text-5xl tracking-tight text-ink">
+            restocking<Text className="text-orange">.</Text>
           </Text>
-          <Text className="mt-2 text-lg text-ink-soft">{t.login}</Text>
         </View>
-        <View className="gap-4">
-          <Text className="text-sm font-semibold text-ink">{t.email}</Text>
-          <TextInput
-            className="mb-2 rounded-lg border-2 border-ink bg-paper px-4 py-3.5 text-base text-ink"
-            placeholder="hello@example.com"
-            placeholderTextColor="#737373"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            value={email}
-            onChangeText={setEmail}
-          />
-          <Text className="text-sm font-semibold text-ink">{t.password}</Text>
-          <TextInput
-            className="mb-2 rounded-lg border-2 border-ink bg-paper px-4 py-3.5 text-base text-ink"
-            placeholder="..."
-            placeholderTextColor="#737373"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-            onSubmitEditing={handleLogin}
-          />
-          {error ? <Text className="text-sm text-destructive">{error}</Text> : null}
-          <TouchableOpacity
-            onPress={handleLogin} disabled={loading}
-            className="mt-2 rounded-lg border-2 border-ink bg-primary px-6 py-4 shadow-brutal"
-            activeOpacity={0.8}
+
+        {/* ── Eyebrow badge ── */}
+        <View className="mb-6 items-center">
+          <View
+            className="rounded-full border-2 border-ink bg-lime/20 px-3 py-1"
+            style={shadowBrutalSm}
           >
-            {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text className="text-center text-lg font-bold text-primary-foreground">
-                {t.signIn}
-              </Text>
-            )}
-          </TouchableOpacity>
+            <Text className="font-display text-xs font-bold uppercase tracking-[0.18em] text-ink">
+              Surveillance de stock
+            </Text>
+          </View>
         </View>
-        <View className="mt-6 flex-row justify-center">
+
+        {/* ── Heading ── */}
+        <Text className="font-display text-5xl font-extrabold tracking-tighter text-ink">
+          Bon retour.
+        </Text>
+        <Text className="mb-8 text-lg text-ink/70">{t.login}</Text>
+
+        {/* ── Google OAuth ── */}
+        <TouchableOpacity
+          onPress={handleGoogleSignIn}
+          disabled={googleLoading}
+          className="mb-4 h-12 items-center justify-center rounded-xl border-2 border-ink bg-paper"
+          style={shadowBrutalSm}
+          activeOpacity={0.8}
+        >
+          {googleLoading ? (
+            <ActivityIndicator color="#262626" />
+          ) : (
+            <Text className="font-display text-sm font-bold uppercase tracking-widest text-ink">
+              Continuer avec Google
+            </Text>
+          )}
+        </TouchableOpacity>
+
+        {/* ── Divider ── */}
+        <View className="mb-4 flex-row items-center gap-3">
+          <View className="h-px flex-1 bg-ink/20" />
+          <Text className="text-xs uppercase tracking-wider text-ink/50">
+            ou continuer avec
+          </Text>
+          <View className="h-px flex-1 bg-ink/20" />
+        </View>
+
+        {/* ── Email input ── */}
+        <TextInput
+          className="mb-3 h-12 rounded-xl border-2 border-ink bg-paper px-4 text-base text-ink"
+          style={shadowBrutalSm}
+          placeholder="hello@example.com"
+          placeholderTextColor="#A3A3A3"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          value={email}
+          onChangeText={setEmail}
+        />
+
+        {/* ── Password input ── */}
+        <TextInput
+          className="mb-2 h-12 rounded-xl border-2 border-ink bg-paper px-4 text-base text-ink"
+          style={shadowBrutalSm}
+          placeholder="..."
+          placeholderTextColor="#A3A3A3"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+          onSubmitEditing={handleLogin}
+        />
+
+        {/* ── Forgot password link ── */}
+        <View className="mb-4 items-end">
           <Link href="/(auth)/forgot-password">
-            <Text className="text-sm text-ink-soft underline">{t.forgotPassword}</Text>
+            <Text className="font-mono text-xs uppercase tracking-[0.2em] text-ink/60">
+              {t.forgotPassword}
+            </Text>
           </Link>
         </View>
-        <View className="mt-4 flex-row justify-center gap-x-1">
+
+        {/* ── Error message ── */}
+        {error ? (
+          <Text className="mb-3 text-center text-sm text-destructive">{error}</Text>
+        ) : null}
+
+        {/* ── Submit button ── */}
+        <TouchableOpacity
+          onPress={handleLogin}
+          disabled={loading}
+          className="h-12 items-center justify-center rounded-xl border-2 border-ink bg-ink shadow-brutal"
+          activeOpacity={0.8}
+        >
+          {loading ? (
+            <ActivityIndicator color="#F9F8F6" />
+          ) : (
+            <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
+              {t.signIn}
+            </Text>
+          )}
+        </TouchableOpacity>
+
+        {/* ── Bottom links ── */}
+        <View className="mt-6 flex-row justify-center gap-x-1">
           <Text className="text-sm text-ink-soft">{t.noAccount} </Text>
           <Link href="/(auth)/register">
-            <Text className="text-sm font-bold text-primary underline">{t.signUp}</Text>
+            <Text className="text-sm font-bold text-orange">{t.signUp}</Text>
           </Link>
         </View>
+
+        {/* ── Legal blurb ── */}
+        <Text className="mt-8 px-4 text-center text-xs text-ink/50">
+          En continuant, tu acceptes nos conditions d'utilisation et notre
+          politique de confidentialite.
+        </Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );

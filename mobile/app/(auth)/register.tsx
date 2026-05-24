@@ -1,11 +1,25 @@
 import { useState } from "react";
 import {
-  View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView,
-  Platform, ScrollView, ActivityIndicator,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { Link } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
+import { Mail } from "lucide-react-native";
+
+const shadowBrutalSm = {
+  shadowColor: "#262626",
+  shadowOffset: { width: 2, height: 2 },
+  shadowOpacity: 1,
+  shadowRadius: 0,
+} as const;
 
 export default function Register() {
   const { signUp } = useAuth();
@@ -28,16 +42,31 @@ export default function Register() {
     setLoading(false);
   };
 
+  /* ── Success state: email verification sent ── */
   if (sent) {
     return (
       <View className="flex-1 items-center justify-center bg-cream px-8">
-        <Text className="text-center text-2xl font-bold text-ink">
+        {/* Lime circle with mail icon */}
+        <View className="mb-6 h-20 w-20 items-center justify-center rounded-full bg-lime">
+          <Mail size={32} color="#262626" strokeWidth={2} />
+        </View>
+
+        <Text className="mb-2 text-center font-display text-3xl font-extrabold tracking-tighter text-ink">
+          Verifie ta boite mail
+        </Text>
+        <Text className="mb-8 text-center text-base text-ink/70">
           {t.checkEmail}
         </Text>
-        <Link href="/(auth)/login" className="mt-6">
-          <Text className="text-sm font-bold text-primary underline">
-            {t.signIn}
-          </Text>
+
+        <Link href="/(auth)/login" asChild>
+          <TouchableOpacity
+            className="h-12 items-center justify-center rounded-xl border-2 border-ink bg-ink px-8 shadow-brutal"
+            activeOpacity={0.8}
+          >
+            <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
+              {t.signIn}
+            </Text>
+          </TouchableOpacity>
         </Link>
       </View>
     );
@@ -49,59 +78,73 @@ export default function Register() {
       className="flex-1 bg-cream"
     >
       <ScrollView
-        contentContainerClassName="flex-1 justify-center px-8"
+        contentContainerClassName="flex-1 justify-center px-6"
         keyboardShouldPersistTaps="handled"
       >
-        <View className="mb-10">
-          <Text className="font-extrabold text-5xl text-ink tracking-tighter">
-            restocking
+        {/* ── Wordmark ── */}
+        <View className="mb-2 items-center">
+          <Text className="font-italiana text-5xl tracking-tight text-ink">
+            restocking<Text className="text-orange">.</Text>
           </Text>
-          <Text className="mt-2 text-lg text-ink-soft">{t.register}</Text>
         </View>
-        <View className="gap-4">
-          <Text className="text-sm font-semibold text-ink">{t.email}</Text>
-          <TextInput
-            className="mb-2 rounded-lg border-2 border-ink bg-paper px-4 py-3.5 text-base text-ink"
-            placeholder="hello@example.com"
-            placeholderTextColor="#737373"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            value={email}
-            onChangeText={setEmail}
-          />
-          <Text className="text-sm font-semibold text-ink">{t.password}</Text>
-          <TextInput
-            className="mb-2 rounded-lg border-2 border-ink bg-paper px-4 py-3.5 text-base text-ink"
-            placeholder="..."
-            placeholderTextColor="#737373"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-            onSubmitEditing={handleRegister}
-          />
-          {error ? <Text className="text-sm text-destructive">{error}</Text> : null}
-          <TouchableOpacity
-            onPress={handleRegister}
-            disabled={loading}
-            className="mt-2 rounded-lg border-2 border-ink bg-primary px-6 py-4 shadow-brutal"
-            activeOpacity={0.8}
-          >
-            {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text className="text-center text-lg font-bold text-primary-foreground">
-                {t.signUp}
-              </Text>
-            )}
-          </TouchableOpacity>
-        </View>
-        <View className="mt-4 flex-row justify-center gap-x-1">
+
+        {/* ── Heading ── */}
+        <Text className="font-display text-5xl font-extrabold tracking-tighter text-ink">
+          On y va.
+        </Text>
+        <Text className="mb-8 text-lg text-ink/70">{t.register}</Text>
+
+        {/* ── Email input ── */}
+        <TextInput
+          className="mb-3 h-12 rounded-xl border-2 border-ink bg-paper px-4 text-base text-ink"
+          style={shadowBrutalSm}
+          placeholder="hello@example.com"
+          placeholderTextColor="#A3A3A3"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          value={email}
+          onChangeText={setEmail}
+        />
+
+        {/* ── Password input ── */}
+        <TextInput
+          className="mb-3 h-12 rounded-xl border-2 border-ink bg-paper px-4 text-base text-ink"
+          style={shadowBrutalSm}
+          placeholder="..."
+          placeholderTextColor="#A3A3A3"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+          onSubmitEditing={handleRegister}
+        />
+
+        {/* ── Error message ── */}
+        {error ? (
+          <Text className="mb-3 text-center text-sm text-destructive">{error}</Text>
+        ) : null}
+
+        {/* ── Submit button ── */}
+        <TouchableOpacity
+          onPress={handleRegister}
+          disabled={loading}
+          className="h-12 items-center justify-center rounded-xl border-2 border-ink bg-ink shadow-brutal"
+          activeOpacity={0.8}
+        >
+          {loading ? (
+            <ActivityIndicator color="#F9F8F6" />
+          ) : (
+            <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
+              {t.signUp}
+            </Text>
+          )}
+        </TouchableOpacity>
+
+        {/* ── Bottom links ── */}
+        <View className="mt-6 flex-row justify-center gap-x-1">
           <Text className="text-sm text-ink-soft">{t.hasAccount} </Text>
           <Link href="/(auth)/login">
-            <Text className="text-sm font-bold text-primary underline">
-              {t.signIn}
-            </Text>
+            <Text className="text-sm font-bold text-orange">{t.signIn}</Text>
           </Link>
         </View>
       </ScrollView>
