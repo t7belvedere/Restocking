@@ -1,5 +1,6 @@
 """FastAPI app — exposes /analyze so the frontend can delegate scraping to the worker."""
 
+import json
 import logging
 import re
 from urllib.parse import urlparse
@@ -203,6 +204,9 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
             sizes.append(v_clean)
         # Short uppercase alphanumeric that's NOT a known color → size
         elif re.fullmatch(r"[A-Z0-9 ]{1,6}", v_clean) and len(v_clean) <= 6:
+            sizes.append(v_clean)
+        # Numeric strings not in SIZE_TOKENS (e.g. 24-33 for jeans) → size
+        elif v_clean.isdigit():
             sizes.append(v_clean)
         else:
             colors.append(v_clean)
@@ -428,7 +432,6 @@ def _extract_css_price(page) -> float | None:
 async def health():
     return {"status": "ok"}
 
-@app.get("/debug-apc")
 async def debug_apc():
     """Debug endpoint — fetch APC and show extraction results."""
     import asyncio as _asyncio
