@@ -1,4 +1,4 @@
-import { templateFr, templateEn } from "./templates.ts";
+import { templateFr, templateEn } from "./templates";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const HOOK_SECRET = Deno.env.get("HOOK_SECRET");
