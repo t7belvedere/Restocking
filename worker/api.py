@@ -791,8 +791,26 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
             return ("color", t)
         if any(w in _SIZE_SET for w in words):
             return ("size", t)
-        # Remaining longer text → color (conservative: multi-word color names)
-        if len(t) <= 40:
+        # Remaining text — only classify as color if it looks like one.
+        # Skip category names, newsletter topics, and other non-product text.
+        _NOT_COLOR = {
+            "alerte", "nouveauté", "nouveautes", "marque", "créateur", "createur",
+            "mode", "promo", "promos", "soldes", "sondage", "sondages", "story",
+            "stories", "recommandation", "recommandations", "article", "articles",
+            "newsletter", "télécharger", "telecharger", "app", "qr", "code",
+            "femme", "homme", "enfant", "bébé", "bebe", "fille", "garçon", "garcon",
+            "download", "pour", "vos", "votre", "mes", "les", "des",
+            "offre", "offres", "cadeau", "cadeaux", "livraison", "retour", "paiement",
+            "service", "client", "contact", "aide", "compte", "connexion", "panier",
+            "favori", "favoris", "wishlist", "blog", "magazine", "journal",
+            "zalando", "zara", "cos", "hm", "uniqlo", "bershka", "pimkie",
+            "stüssy", "stussy", "nike", "adidas", "puma",
+        }
+        words_lower = t.lower().split()
+        if any(w in _NOT_COLOR for w in words_lower):
+            return None
+        # Must look like a color name: 1-3 words, max 25 chars per word
+        if len(t) <= 30 and all(len(w) <= 25 for w in words_lower) and len(words_lower) <= 4:
             return ("color", t)
         return None
 
