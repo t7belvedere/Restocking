@@ -14,6 +14,240 @@ export type BlogPost = {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "cos-aritzia-sezane-restock-alerts",
+    title: "COS, Aritzia, Sézane : comment être alerté avant tout le monde",
+    titleEn: "COS, Aritzia, Sézane: How to Get Alerts Before Everyone Else",
+    description:
+      "Ces trois marques cultes ont des systèmes de restock très différents. Voici comment optimiser vos alertes pour chacune d'entre elles.",
+    descriptionEn:
+      "These three cult brands have very different restock systems. Here's how to optimize your alerts for each one.",
+    date: "2026-05-23",
+    author: "L'équipe restocking",
+    tags: ["COS", "Aritzia", "Sézane", "fashion alerts", "restock"],
+    content: (locale: "fr" | "en") =>
+      locale === "fr"
+        ? `## COS, Aritzia, Sézane : trois marques, trois systèmes de stock
+
+Ces trois marques sont parmi les plus demandées sur restocking. Mais leurs systèmes de gestion de stock sont radicalement différents. Voici comment maximiser vos chances pour chacune.
+
+## COS : le bon élève
+
+COS propose un système d'alertes natif — mais il a ses limites.
+
+**Ce qui marche :**
+- L'alerte email native fonctionne (quand elle arrive)
+- Le site se fait scraper facilement, les données sont structurées
+- Les retours sont généralement synchronisés en 24-48h
+
+**Ce qui ne marche pas :**
+- Délai de 1 à 24h selon les pics de trafic
+- Pas de distinction par taille dans l'email
+- Les articles soldés ne sont pas couverts
+
+**Notre approche :** On scanne COS toutes les 5 minutes en Pro. Notre détection identifie le retour taille par taille avant même que l'email natif ne parte.
+
+## Aritzia : le Far West
+
+Aritzia est la marque la plus frustrante pour les restocks. Pas d'alertes du tout. Un système de stock qui change plusieurs fois par jour.
+
+**Spécificités :**
+- Les retours sont immédiats (dès que le colis est scanné en entrepôt)
+- Le stock varie énormément selon les couleurs (une couleur peut être en stock, l'autre non)
+- Certains articles ne sont jamais réassortis (épuisement définitif)
+
+**Astuce :** Créez des alertes pour TOUTES les couleurs qui vous intéressent. Les retours sont indépendants par couleur chez Aritzia.
+
+## Sézane : le chic parisien
+
+Sézane a un système unique de "re-stock" programmé. Ils annoncent des réassorts à dates fixes sur Instagram.
+
+**Ce qu'il faut savoir :**
+- Les réassorts majeurs sont annoncés sur les réseaux sociaux
+- Les retours individuels arrivent de façon aléatoire
+- Le panier se vide au bout de 30 minutes (urgence artificielle)
+- L'app mobile est plus rapide que le web
+
+**Notre approche :** On surveille les pages produits Sézane en continu. Les retours aléatoires (hors réassorts programmés) sont notre spécialité — vous recevez l'alerte dans les 2-3 minutes.
+
+## Le tableau comparatif
+
+| Marque | Alerte native | Vitesse retour | Notre délai | Difficulté |
+|--------|--------------|----------------|-------------|------------|
+| COS | Oui (lent) | 24-48h | <5 min | ★★☆☆☆ |
+| Aritzia | Non | Immédiat | <5 min | ★★★★★ |
+| Sézane | Partiel | Variable | <5 min | ★★★☆☆ |
+
+[Surveiller ces marques →](https://www.restocking.app/signup)`
+        : `## COS, Aritzia, Sézane: Three Brands, Three Stock Systems
+
+These three brands are among the most requested on restocking. But their inventory management systems are radically different. Here's how to maximize your chances for each.
+
+## COS: The Good Student
+
+COS offers a native alert system — but it has its limits.
+
+**What works:**
+- The native email alert functions (when it arrives)
+- The site is easy to scrape, data is structured
+- Returns are generally synced within 24-48h
+
+**What doesn't work:**
+- 1-24h delay depending on traffic peaks
+- No size distinction in the email
+- Sale items aren't covered
+
+**Our approach:** We scan COS every 5 minutes on Pro. Our detection identifies restocks by size before the native email even sends.
+
+## Aritzia: The Wild West
+
+Aritzia is the most frustrating brand for restocks. No alerts at all. A stock system that changes several times a day.
+
+**Specifics:**
+- Returns are immediate (as soon as the package is scanned at the warehouse)
+- Stock varies enormously by color (one color may be in stock, another not)
+- Some items are never restocked (permanent depletion)
+
+**Tip:** Create alerts for ALL colors you're interested in. Returns are independent by color at Aritzia.
+
+## Sézane: Parisian Chic
+
+Sézane has a unique "re-stock" system. They announce restocks at fixed dates on Instagram.
+
+**What to know:**
+- Major restocks are announced on social media
+- Individual returns arrive randomly
+- Cart empties after 30 minutes (artificial urgency)
+- The mobile app is faster than the web
+
+**Our approach:** We monitor Sézane product pages continuously. Random returns (outside scheduled restocks) are our specialty — you receive the alert within 2-3 minutes.
+
+## Comparison Table
+
+| Brand | Native Alert | Return Speed | Our Delay | Difficulty |
+|-------|-------------|-------------|-----------|------------|
+| COS | Yes (slow) | 24-48h | <5 min | ★★☆☆☆ |
+| Aritzia | No | Immediate | <5 min | ★★★★★ |
+| Sézane | Partial | Variable | <5 min | ★★★☆☆ |
+
+[Monitor these brands →](https://www.restocking.app/signup)`,
+  },
+  {
+    slug: "comment-fonctionne-scraping-mode-detection-stock",
+    title: "Comment notre technologie détecte les retours en stock en moins de 5 minutes",
+    titleEn: "How Our Technology Detects Restocks in Under 5 Minutes",
+    description:
+      "Plongée dans l'infrastructure technique de restocking : scraping intelligent, détection multi-couche, et double confirmation.",
+    descriptionEn:
+      "A deep dive into restocking's technical infrastructure: intelligent scraping, multi-layer detection, and double confirmation.",
+    date: "2026-05-19",
+    author: "L'équipe restocking",
+    tags: ["tech", "scraping", "architecture", "web scraping", "fashion tech"],
+    content: (locale: "fr" | "en") =>
+      locale === "fr"
+        ? `## Les coulisses techniques de restocking
+
+Beaucoup d'utilisateurs nous demandent : "Comment faites-vous pour être aussi rapides ?" Voici les détails techniques de notre infrastructure.
+
+## Étape 1 : Le scraping intelligent
+
+Notre worker Python scanne les pages produits en utilisant Playwright — un navigateur headless qui exécute le JavaScript exactement comme un vrai navigateur.
+
+**Pourquoi Playwright ?** Les sites e-commerce modernes chargent leurs données de stock dynamiquement via JavaScript. Un simple curl HTTP ne voit qu'une page vide. Playwright exécute le JS et nous donne accès aux vraies données.
+
+Nous utilisons aussi le **stealth mode** pour ne pas être bloqués par les protections anti-bot (Akamai, Cloudflare, DataDome).
+
+## Étape 2 : La détection à 4 couches
+
+Une fois la page chargée, nous appliquons 4 couches de détection :
+
+### Couche 1 : dataLayer
+La plupart des sites e-commerce utilisent un \`digitalData\` ou \`dataLayer\` JavaScript pour le tracking. Ce JSON contient souvent l'état du stock en temps réel. Nous le parsons en premier — c'est la source la plus fiable.
+
+### Couche 2 : État du bouton "Ajouter au panier"
+Le bouton d'achat change d'état selon le stock : \`disabled\` quand la taille est épuisée, actif quand elle est disponible. Nous vérifions cet attribut.
+
+### Couche 3 : Attributs de variants
+Les sélecteurs de taille et couleur (\`data-size\`, \`data-color\`, \`aria-label\`) contiennent souvent l'information de disponibilité. Nous les analysons avec un classifieur sémantique.
+
+### Couche 4 : Analyse LLM
+Pour les cas complexes, nous utilisons DeepSeek pour analyser le contenu textuel de la page et déterminer si la taille est en stock.
+
+## Étape 3 : La double confirmation
+
+**C'est notre secret anti-faux-positifs.** Nous exigeons DEUX détections IN_STOCK consécutives avant d'envoyer une alerte. Pourquoi ?
+
+- Un bouton peut être temporairement actif pendant un rechargement
+- Un dataLayer peut contenir des données en cache
+- Un retour peut être annulé en quelques secondes
+
+Deux confirmations = zéro fausse alerte.
+
+## Étape 4 : La notification
+
+Email via Resend (SMTP premium, délivrabilité 99.9%) et SMS via Twilio pour les utilisateurs Pro. Délai moyen : 3 secondes après détection.
+
+## L'infrastructure
+
+- **Worker Python** : exécuté sur Railway, cron toutes les 5 minutes
+- **Base de données** : Supabase PostgreSQL (Francfort, GDPR compliant)
+- **Frontend** : Next.js 16 sur Vercel
+- **Paiements** : Stripe
+- **LLM** : DeepSeek V3 pour l'extraction avancée
+
+[Créer votre première alerte →](https://www.restocking.app/signup)`
+        : `## The Technical Behind-the-Scenes of restocking
+
+Many users ask us: "How are you so fast?" Here are the technical details of our infrastructure.
+
+## Step 1: Intelligent Scraping
+
+Our Python worker scans product pages using Playwright — a headless browser that executes JavaScript exactly like a real browser.
+
+**Why Playwright?** Modern e-commerce sites load their stock data dynamically via JavaScript. A simple HTTP curl sees an empty page. Playwright executes the JS and gives us access to real data.
+
+We also use **stealth mode** to avoid being blocked by anti-bot protections (Akamai, Cloudflare, DataDome).
+
+## Step 2: 4-Layer Detection
+
+Once the page is loaded, we apply 4 detection layers:
+
+### Layer 1: dataLayer
+Most e-commerce sites use a \`digitalData\` or \`dataLayer\` JavaScript object for tracking. This JSON often contains real-time stock status. We parse it first — it's the most reliable source.
+
+### Layer 2: "Add to Cart" Button State
+The purchase button changes state based on stock: \`disabled\` when the size is sold out, active when available. We check this attribute.
+
+### Layer 3: Variant Attributes
+Size and color selectors (\`data-size\`, \`data-color\`, \`aria-label\`) often contain availability information. We analyze them with a semantic classifier.
+
+### Layer 4: LLM Analysis
+For complex cases, we use DeepSeek to analyze the page's textual content and determine if the size is in stock.
+
+## Step 3: Double Confirmation
+
+**This is our anti-false-positive secret.** We require TWO consecutive IN_STOCK detections before sending an alert. Why?
+
+- A button can be temporarily active during a reload
+- A dataLayer can contain cached data
+- A return can be cancelled within seconds
+
+Two confirmations = zero false alerts.
+
+## Step 4: Notification
+
+Email via Resend (premium SMTP, 99.9% deliverability) and SMS via Twilio for Pro users. Average delay: 3 seconds after detection.
+
+## Infrastructure
+
+- **Python Worker**: running on Railway, cron every 5 minutes
+- **Database**: Supabase PostgreSQL (Frankfurt, GDPR compliant)
+- **Frontend**: Next.js 16 on Vercel
+- **Payments**: Stripe
+- **LLM**: DeepSeek V3 for advanced extraction
+
+[Create your first alert →](https://www.restocking.app/signup)`,
+  },
+  {
     slug: "alertes-retour-en-stock-mode",
     title: "Alertes de retour en stock : ne ratez plus jamais votre taille",
     titleEn: "Restock Alerts: Never Miss Your Size Again",
