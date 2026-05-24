@@ -77,33 +77,48 @@ export function WatchList({ watches }: WatchListProps) {
             href={`/dashboard/watches/${w.id}`}
             className="group rounded-2xl outline-none transition-transform focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <Card className="flex flex-col gap-4 p-4 transition-shadow group-hover:shadow-md sm:flex-row sm:items-center">
-            <div className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-muted">
-              {w.image_url ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={w.image_url}
-                  alt={w.name ?? "Produit"}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                  Sans visuel
-                </div>
-              )}
+            <Card className="flex flex-col gap-3 p-4 transition-shadow group-hover:shadow-md sm:flex-row sm:items-center">
+            {/* Mobile: image + badge row | Desktop: image only */}
+            <div className="flex items-start gap-3 sm:contents">
+              <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-24 sm:w-24">
+                {w.image_url ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={w.image_url}
+                    alt={w.name ?? "Produit"}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                    Sans visuel
+                  </div>
+                )}
+              </div>
+
+              {/* Badge — visible on mobile next to image, on desktop at the end */}
+              <div className="shrink-0 sm:hidden">
+                {!w.is_active ? (
+                  <Badge variant="muted">
+                    <Pause className="h-3 w-3" />
+                    En pause
+                  </Badge>
+                ) : (
+                  <StatusBadge status={w.last_status} />
+                )}
+              </div>
             </div>
 
             <div className="min-w-0 flex-1 space-y-1">
               <div className="flex items-start justify-between gap-3">
-                <p className="truncate font-display text-lg font-semibold leading-tight">
+                <p className="truncate font-display text-base font-semibold leading-tight sm:text-lg">
                   {w.name ?? "Produit sans titre"}
                 </p>
-                <ArrowUpRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                <ArrowUpRight className="mt-1 hidden h-4 w-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 sm:block" />
               </div>
-              <p className="truncate text-sm text-muted-foreground">
+              <p className="truncate text-xs text-muted-foreground sm:text-sm">
                 {shortHost(w.url)} · {w.variant_label ?? "Variante non définie"}
               </p>
-              <p className="text-sm">
+              <p className="text-xs sm:text-sm">
                 <span className="font-medium">{formatPrice(w.price)}</span>
                 <span className="ml-2 text-muted-foreground">
                   Vérif. {formatDateTime(w.last_check)}
@@ -111,7 +126,8 @@ export function WatchList({ watches }: WatchListProps) {
               </p>
             </div>
 
-            <div className="shrink-0">
+            {/* Badge — desktop only */}
+            <div className="hidden shrink-0 sm:block">
               {!w.is_active ? (
                 <Badge variant="muted">
                   <Pause className="h-3 w-3" />

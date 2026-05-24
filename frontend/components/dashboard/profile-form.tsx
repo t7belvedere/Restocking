@@ -231,7 +231,7 @@ export function ProfileForm({ initial, email, plan }: Props) {
 
         {/* Save */}
         <div className="flex items-center gap-3 pt-2">
-          <Button onClick={handleSave} disabled={isPending} size="lg" className="gap-2">
+          <Button onClick={handleSave} disabled={isPending} size="lg" className="w-full gap-2 sm:w-auto">
             {isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : saved ? (

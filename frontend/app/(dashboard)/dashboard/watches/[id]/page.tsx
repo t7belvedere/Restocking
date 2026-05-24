@@ -33,9 +33,9 @@ export default async function WatchDetailPage({
         Mes alertes
       </Link>
 
-      <Card className="rounded-3xl border-2 border-ink/20 shadow-none">
-        <CardContent className="flex flex-col gap-6 p-6 md:flex-row">
-          <div className="h-40 w-40 shrink-0 overflow-hidden rounded-2xl bg-muted">
+      <Card className="rounded-2xl border-2 border-ink/20 shadow-none sm:rounded-3xl">
+        <CardContent className="flex flex-col gap-5 p-4 sm:flex-row sm:gap-6 sm:p-6">
+          <div className="mx-auto h-32 w-32 shrink-0 overflow-hidden rounded-2xl bg-muted sm:mx-0 sm:h-40 sm:w-40">
             {watch.image_url ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
@@ -54,7 +54,7 @@ export default async function WatchDetailPage({
             {/* Top row: name + status */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 space-y-1">
-                <h1 className="font-display text-3xl font-semibold leading-tight">
+                <h1 className="font-display text-2xl font-semibold leading-tight sm:text-3xl">
                   {watch.name ?? "Produit sans titre"}
                 </h1>
                 <a

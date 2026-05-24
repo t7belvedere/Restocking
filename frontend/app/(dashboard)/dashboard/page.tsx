@@ -123,7 +123,7 @@ async function DashboardContent() {
               month: "long",
             })}
           </p>
-          <h1 className="mt-1 font-display text-4xl font-extrabold tracking-tight">
+          <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
             {firstName ? (
               <>
                 Bonjour{" "}
@@ -147,7 +147,7 @@ async function DashboardContent() {
             href="/dashboard/add"
             className={cn(
               buttonVariants({ size: "lg" }),
-              "gap-2 rounded-xl border-2 border-ink bg-[var(--brand-orange)] font-display font-bold uppercase tracking-widest text-ink shadow-brutal-sm hover:shadow-brutal hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all",
+              "w-full gap-2 rounded-xl border-2 border-ink bg-[var(--brand-orange)] font-display font-bold uppercase tracking-widest text-ink shadow-brutal-sm hover:shadow-brutal hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all sm:w-auto",
             )}
           >
             <Plus className="h-4 w-4" />
@@ -158,7 +158,7 @@ async function DashboardContent() {
             href="/upgrade"
             className={cn(
               buttonVariants({ variant: "default", size: "lg" }),
-              "gap-2 rounded-xl border-2 border-ink bg-ink font-display font-bold uppercase tracking-widest text-cream shadow-brutal-sm hover:shadow-brutal hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all",
+              "w-full gap-2 rounded-xl border-2 border-ink bg-ink font-display font-bold uppercase tracking-widest text-cream shadow-brutal-sm hover:shadow-brutal hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all sm:w-auto",
             )}
           >
             <Sparkles className="h-4 w-4" />
@@ -213,7 +213,7 @@ async function DashboardContent() {
 
       {/* ── Limit warning ─────────────────────────────────────── */}
       {isLimitReached && watches.length > 0 ? (
-        <div className="flex items-center justify-between gap-4 rounded-2xl border-2 border-ink bg-[var(--brand-orange)]/10 p-5">
+        <div className="flex flex-col gap-4 rounded-2xl border-2 border-ink bg-[var(--brand-orange)]/10 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="font-display text-sm font-bold uppercase tracking-widest">
               Limite atteinte
@@ -250,17 +250,17 @@ async function DashboardContent() {
 function EmptyState({ firstName }: { firstName: string | null }) {
   return (
     <Card className="rounded-3xl border-2 border-dashed border-ink/30 bg-cream/50">
-      <CardContent className="flex flex-col items-center gap-6 p-14 text-center">
+      <CardContent className="flex flex-col items-center gap-6 p-8 text-center sm:p-14">
         <div className="relative">
-          <span className="inline-flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-ink bg-[var(--brand-lime)] shadow-brutal">
-            <Bell className="h-7 w-7 text-ink" />
+          <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-ink bg-[var(--brand-lime)] shadow-brutal sm:h-16 sm:w-16">
+            <Bell className="h-6 w-6 text-ink sm:h-7 sm:w-7" />
           </span>
-          <span className="absolute -right-2 -top-2 inline-flex h-6 w-6 items-center justify-center rounded-full border-2 border-ink bg-[var(--brand-orange)] text-[10px] font-black text-ink">
+          <span className="absolute -right-2 -top-2 inline-flex h-5 w-5 items-center justify-center rounded-full border-2 border-ink bg-[var(--brand-orange)] text-[9px] font-black text-ink sm:h-6 sm:w-6 sm:text-[10px]">
             1
           </span>
         </div>
         <div className="space-y-2">
-          <h2 className="font-display text-2xl font-extrabold tracking-tight">
+          <h2 className="font-display text-xl font-extrabold tracking-tight sm:text-2xl">
             {firstName ? `Prête à traquer, ${firstName} ?` : "Prêt à commencer ?"}
           </h2>
           <p className="mx-auto max-w-sm text-sm leading-relaxed text-ink/60">
@@ -271,7 +271,7 @@ function EmptyState({ firstName }: { firstName: string | null }) {
           href="/dashboard/add"
           className={cn(
             buttonVariants({ size: "lg" }),
-            "gap-2 rounded-xl border-2 border-ink bg-[var(--brand-orange)] px-8 font-display font-bold uppercase tracking-widest text-ink shadow-brutal hover:shadow-brutal-lg hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all",
+            "w-full gap-2 rounded-xl border-2 border-ink bg-[var(--brand-orange)] px-8 font-display font-bold uppercase tracking-widest text-ink shadow-brutal hover:shadow-brutal-lg hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all sm:w-auto",
           )}
         >
           <Plus className="h-4 w-4" />

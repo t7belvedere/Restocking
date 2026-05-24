@@ -96,7 +96,7 @@ export function CheckLogTable({ logs, watchPrice }: { logs: CheckLog[]; watchPri
   if (logs.length === 0) return <EmptyState />;
 
   return (
-    <div className="overflow-hidden rounded-2xl border-2 border-ink/20 bg-card">
+    <div className="overflow-x-auto rounded-2xl border-2 border-ink/20 bg-card">
       <Table>
         <TableHeader>
           <TableRow className="border-ink/20 bg-cream/70">
@@ -106,7 +106,7 @@ export function CheckLogTable({ logs, watchPrice }: { logs: CheckLog[]; watchPri
             <TableHead className="font-display text-xs font-bold uppercase tracking-widest">
               Statut
             </TableHead>
-            <TableHead className="font-display text-xs font-bold uppercase tracking-widest">
+            <TableHead className="hidden font-display text-xs font-bold uppercase tracking-widest sm:table-cell">
               Source
             </TableHead>
             <TableHead className="text-right font-display text-xs font-bold uppercase tracking-widest">
@@ -137,7 +137,7 @@ export function CheckLogTable({ logs, watchPrice }: { logs: CheckLog[]; watchPri
                   {STATUS_LABEL[log.status]}
                 </Badge>
               </TableCell>
-              <TableCell className="text-sm text-muted-foreground">
+              <TableCell className="hidden text-sm text-muted-foreground sm:table-cell">
                 {log.signal_source
                   ? SOURCE_LABEL[log.signal_source] ?? log.signal_source
                   : "—"}
