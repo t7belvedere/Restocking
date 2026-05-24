@@ -56,6 +56,7 @@ LOOP_SLEEP = 60  # seconds between full loops
 from db.client import (
     get_active_watches,
     get_user_email,
+    get_user_phone,
     insert_check_log,
     insert_notification,
     update_watch_metadata,
@@ -200,14 +201,26 @@ def _send_notifications(watch: dict, status: str) -> None:
     else:
         logger.warning("watch %s: could not resolve email for user %s — skipping email", watch_id, user_id)
 
-    # SMS — Pro plan only, but no phone number is stored in the current DB schema
+    # SMS — Pro plan only
     if plan == "pro":
-        logger.info(
-            "watch %s: SMS notification skipped — phone number not available in DB schema",
-            watch_id,
-        )
-        # When phone support is added, call send_restock_sms here and
-        # insert_notification(watch_id, channel="sms", success=...).
+        to_phone = get_user_phone(user_id)
+        if to_phone:
+            sms_success = send_restock_sms(
+                to_phone=to_phone,
+                product_name=name,
+                variant_label=variant_label,
+                product_url=url,
+            )
+            insert_notification(watch_id, channel="sms", success=sms_success)
+            if sms_success:
+                logger.info("watch %s: SMS notification sent to %s", watch_id, to_phone)
+            else:
+                logger.warning("watch %s: SMS notification FAILED for %s", watch_id, to_phone)
+        else:
+            logger.info(
+                "watch %s: SMS skipped — no phone saved in profile",
+                watch_id,
+            )
 
 
 def _process_watch(watch: dict) -> None:

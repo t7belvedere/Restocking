@@ -53,6 +53,18 @@ def get_user_email(user_id: str) -> str | None:
         return None
 
 
+def get_user_phone(user_id: str) -> str | None:
+    """Fetch user phone from user_metadata via Supabase Admin API."""
+    try:
+        response = supabase.auth.admin.get_user(user_id)
+        if response.user and response.user.user_metadata:
+            phone = response.user.user_metadata.get("phone")
+            return phone if phone else None
+    except Exception:
+        pass
+    return None
+
+
 def update_watch_status(watch_id: str, status: str) -> None:
     """Update last_status and last_check on a watch."""
     supabase.table("watches").update({

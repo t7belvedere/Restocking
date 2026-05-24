@@ -47,6 +47,7 @@ export function ProfileForm({ initial, email, plan }: Props) {
   const [deleting, setDeleting] = useState(false);
 
   const [name, setName] = useState(initial.first_name ?? "");
+  const [phone, setPhone] = useState(initial.phone ?? "");
   const [size, setSize] = useState<string | null>(initial.preferred_size ?? null);
   const [brands, setBrands] = useState<string[]>(initial.preferred_brands ?? []);
 
@@ -64,6 +65,7 @@ export function ProfileForm({ initial, email, plan }: Props) {
     startTransition(async () => {
       const res = await updateProfile({
         first_name: name.trim(),
+        phone: phone.trim() || undefined,
         preferred_size: size,
         preferred_brands: brands,
       });
@@ -179,6 +181,27 @@ export function ProfileForm({ initial, email, plan }: Props) {
             onChange={(e) => setName(e.target.value)}
             placeholder={locale === "fr" ? "Ton prénom" : "Your first name"}
           />
+        </div>
+
+        {/* Phone */}
+        <div className="space-y-2">
+          <Label htmlFor="profile-phone">
+            {locale === "fr" ? "Téléphone (SMS, plan Pro)" : "Phone (SMS, Pro plan)"}
+          </Label>
+          <Input
+            id="profile-phone"
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="+33 6 12 34 56 78"
+          />
+          {plan === "free" ? (
+            <p className="text-xs text-muted-foreground">
+              {locale === "fr"
+                ? "Les SMS sont réservés au plan Pro."
+                : "SMS is reserved for Pro plan."}
+            </p>
+          ) : null}
         </div>
 
         {/* Size */}
