@@ -162,7 +162,50 @@ def _extract_variants(html: str) -> list[str]:
         if len(found) > 24:
             break
 
-    return list(found)[:18]
+    # 4. alt text on color swatch images (Pimkie, other Shopify themes)
+    #    e.g. <img alt="blanc"> inside a color selector
+    _CSS_VALUES = {"auto", "none", "inherit", "initial", "unset", "currentcolor",
+                   "transparent", "rgb", "rgba", "hsl", "hsla", "black", "white",
+                   "gray", "grey", "silver", "solid", "dashed", "dotted"}
+    _ALT_SKIP = {"photo", "image", "produit", "product", "logo", "paiement",
+                 "carte", "paypal", "visa", "mastercard", "livraison", "retour",
+                 "javel", "blanchiment", "recyclage", "certifié", "qualité",
+                 "nettoyage", "repassage", "séchage", "lavage", "blanchiment",
+                 "interdit", "séchage", "javel"}
+    for m in re.finditer(
+        r'<img[^>]+alt=["\']([^"\']{1,30})["\'][^>]*>',
+        html, re.IGNORECASE,
+    ):
+        alt = m.group(1).strip()
+        if not alt or len(alt) > 25:
+            continue
+        low = alt.lower()
+        if low in _CSS_VALUES:
+            continue
+        if any(w in low for w in _ALT_SKIP):
+            continue
+        found.add(alt)
+
+    # 5. "Couleur : X" / "Color : X" text nodes (Pimkie, general)
+    _CSS_JUNK = {"auto", "none", "inherit", "initial", "unset", "currentcolor",
+                 "transparent", "rgb", "rgba", "hsl", "hsla", "var", "black", "white",
+                 "gray", "grey", "silver", "red", "blue", "green", "yellow", "orange"}
+    for m in re.finditer(
+        r'(?:Couleur|Colour|Color|Colore|Farbe)\s*:\s*(\w[\w\s\-]{0,25})',
+        html, re.IGNORECASE,
+    ):
+        val = m.group(1).strip()
+        low = val.lower()
+        if not val or len(val) > 25 or low in _CSS_JUNK:
+            continue
+        # Skip if we're inside a <style> tag (CSS, not HTML content)
+        # Check: is there an unclosed <style> before this match?
+        before = html[max(0, m.start() - 2000):m.start()]
+        if before.rfind("<style") > before.rfind("</style>"):
+            continue
+        found.add(val)
+
+    return list(found)[:24]
 
 
 def _extract_title(html: str) -> str | None:
