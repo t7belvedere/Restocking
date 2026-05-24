@@ -188,7 +188,7 @@ async function DashboardContent() {
                   <p className="mt-0.5 truncate font-display text-lg font-bold tracking-tight">
                     {s.value}
                   </p>
-                  {s.sub && !s.subHref && (
+                  {s.sub && (
                     <p className="mt-0.5 truncate text-[11px] text-ink/40">{s.sub}</p>
                   )}
                 </div>
