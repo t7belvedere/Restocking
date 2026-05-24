@@ -636,7 +636,11 @@ def _extract_css_price(page) -> float | None:
 
 @app.get("/health")
 async def health():
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "proxy": bool(os.getenv("PROXY_URL")),
+        "twilio": bool(TWILIO_SID),
+    }
 
 
 # ---------------------------------------------------------------------------
