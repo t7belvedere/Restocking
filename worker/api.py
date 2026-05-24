@@ -1129,15 +1129,10 @@ def _extract_css_image(page, url: str = "") -> str | None:
                     src = srcset.split(",")[0].strip().split(" ")[0]
             if not src:
                 continue
-            # Fix double-URL bug (some CDNs return protocol-relative URLs that get doubled)
-            if src.startswith("http://") or src.startswith("https://"):
-                # Check if the URL has a duplicated domain (e.g. https://a.comhttps://a.com/...)
-                parsed_src = _urlparse(src)
-                if parsed_src.netloc.count("http") > 0:
-                    # Find the second http and trim from there
-                    second = src.find("http", 8)
-                    if second > 0:
-                        src = src[second:]
+            # Fix double-URL bug (https://a.comhttps://a.com/path → https://a.com/path)
+            second_http = src.find("http", 8) if src.startswith("http") else -1
+            if second_http > 0:
+                src = src[second_http:]
             low = src.lower()
             # Skip data: URIs (SVG placeholders, inline icons)
             if low.startswith("data:"):
@@ -1187,11 +1182,10 @@ def _extract_css_image(page, url: str = "") -> str | None:
                     src = srcset.split(",")[0].strip().split(" ")[0]
             if not src:
                 continue
-            # Fix double-URL bug
-            if (src.startswith("http://") or src.startswith("https://")) and src.count("http") > 1:
-                second = src.find("http", 8)
-                if second > 0:
-                    src = src[second:]
+            # Fix double-URL bug (https://a.comhttps://a.com/path → https://a.com/path)
+            second_http = src.find("http", 8) if src.startswith("http") else -1
+            if second_http > 0:
+                src = src[second_http:]
             low = src.lower()
             if not src or "transparent" in low or _re.search(r"\.svg(\?|$)", low):
                 continue
