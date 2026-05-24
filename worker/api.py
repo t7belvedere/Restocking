@@ -767,6 +767,8 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
             return None
         if re.match(r"^(color|colour|couleur|taille|size|choose|select|choisir)\s*:?\s*$", low):
             return None
+        # Strip "Sélectionné, " / "Selected, " / "Non sélectionné, " prefixes (Zalando)
+        t = re.sub(r"^(?i:sélectionné|sélectionnee|selected|non sélectionné|non sélectionnee|not selected|ausgewählt|nicht ausgewählt)\s*[,:\-]\s*", "", t).strip()
         # Strip leading "color:" or "couleur:" prefix, and trailing colon
         t = re.sub(r"^(?i:color|couleur)\s*:\s*", "", t).strip()
         t = re.sub(r"\s*:\s*$", "", t).strip()
