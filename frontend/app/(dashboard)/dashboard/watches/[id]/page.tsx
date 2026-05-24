@@ -1,59 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CheckLogTable } from "@/components/dashboard/check-log-table";
 import { WatchActions } from "@/components/dashboard/watch-actions";
+import { LiveStatus } from "@/components/dashboard/live-status";
+import { AutoRefresh } from "@/components/dashboard/auto-refresh";
 import { getCheckLogs, getWatch } from "@/lib/data/watches";
-import type { WatchStatus } from "@/lib/supabase/types";
-import { formatDateTime, formatPrice, shortHost } from "@/lib/utils";
-
-const STATUS_LABEL: Record<WatchStatus, string> = {
-  IN_STOCK: "En stock",
-  OUT_OF_STOCK: "Rupture",
-  UNKNOWN: "En attente",
-};
-
-function StatusBlock({
-  status,
-  isActive,
-  lastCheck,
-}: {
-  status: WatchStatus;
-  isActive: boolean;
-  lastCheck: string | null;
-}) {
-  if (!isActive) {
-    return (
-      <div className="flex flex-col items-end gap-1">
-        <Badge variant="muted" className="px-3 py-1 text-sm">
-          En pause
-        </Badge>
-        <p className="text-xs text-muted-foreground">
-          Dernière vérif. {formatDateTime(lastCheck)}
-        </p>
-      </div>
-    );
-  }
-  const variant =
-    status === "IN_STOCK"
-      ? "success"
-      : status === "OUT_OF_STOCK"
-        ? "warning"
-        : "muted";
-  return (
-    <div className="flex flex-col items-end gap-1">
-      <Badge variant={variant} className="px-3 py-1 text-sm">
-        {STATUS_LABEL[status]}
-      </Badge>
-      <p className="text-xs text-muted-foreground">
-        Dernière vérif. {formatDateTime(lastCheck)}
-      </p>
-    </div>
-  );
-}
+import { formatPrice, shortHost } from "@/lib/utils";
 
 export default async function WatchDetailPage({
   params,
@@ -68,6 +23,8 @@ export default async function WatchDetailPage({
 
   return (
     <div className="mx-auto max-w-4xl space-y-8">
+      <AutoRefresh intervalSeconds={20} />
+
       <Link
         href="/dashboard"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
@@ -76,7 +33,7 @@ export default async function WatchDetailPage({
         Mes alertes
       </Link>
 
-      <Card>
+      <Card className="rounded-3xl border-2 border-ink/20 shadow-none">
         <CardContent className="flex flex-col gap-6 p-6 md:flex-row">
           <div className="h-40 w-40 shrink-0 overflow-hidden rounded-2xl bg-muted">
             {watch.image_url ? (
@@ -93,7 +50,8 @@ export default async function WatchDetailPage({
             )}
           </div>
 
-          <div className="min-w-0 flex-1 space-y-3">
+          <div className="min-w-0 flex-1 space-y-4">
+            {/* Top row: name + status */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 space-y-1">
                 <h1 className="font-display text-3xl font-semibold leading-tight">
@@ -109,51 +67,66 @@ export default async function WatchDetailPage({
                   <ExternalLink className="h-3 w-3" />
                 </a>
               </div>
-              <StatusBlock
+
+              {/* Live pulse indicator */}
+              <LiveStatus
+                lastCheck={watch.last_check}
                 status={watch.last_status}
                 isActive={watch.is_active}
-                lastCheck={watch.last_check}
               />
             </div>
 
-            <Separator />
+            <Separator className="bg-ink/10" />
 
+            {/* Meta */}
             <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
               <div>
-                <dt className="text-muted-foreground">Variante</dt>
-                <dd className="font-medium">
-                  {watch.variant_label ?? "—"}
-                </dd>
+                <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Variante
+                </dt>
+                <dd className="mt-0.5 font-medium">{watch.variant_label ?? "—"}</dd>
               </div>
               <div>
-                <dt className="text-muted-foreground">Prix</dt>
-                <dd className="font-medium">{formatPrice(watch.price)}</dd>
+                <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Prix
+                </dt>
+                <dd className="mt-0.5 font-medium">{formatPrice(watch.price)}</dd>
               </div>
               <div>
-                <dt className="text-muted-foreground">Créée le</dt>
-                <dd className="font-medium">
-                  {formatDateTime(watch.created_at)}
+                <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Créée le
+                </dt>
+                <dd className="mt-0.5 font-medium tabular-nums">
+                  {new Date(watch.created_at).toLocaleDateString("fr-FR")}
                 </dd>
               </div>
             </dl>
 
-            <Separator />
+            <Separator className="bg-ink/10" />
 
             <WatchActions id={watch.id} isActive={watch.is_active} />
           </div>
         </CardContent>
       </Card>
 
-      <section className="space-y-3">
+      {/* Check log history */}
+      <section className="space-y-4">
         <div className="flex items-end justify-between">
           <div>
-            <h2 className="font-display text-xl font-semibold">
+            <h2 className="font-display text-xl font-bold tracking-tight">
               Historique des vérifications
             </h2>
             <p className="text-sm text-muted-foreground">
-              Les 20 derniers checks détectés par notre robot.
+              Les 20 derniers checks — mise à jour automatique toutes les 20s.
             </p>
           </div>
+          <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink/20 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-ink/50">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inset-0 animate-ping rounded-full bg-emerald-400/50" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            </span>
+            Live
+          </span>
         </div>
         <CheckLogTable logs={logs} />
       </section>
