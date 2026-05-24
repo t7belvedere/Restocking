@@ -70,10 +70,11 @@ def _extract_variants(html: str) -> list[str]:
     """
     found: set[str] = set()
 
-    # 1. Data attributes and HTML patterns
+    # 1. Explicit data-size attributes only — no free-text matching
+    #    Single-letter tokens (S, M, L) are too ambiguous in raw HTML.
     for token in SIZE_TOKENS:
         if re.search(
-            rf'(?:>\s*{re.escape(token)}\s*<|data-size=["\']{re.escape(token)}["\']|aria-label=["\'][^"\']*{re.escape(token)}[^"\']*["\'])',
+            rf'data-(?:size|value)=["\']\s*{re.escape(token)}\s*["\']',
             html,
         ):
             found.add(token)
@@ -169,6 +170,37 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
     colors.sort()
 
     return sizes, colors
+
+
+def _extract_css_sizes(page) -> list[str]:
+    """Extract size variants from a rendered page.
+
+    Targets size-selector buttons and list items.
+    """
+    _SIZE_SET = set(SIZE_TOKENS)
+    found: set[str] = set()
+    for sel in (
+        "[data-qa-action=size-selector] li",
+        "[data-qa-action=size-selector] button",
+        "[class*=size-selector] button",
+        "[class*=size-selector] li",
+        "[class*=product-size] button",
+        "[class*=product-size] li",
+    ):
+        try:
+            els = page.css(sel)
+            for el in els[:30]:
+                txt = getattr(el, "get_all_text", lambda: "")()
+                if isinstance(txt, str):
+                    txt = txt.strip()
+                    # Sizes are short tokens, not long descriptions
+                    if txt and len(txt) <= 6 and txt.upper() in _SIZE_SET:
+                        found.add(txt)
+        except Exception:
+            pass
+        if len(found) >= 10:
+            break
+    return list(found)
 
 
 def _extract_css_colors(page) -> list[str]:
@@ -422,8 +454,12 @@ async def analyze(url: str = Query(min_length=1)):
 
     variants = _extract_variants(html)
 
-    # Extract colors from rendered page (retailers that render them in buttons/swatches)
+    # Extract sizes and colors from rendered page (JS-rendered selectors)
     if page is not None:
+        css_sizes = _extract_css_sizes(page)
+        for s in css_sizes:
+            if s not in variants:
+                variants.append(s)
         css_colors = _extract_css_colors(page)
         for c in css_colors:
             if c not in variants:
