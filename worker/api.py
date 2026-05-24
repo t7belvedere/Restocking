@@ -428,6 +428,34 @@ def _extract_css_price(page) -> float | None:
 async def health():
     return {"status": "ok"}
 
+@app.get("/debug-apc")
+async def debug_apc():
+    """Debug endpoint — fetch APC and show extraction results."""
+    import asyncio as _asyncio
+    url = "https://www.apc.fr/products/jean-new-standard-lze-cogex-m09001"
+    try:
+        page = await _asyncio.to_thread(Fetcher.get, url, stealthy_headers=True, timeout=15)
+        html = getattr(page, "html_content", "")
+    except Exception as e:
+        return {"error": str(e)}
+
+    import re as _re, json as _json
+    # Check productVariants
+    m = _re.search(r'"productVariants"\s*:\s*\[(.*?)\]', html)
+    result = {
+        "html_len": len(html),
+        "productVariants_match": bool(m),
+    }
+    if m:
+        try:
+            data = _json.loads("[" + m.group(1) + "]")
+            result["variants_count"] = len(data)
+            result["titles"] = [v.get("title","?") for v in data[:5]]
+        except Exception as e:
+            result["json_error"] = str(e)
+            result["json_sample"] = m.group(1)[:300]
+    return result
+
 
 @app.get("/analyze")
 async def analyze(url: str = Query(min_length=1)):
