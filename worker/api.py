@@ -716,32 +716,51 @@ async def verify_otp(phone: str = Query(min_length=6), code: str = Query(min_len
     return {"ok": True, "verified": True}
 
 
-async def debug_apc():
-    """Debug endpoint — fetch APC and show extraction results."""
+@app.get("/debug-playwright")
+async def debug_playwright():
+    """Test Playwright rendering with proxy."""
     import asyncio as _asyncio
-    url = "https://www.apc.fr/products/jean-new-standard-lze-cogex-m09001"
-    try:
-        page = await _asyncio.to_thread(Fetcher.get, url, stealthy_headers=True, timeout=15)
-        html = getattr(page, "html_content", "")
-    except Exception as e:
-        return {"error": str(e)}
-
-    import re as _re, json as _json
-    # Check productVariants
-    m = _re.search(r'"productVariants"\s*:\s*\[(.*?)\]', html)
-    result = {
-        "html_len": len(html),
-        "productVariants_match": bool(m),
-    }
-    if m:
+    url = "https://www.zara.com/fr/fr/basket-avec-detail-au-talon-p12246720.html"
+    pw_proxy_debug = None
+    proxy_url_debug = os.getenv("PROXY_URL")
+    if proxy_url_debug:
         try:
-            data = _json.loads("[" + m.group(1) + "]")
-            result["variants_count"] = len(data)
-            result["titles"] = [v.get("title","?") for v in data[:5]]
+            from urllib.parse import urlparse as _urlparse
+            _p = _urlparse(proxy_url_debug)
+            pw_proxy_debug = {"server": f"{_p.scheme}://{_p.hostname}:{_p.port or 80}"}
+            if _p.username:
+                pw_proxy_debug["username"] = _p.username
+            if _p.password:
+                pw_proxy_debug["password"] = _p.password
         except Exception as e:
-            result["json_error"] = str(e)
-            result["json_sample"] = m.group(1)[:300]
-    return result
+            pw_proxy_debug = {"error": str(e)}
+
+    try:
+        page = await _asyncio.to_thread(
+            PlayWrightFetcher.fetch,
+            url,
+            headless=True,
+            stealth=True,
+            hide_canvas=True,
+            disable_resources=True,
+            timeout=40000,
+            wait=3000,
+            proxy=pw_proxy_debug,
+        )
+        html = getattr(page, "html_content", "")
+        return {
+            "ok": True,
+            "html_len": len(html),
+            "proxy_configured": bool(proxy_url_debug),
+            "proxy_dict": pw_proxy_debug,
+        }
+    except Exception as e:
+        return {
+            "ok": False,
+            "error": str(e)[:300],
+            "proxy_configured": bool(proxy_url_debug),
+            "proxy_dict": pw_proxy_debug,
+        }
 
 
 @app.get("/analyze")
