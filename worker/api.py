@@ -1337,35 +1337,34 @@ async def _analyze_scrape(url: str, proxy_url: str | None, pw_proxy: dict | None
     yield _sse_event("progress", {"step": "extracting", "message": "Lecture du produit..."})
     result = await _universal_extract(page, html, url)
 
-    # --- LLM enrichment (DeepSeek) — fills gaps in traditional extraction ---
+    # --- LLM validation (DeepSeek) — runs on every request to cross-check results ---
     if _DEEPSEEK_KEY:
+        yield _sse_event("progress", {"step": "extracting", "message": "IA : validation des données..."})
         try:
             llm_result = await _llm_extract(html, page, url)
             if llm_result:
-                # Merge: traditional is more reliable for structured data,
-                # LLM is better at colors and natural-language names
+                # Name/price/image: traditional is more reliable, LLM as fallback
                 if not result.get("name") and llm_result.get("name"):
                     result["name"] = llm_result["name"]
                 if result.get("price") is None and llm_result.get("price"):
                     result["price"] = llm_result["price"]
                 if not result.get("image_url") and llm_result.get("image_url"):
                     result["image_url"] = llm_result["image_url"]
-                # Colors: LLM is often better — merge both
+                # Colors & sizes: merge both sources — LLM catches what regex misses
                 llm_colors = llm_result.get("colors") or []
-                existing_colors = set(result.get("colors") or [])
+                existing_colors = set(c.lower() for c in (result.get("colors") or []))
                 for c in llm_colors:
-                    if c not in existing_colors:
+                    if c.lower() not in existing_colors:
                         result["colors"].append(c)
-                # Sizes: merge both, deduplicate
                 llm_sizes = llm_result.get("sizes") or []
-                existing_sizes = set(result.get("sizes") or [])
+                existing_sizes = set(s.lower() for s in (result.get("sizes") or []))
                 for s in llm_sizes:
-                    if s not in existing_sizes:
+                    if s.lower() not in existing_sizes:
                         result["sizes"].append(s)
                         result["variants"].append(s)
-                logger.debug("LLM merge: sizes=%s colors=%s", result["sizes"], result["colors"])
+                logger.info("LLM validated: sizes=%s colors=%s", result["sizes"], result["colors"])
         except Exception:
-            logger.debug("LLM enrichment failed", exc_info=True)
+            logger.debug("LLM validation failed", exc_info=True)
 
     # If no sizes found and we only did Level 1 HTTP, try Playwright
     # for JS-rendered size selectors (COS, other SPA retailers).
