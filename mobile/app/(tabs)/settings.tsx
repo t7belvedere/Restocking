@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,20 +7,32 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
+import { getSubscription, openPortal, type SubscriptionInfo } from "@/lib/stripe";
 import { brutal, brutalSm } from "@/lib/shadows";
+import { Crown, ArrowRight } from "lucide-react-native";
 
 export default function SettingsScreen() {
   const { user, signOut } = useAuth();
   const { t, locale, setLocale } = useI18n();
+  const router = useRouter();
   const [deleting, setDeleting] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+  const [sub, setSub] = useState<SubscriptionInfo | null>(null);
+  const [subLoading, setSubLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      getSubscription().then(setSub).finally(() => setSubLoading(false));
+    }
+  }, [user]);
 
   const initial = user?.email?.charAt(0).toUpperCase() ?? "?";
   const email = user?.email ?? "";
-  const isFrench = locale === "fr";
+  const isPro = sub?.plan === "pro";
 
   const handleSignOut = () => {
     Alert.alert(t.signOutConfirm, undefined, [
@@ -59,13 +71,27 @@ export default function SettingsScreen() {
     ]);
   };
 
+  const handleManageSubscription = async () => {
+    const result = await openPortal();
+    if (!result.success) {
+      Alert.alert("Erreur", result.error ?? "Impossible d'ouvrir le portail.");
+    }
+  };
+
+  const periodEndLabel = sub?.current_period_end
+    ? new Date(sub.current_period_end).toLocaleDateString(
+        locale === "fr" ? "fr-FR" : "en-US",
+        { year: "numeric", month: "long", day: "numeric" },
+      )
+    : null;
+
   return (
     <ScrollView
       className="flex-1 bg-cream"
       contentContainerStyle={{ padding: 20, paddingBottom: 60 }}
     >
       <Text className="mt-10 font-display text-3xl font-extrabold tracking-tighter text-ink">
-        {t.profileTitle}
+        {t.profileTitle ?? "Paramètres"}
       </Text>
 
       {/* ── Account card ── */}
@@ -87,9 +113,15 @@ export default function SettingsScreen() {
             >
               {email}
             </Text>
-            <View className="mt-1.5 self-start rounded-full border border-ink bg-lime/40 px-3 py-0.5">
+            <View
+              className={`mt-1.5 self-start rounded-full border px-3 py-0.5 ${
+                isPro
+                  ? "border-blue bg-blue/20"
+                  : "border-ink bg-lime/40"
+              }`}
+            >
               <Text className="font-mono text-xs font-medium text-ink">
-                {t.freePlan}
+                {isPro ? "Pro" : t.freePlan}
               </Text>
             </View>
           </View>
@@ -141,31 +173,62 @@ export default function SettingsScreen() {
 
       {/* ── Subscription ── */}
       <Text className="mt-8 font-display text-lg font-extrabold text-ink">
-        {t.subscription}
+        {t.subscription ?? "Abonnement"}
       </Text>
       <View
         className="mt-3 rounded-2xl border-2 border-ink bg-paper p-5"
         style={brutal}
       >
-        <View className="flex-row items-center justify-between">
-          <View className="flex-1">
-            <Text className="font-display text-lg font-bold text-ink">
-              {t.freePlan}
-            </Text>
-            <Text className="mt-1 font-sans text-sm text-ink-soft">
-              1 alerte active
-            </Text>
-          </View>
-          <TouchableOpacity
-            className="rounded-xl border-2 border-blue bg-blue px-5 py-2.5"
-            style={brutalSm}
-            activeOpacity={0.8}
-          >
-            <Text className="font-display text-xs font-bold uppercase tracking-widest text-paper">
-              {t.upgrade}
-            </Text>
-          </TouchableOpacity>
-        </View>
+        {subLoading ? (
+          <ActivityIndicator color="#0b0b0b" />
+        ) : (
+          <>
+            <View className="flex-row items-center justify-between">
+              <View className="flex-1">
+                <View className="flex-row items-center gap-2">
+                  <Text className="font-display text-lg font-bold text-ink">
+                    {isPro ? "Pro" : t.freePlan}
+                  </Text>
+                  {isPro && (
+                    <Crown size={16} color="#f47b20" strokeWidth={2.5} />
+                  )}
+                </View>
+                <Text className="mt-1 font-sans text-sm text-ink/50">
+                  {isPro
+                    ? periodEndLabel
+                      ? `Renouvellement le ${periodEndLabel}`
+                      : "Abonnement actif"
+                    : "3 alertes actives max"}
+                </Text>
+              </View>
+              {isPro ? (
+                <TouchableOpacity
+                  onPress={handleManageSubscription}
+                  className="flex-row items-center gap-1.5 rounded-xl border-2 border-ink bg-paper px-4 py-2.5"
+                  style={brutalSm}
+                  activeOpacity={0.8}
+                >
+                  <Text className="font-display text-xs font-bold uppercase tracking-widest text-ink">
+                    Gérer
+                  </Text>
+                  <ArrowRight size={14} color="#0b0b0b" />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => router.push("/upgrade")}
+                  className="flex-row items-center gap-1.5 rounded-xl border-2 border-blue bg-blue px-4 py-2.5"
+                  style={brutalSm}
+                  activeOpacity={0.8}
+                >
+                  <Text className="font-display text-xs font-bold uppercase tracking-widest text-white">
+                    {t.upgrade ?? "Upgrade"}
+                  </Text>
+                  <ArrowRight size={14} color="#fff" />
+                </TouchableOpacity>
+              )}
+            </View>
+          </>
+        )}
       </View>
 
       {/* ── Danger zone ── */}
@@ -173,9 +236,9 @@ export default function SettingsScreen() {
         {t.dangerZone}
       </Text>
       <View className="mt-3 rounded-2xl border border-destructive/40 bg-destructive/5 p-5">
-        <Text className="mb-4 font-sans text-sm leading-relaxed text-ink-soft">
-          Une fois supprimees, toutes tes donnees seront definitivement
-          effacees. Cette action est irreversible.
+        <Text className="mb-4 font-sans text-sm leading-relaxed text-ink/50">
+          Une fois supprimées, toutes tes données seront définitivement
+          effacées. Cette action est irréversible.
         </Text>
         <TouchableOpacity
           className="h-12 items-center justify-center rounded-xl border-2 border-destructive bg-destructive"
@@ -187,7 +250,7 @@ export default function SettingsScreen() {
           {deleting ? (
             <ActivityIndicator color="#ffffff" />
           ) : (
-            <Text className="font-display text-sm font-bold uppercase tracking-widest text-paper">
+            <Text className="font-display text-sm font-bold uppercase tracking-widest text-white">
               {t.deleteAccount}
             </Text>
           )}
