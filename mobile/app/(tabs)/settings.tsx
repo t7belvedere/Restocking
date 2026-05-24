@@ -83,8 +83,6 @@ export default function SettingsScreen() {
       )
     : null;
 
-  const isPro = sub?.plan === "pro";
-
   return (
     <ScrollView
       className="flex-1 bg-cream"
