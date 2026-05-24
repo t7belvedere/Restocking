@@ -1,72 +1,100 @@
 import { View, Text } from "react-native";
 
+const ORANGE = "#ff803d"; // matches oklch(0.74 0.19 45) visually
+
+/**
+ * Favicon logo matching frontend/public/favicon.svg.
+ * White circle + black border + orange ping dot + pulse ring.
+ */
 export function AppLogo({ size = 64 }: { size?: number }) {
-  const stroke = Math.max(2, size * 0.04);
-  const dotSize = size * 0.28;
-  const ringSize = size * 0.5;
-  const inner = size - stroke * 2;
+  // Scale from 100px SVG viewBox
+  const s = size / 100;
+  const stroke = Math.round(4 * s);
+  const outerR = 48 * s;
+  const dim = outerR * 2 + stroke * 2;
+  const center = dim / 2;
+  const glowR = 36 * s;
+  const dotR = 12 * s;
+  const highlightR = 5 * s;
+  const ringR = 22 * s;
+  const ringStroke = Math.max(1, Math.round(2.5 * s));
 
   return (
-    <View
-      style={{
-        width: size,
-        height: size,
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      {/* Outer circle */}
+    <View style={{ width: dim, height: dim }}>
+      {/* White circle + black border */}
       <View
         style={{
-          width: size,
-          height: size,
-          borderRadius: size / 2,
+          position: "absolute",
+          width: dim,
+          height: dim,
+          borderRadius: dim / 2,
           borderWidth: stroke,
-          borderColor: "#0b0b0b",
-          backgroundColor: "#fbf8f0",
-          position: "absolute",
+          borderColor: "#1a1a1a",
+          backgroundColor: "#ffffff",
         }}
       />
-      {/* Orange glow ring */}
+      {/* Orange glow (subtle) */}
       <View
         style={{
-          width: ringSize,
-          height: ringSize,
-          borderRadius: ringSize / 2,
-          borderWidth: stroke * 1.2,
-          borderColor: "#ff803d",
-          opacity: 0.55,
           position: "absolute",
+          top: center - glowR,
+          left: center - glowR,
+          width: glowR * 2,
+          height: glowR * 2,
+          borderRadius: glowR,
+          backgroundColor: ORANGE,
+          opacity: 0.15,
         }}
       />
-      {/* Center dot */}
+      {/* Orange center dot */}
       <View
         style={{
-          width: dotSize,
-          height: dotSize,
-          borderRadius: dotSize / 2,
-          backgroundColor: "#ff803d",
           position: "absolute",
+          top: center - dotR,
+          left: center - dotR,
+          width: dotR * 2,
+          height: dotR * 2,
+          borderRadius: dotR,
+          backgroundColor: ORANGE,
         }}
       />
-      {/* Highlight */}
+      {/* White highlight on dot */}
       <View
         style={{
-          width: dotSize * 0.35,
-          height: dotSize * 0.35,
-          borderRadius: (dotSize * 0.35) / 2,
-          backgroundColor: "#fff",
+          position: "absolute",
+          top: center - dotR * 0.5,
+          left: center + dotR * 0.05,
+          width: highlightR * 2,
+          height: highlightR * 2,
+          borderRadius: highlightR,
+          backgroundColor: "#ffffff",
           opacity: 0.5,
+        }}
+      />
+      {/* Orange pulse ring */}
+      <View
+        style={{
           position: "absolute",
-          top: size * 0.5 - dotSize * 0.5 + dotSize * 0.05,
-          left: size * 0.5 - dotSize * 0.22,
+          top: center - ringR,
+          left: center - ringR,
+          width: ringR * 2,
+          height: ringR * 2,
+          borderRadius: ringR,
+          borderWidth: ringStroke,
+          borderColor: ORANGE,
+          opacity: 0.55,
         }}
       />
     </View>
   );
 }
 
-export function AppLogoWordmark({ size = 28 }: { size?: number }) {
+/**
+ * Wordmark matching frontend/components/site/logo.tsx
+ * "restocking" in Bricolage Grotesque ExtraBold + orange trailing dot.
+ * The second "o" is NOT decorated here — the AppLogo icon handles that.
+ */
+export function AppLogoWordmark({ size = 22 }: { size?: number }) {
   return (
     <View style={{ flexDirection: "row", alignItems: "baseline" }}>
       <Text
@@ -82,9 +110,8 @@ export function AppLogoWordmark({ size = 28 }: { size?: number }) {
       <Text
         style={{
           fontFamily: "BricolageGrotesque_800ExtraBold",
-          fontSize: size,
-          letterSpacing: -0.5,
-          color: "#ff803d",
+          fontSize: size + 2,
+          color: ORANGE,
         }}
       >
         .
