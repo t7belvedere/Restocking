@@ -58,7 +58,7 @@ export function OrganizationJsonLd() {
 export function FaqJsonLd({
   questions,
 }: {
-  questions: { q: string; a: string }[];
+  questions: readonly { q: string; a: string }[];
 }) {
   const jsonLd = {
     "@context": "https://schema.org",
