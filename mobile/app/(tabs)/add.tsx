@@ -17,20 +17,7 @@ import { analyzeUrl, type AnalyzeResult } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "expo-router";
 
-// ─── Shadow tokens ───────────────────────────────────────────────────────────
-const shadowBrutal = {
-  shadowColor: "#262626",
-  shadowOffset: { width: 4, height: 4 },
-  shadowOpacity: 1,
-  shadowRadius: 0,
-} as const;
-
-const shadowBrutalSm = {
-  shadowColor: "#262626",
-  shadowOffset: { width: 2, height: 2 },
-  shadowOpacity: 1,
-  shadowRadius: 0,
-} as const;
+import { brutal, brutalSm } from "@/lib/shadows";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function extractDomain(url: string): string {
@@ -202,7 +189,7 @@ export default function AddWatch() {
         {/* Checkmark in lime circle */}
         <View
           className="mb-6 h-24 w-24 items-center justify-center rounded-full border-2 border-ink bg-lime"
-          style={shadowBrutal}
+          style={brutal}
         >
           <Text className="font-display text-4xl text-ink">&#10003;</Text>
         </View>
@@ -215,7 +202,7 @@ export default function AddWatch() {
           <TouchableOpacity
             onPress={reset}
             className="items-center rounded-xl border-2 border-ink bg-paper px-6 py-4"
-            style={shadowBrutalSm}
+            style={brutalSm}
           >
             <Text className="font-sans-semibold text-base text-ink">
               + Ajouter un autre article
@@ -225,7 +212,7 @@ export default function AddWatch() {
           <TouchableOpacity
             onPress={() => router.push("/(tabs)")}
             className="items-center rounded-xl border-2 border-ink bg-ink px-6 py-4"
-            style={shadowBrutal}
+            style={brutal}
           >
             <Text className="font-display text-base font-bold uppercase tracking-wider text-paper">
               Voir mes alertes
@@ -263,7 +250,7 @@ export default function AddWatch() {
           {/* ── Product preview card ──────────────────────────────────── */}
           <View
             className="rounded-2xl border-2 border-ink bg-paper p-5"
-            style={shadowBrutal}
+            style={brutal}
           >
             {/* Product image */}
             {result.image_url ? (
@@ -322,7 +309,7 @@ export default function AddWatch() {
                             ? "border-ink/20 bg-muted opacity-40"
                             : "border-ink bg-paper"
                       }`}
-                      style={isSelected ? shadowBrutalSm : undefined}
+                      style={isSelected ? brutalSm : undefined}
                     >
                       <Text
                         className={`font-sans-medium text-sm ${
@@ -367,7 +354,7 @@ export default function AddWatch() {
                             ? "border-ink/20 bg-muted opacity-40"
                             : "border-ink bg-paper"
                       }`}
-                      style={isSelected ? shadowBrutalSm : undefined}
+                      style={isSelected ? brutalSm : undefined}
                     >
                       <Text
                         className={`font-sans-medium text-sm ${
@@ -414,7 +401,7 @@ export default function AddWatch() {
             <TouchableOpacity
               onPress={goBackToInput}
               className="flex-1 items-center rounded-xl border-2 border-ink bg-paper px-6 py-4"
-              style={shadowBrutalSm}
+              style={brutalSm}
             >
               <Text className="font-sans-semibold text-base text-ink">
                 {t.cancel}
@@ -425,7 +412,7 @@ export default function AddWatch() {
               onPress={handleCreate}
               disabled={creating}
               className="flex-1 items-center rounded-xl border-2 border-ink bg-ink px-6 py-4"
-              style={shadowBrutal}
+              style={brutal}
             >
               {creating ? (
                 <ActivityIndicator color="#F9F8F6" />
@@ -478,7 +465,7 @@ export default function AddWatch() {
           onSubmitEditing={handleAnalyze}
           returnKeyType="go"
           editable={step !== "loading"}
-          style={shadowBrutalSm}
+          style={brutalSm}
         />
 
         {/* Analyse button */}
@@ -486,7 +473,7 @@ export default function AddWatch() {
           onPress={handleAnalyze}
           disabled={step === "loading"}
           className="mt-4 h-14 items-center justify-center rounded-xl border-2 border-ink bg-ink"
-          style={shadowBrutal}
+          style={brutal}
         >
           {step === "loading" ? (
             <ActivityIndicator color="#F9F8F6" />

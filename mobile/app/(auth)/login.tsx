@@ -13,13 +13,7 @@ import { Link } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
-
-const shadowBrutalSm = {
-  shadowColor: "#262626",
-  shadowOffset: { width: 2, height: 2 },
-  shadowOpacity: 1,
-  shadowRadius: 0,
-} as const;
+import { brutalSm } from "@/lib/shadows";
 
 export default function Login() {
   const { signIn } = useAuth();
@@ -71,7 +65,7 @@ export default function Login() {
         <View className="mb-6 items-center">
           <View
             className="rounded-full border-2 border-ink bg-lime/20 px-3 py-1"
-            style={shadowBrutalSm}
+            style={brutalSm}
           >
             <Text className="font-display text-xs font-bold uppercase tracking-[0.18em] text-ink">
               Surveillance de stock
@@ -90,7 +84,7 @@ export default function Login() {
           onPress={handleGoogleSignIn}
           disabled={googleLoading}
           className="mb-4 h-12 items-center justify-center rounded-xl border-2 border-ink bg-paper"
-          style={shadowBrutalSm}
+          style={brutalSm}
           activeOpacity={0.8}
         >
           {googleLoading ? (
@@ -114,7 +108,7 @@ export default function Login() {
         {/* ── Email input ── */}
         <TextInput
           className="mb-3 h-12 rounded-xl border-2 border-ink bg-paper px-4 text-base text-ink"
-          style={shadowBrutalSm}
+          style={brutalSm}
           placeholder="hello@example.com"
           placeholderTextColor="#A3A3A3"
           keyboardType="email-address"
@@ -127,7 +121,7 @@ export default function Login() {
         {/* ── Password input ── */}
         <TextInput
           className="mb-2 h-12 rounded-xl border-2 border-ink bg-paper px-4 text-base text-ink"
-          style={shadowBrutalSm}
+          style={brutalSm}
           placeholder="..."
           placeholderTextColor="#A3A3A3"
           secureTextEntry

@@ -13,13 +13,7 @@ import { Link } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { Mail } from "lucide-react-native";
-
-const shadowBrutalSm = {
-  shadowColor: "#262626",
-  shadowOffset: { width: 2, height: 2 },
-  shadowOpacity: 1,
-  shadowRadius: 0,
-} as const;
+import { brutalSm } from "@/lib/shadows";
 
 export default function Register() {
   const { signUp } = useAuth();
@@ -97,7 +91,7 @@ export default function Register() {
         {/* ── Email input ── */}
         <TextInput
           className="mb-3 h-12 rounded-xl border-2 border-ink bg-paper px-4 text-base text-ink"
-          style={shadowBrutalSm}
+          style={brutalSm}
           placeholder="hello@example.com"
           placeholderTextColor="#A3A3A3"
           keyboardType="email-address"
@@ -110,7 +104,7 @@ export default function Register() {
         {/* ── Password input ── */}
         <TextInput
           className="mb-3 h-12 rounded-xl border-2 border-ink bg-paper px-4 text-base text-ink"
-          style={shadowBrutalSm}
+          style={brutalSm}
           placeholder="..."
           placeholderTextColor="#A3A3A3"
           secureTextEntry

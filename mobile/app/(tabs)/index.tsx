@@ -33,22 +33,7 @@ interface Watch {
   created_at: string;
 }
 
-// ── Neo-brutalist hard shadows ───────────────────────────────────────────
-const shadowBrutalSm = {
-  shadowColor: "#262626",
-  shadowOffset: { width: 2, height: 2 },
-  shadowOpacity: 1,
-  shadowRadius: 0,
-  elevation: 4,
-} as const;
-
-const shadowBrutal = {
-  shadowColor: "#262626",
-  shadowOffset: { width: 4, height: 4 },
-  shadowOpacity: 1,
-  shadowRadius: 0,
-  elevation: 8,
-} as const;
+import { brutal, brutalSm } from "@/lib/shadows";
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -280,7 +265,7 @@ export default function Dashboard() {
       <TouchableOpacity activeOpacity={0.9}>
         <View
           className="flex-row items-start gap-3 rounded-2xl border-2 border-ink bg-paper p-4"
-          style={shadowBrutalSm}
+          style={brutalSm}
         >
           {/* Product image */}
           {item.image_url ? (
@@ -361,7 +346,7 @@ export default function Dashboard() {
           <View className="relative">
             <View
               className="h-14 w-14 items-center justify-center rounded-2xl border-2 border-ink bg-lime"
-              style={shadowBrutalSm}
+              style={brutalSm}
             >
               <Text className="text-2xl">{"🔔"}</Text>
             </View>
@@ -386,7 +371,7 @@ export default function Dashboard() {
           <TouchableOpacity
             onPress={() => router.push("/(tabs)/add")}
             className="w-full rounded-xl border-2 border-ink bg-orange px-8 py-3.5"
-            style={shadowBrutalSm}
+            style={brutalSm}
             activeOpacity={0.85}
           >
             <Text className="text-center font-display-bold text-base uppercase tracking-widest text-ink">
@@ -433,7 +418,7 @@ export default function Dashboard() {
         <TouchableOpacity
           onPress={() => router.push("/(tabs)/add")}
           className="w-full flex-row items-center justify-center gap-2 rounded-xl border-2 border-ink bg-orange py-3.5"
-          style={shadowBrutal}
+          style={brutal}
           activeOpacity={0.85}
         >
           <Text className="font-display-bold text-lg text-ink">+</Text>
@@ -449,7 +434,7 @@ export default function Dashboard() {
           <View
             key={s.label}
             className="w-[47%] rounded-2xl border-2 border-ink/20 bg-cream/50 p-4"
-            style={shadowBrutalSm}
+            style={brutalSm}
           >
             <View className="flex-row items-start gap-3">
               <StatIcon emoji={s.emoji} bg={s.iconBg} />
