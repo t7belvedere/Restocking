@@ -262,6 +262,13 @@ _ADD_TO_CART_SELECTORS = [
     'button[type="submit"][name*="bag"]',
     "button.add-to-cart",
     "button.add_to_cart",
+    "button.btn-add-to-cart",
+    "button.btn-add-to-bag",
+    'button[id*="add-to-cart"]',
+    'button[id*="add-to-bag"]',
+    'button[aria-label*="add to cart" i]',
+    'button[aria-label*="ajouter au panier" i]',
+    'button[aria-label*="add to bag" i]',
 ]
 
 _DISABLED_CLASS_FRAGMENTS = frozenset(
@@ -440,6 +447,14 @@ _OUT_OF_STOCK_KEYWORDS = [
     "indisponible",
     "currently unavailable",
     "hors stock",
+    "non disponible",
+    "non-disponible",
+    "bientôt disponible",  # coming soon = not available now
+    "coming soon",
+    "en rupture",
+    "stock épuisé",
+    "plus de stock",
+    "victime de son succès",  # French euphemism for sold out
 ]
 
 _IN_STOCK_KEYWORDS = [
@@ -449,6 +464,10 @@ _IN_STOCK_KEYWORDS = [
     "en stock",
     "in stock",
     "available",
+    "buy now",
+    "disponible",
+    "acheter maintenant",
+    "commander",
 ]
 
 

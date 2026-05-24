@@ -124,14 +124,13 @@ def _is_due(watch: dict) -> bool:
         )
         return True
 
-    # Watches that have never been successfully checked — always due.
-    # UNKNOWN is the initial status at creation, and also the status when
-    # detection fails. We want to retry immediately on every loop until
-    # we get a definitive IN_STOCK or OUT_OF_STOCK.
-    if watch.get("last_status") == "UNKNOWN":
-        return True
-
     interval = CHECK_INTERVAL_PRO if watch.get("plan") == "pro" else CHECK_INTERVAL_FREE
+
+    # UNKNOWN watches: retry after 120s instead of immediately.
+    # Prevents infinite re-check loops when stock detection can't read a page.
+    if watch.get("last_status") == "UNKNOWN":
+        interval = 120
+
     elapsed = (datetime.now(timezone.utc) - last_check).total_seconds()
     return elapsed >= interval
 
