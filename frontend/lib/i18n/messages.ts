@@ -3,6 +3,35 @@ export type Locale = "fr" | "en";
 export const LOCALES: Locale[] = ["fr", "en"];
 export const DEFAULT_LOCALE: Locale = "fr";
 
+export type DashboardMessages = {
+  greeting: (name: string | null) => string;
+  addAlert: string;
+  upgradeToPro: string;
+  stats: {
+    activeAlerts: string;
+    paused: (n: number) => string;
+    inStock: string;
+    inStockSub: string;
+    lastCheck: string;
+    workerActive: string;
+    plan: string;
+    manage: string;
+  };
+  limitReached: string;
+  limitBody: (active: number, plan: string, max: number) => string;
+  emptyTitle: (name: string | null) => string;
+  emptyBody: string;
+  emptyCta: string;
+  emptyFooter: string;
+  relativeTime: {
+    now: string;
+    sec: (n: number) => string;
+    min: (n: number) => string;
+    hour: (n: number) => string;
+    day: (n: number) => string;
+  };
+};
+
 export const messages = {
   fr: {
     nav: {
@@ -399,6 +428,35 @@ export const messages = {
       saving: "Sauvegarde…",
       saved: "Sauvegardé !",
       saveError: "Erreur lors de la sauvegarde.",
+    },
+    dashboard: {
+      greeting: (name: string | null) => name ? `Bonjour ${name}` : "Mes alertes",
+      addAlert: "Ajouter une alerte",
+      upgradeToPro: "Passer à Pro",
+      stats: {
+        activeAlerts: "Alertes actives",
+        paused: (n: number) => `${n} en pause`,
+        inStock: "En stock",
+        inStockSub: "En ce moment",
+        lastCheck: "Dernier check",
+        workerActive: "Worker actif",
+        plan: "Plan",
+        manage: "Gérer →",
+      },
+      limitReached: "Limite atteinte",
+      limitBody: (active: number, plan: string, max: number) =>
+        `Vous avez ${active} alertes actives sur votre plan ${plan} (max ${max}). Passez à Pro pour 20 alertes et des checks toutes les 5 minutes.`,
+      emptyTitle: (name: string | null) => name ? `Prêt à traquer, ${name} ?` : "Prêt à commencer ?",
+      emptyBody: "Colle l'URL d'un produit qui t'a échappé, choisis ta taille, et on s'occupe du reste.",
+      emptyCta: "Ajouter ma première alerte",
+      emptyFooter: "Zara, COS, Aritzia, Sézane, Uniqlo et 120+ autres marques",
+      relativeTime: {
+        now: "à l'instant",
+        sec: (n: number) => `il y a ${n}s`,
+        min: (n: number) => `il y a ${n} min`,
+        hour: (n: number) => `il y a ${n}h`,
+        day: (n: number) => `il y a ${n}j`,
+      },
     },
     auth: {
       signIn: "Se connecter",
@@ -868,6 +926,35 @@ export const messages = {
       saving: "Saving…",
       saved: "Saved!",
       saveError: "Error saving.",
+    },
+    dashboard: {
+      greeting: (name: string | null) => name ? `Welcome back, ${name}` : "My alerts",
+      addAlert: "Add an alert",
+      upgradeToPro: "Go Pro",
+      stats: {
+        activeAlerts: "Active alerts",
+        paused: (n: number) => `${n} paused`,
+        inStock: "In stock",
+        inStockSub: "Right now",
+        lastCheck: "Last check",
+        workerActive: "Worker active",
+        plan: "Plan",
+        manage: "Manage →",
+      },
+      limitReached: "Limit reached",
+      limitBody: (active: number, plan: string, max: number) =>
+        `You have ${active} active alerts on your ${plan} plan (max ${max}). Upgrade to Pro for 20 alerts and checks every 5 minutes.`,
+      emptyTitle: (name: string | null) => name ? `Ready to hunt, ${name}?` : "Ready to start?",
+      emptyBody: "Paste the URL of a product you missed, pick your size, and we'll handle the rest.",
+      emptyCta: "Add my first alert",
+      emptyFooter: "Zara, COS, Aritzia, Sézane, Uniqlo and 120+ other brands",
+      relativeTime: {
+        now: "just now",
+        sec: (n: number) => `${n}s ago`,
+        min: (n: number) => `${n} min ago`,
+        hour: (n: number) => `${n}h ago`,
+        day: (n: number) => `${n}d ago`,
+      },
     },
     auth: {
       signIn: "Sign in",
