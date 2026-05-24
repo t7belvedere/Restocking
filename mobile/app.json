@@ -42,6 +42,13 @@
       "expo-web-browser",
       "expo-font",
       "expo-splash-screen"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "60c18899-7df7-4846-91ba-ec1c365b5de0"
+      }
+    },
+    "owner": "0xosx"
   }
 }
