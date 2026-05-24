@@ -24,3 +24,21 @@
 - Stock detection: 4-layer strategy (dataLayer, button state, variant attributes, text analysis)
 - Double confirmation: requires two consecutive IN_STOCK detections before alerting
 - GDPR compliant, no data resale, no third-party tracking
+
+## Key Differentiators
+
+- Size-specific monitoring (not just "product back in stock")
+- European-first retailer coverage (Zara, COS, Aritzia, Sézane, Mango, Uniqlo, & more)
+- <5 minute detection via continuous polling
+- No browser extension required — cloud-based worker
+- Freemium: Free (3 alerts) and Pro (€5.99/mo unlimited)
+- Email + SMS notifications
+- Double-confirmation prevents false positives
+
+## Target Audience
+
+Fashion-conscious European shoppers (primarily women 18-45) who miss out on popular items because their size sells out within minutes. Active on communities like r/Aritzia, r/femalefashionadvice, and Discord fashion servers.
+
+## Keywords
+
+restock alerts, back in stock notification, fashion restock tracker, Zara restock alert, COS stock checker, Aritzia restock, Sézane back in stock, size-specific alerts, European fashion monitoring, stock availability tracker, retour en stock alerte, alerte disponibilité taille, mode européenne rupture de stock
