@@ -370,7 +370,8 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
     # Common French/English color names that look like short size tokens
     _COLOR_WORDS = {
         "BLANC", "NOIR", "ROUGE", "BLEU", "VERT", "ROSE", "GRIS", "JAUNE",
-        "MARRON", "BEIGE", "VIOLET", "ORANGE", "TURQUOISE", "KAKI", "IVOIRE",
+        "MARRON", "BRUN", "BEIGE", "VIOLET", "ORANGE", "TURQUOISE", "KHAKI",
+        "KAKI", "IVOIRE", "CRÈME", "CREME", "ECRU", "ÉCRU", "ARGENT", "OR",
         "WHITE", "BLACK", "RED", "BLUE", "GREEN", "PINK", "GREY", "GRAY",
         "YELLOW", "BROWN", "PURPLE", "SILVER", "GOLD", "NAVY", "CREAM",
     }
@@ -423,6 +424,8 @@ def _extract_css_sizes(page) -> list[str]:
     for sel in (
         "[data-qa-action=size-selector] li",
         "[data-qa-action=size-selector] button",
+        "[data-testid*=size-selector] button",
+        "[data-testid*=size-selector] span",
         "[class*=size-selector] button",
         "[class*=size-selector] li",
         "[class*=product-size] button",
@@ -434,8 +437,16 @@ def _extract_css_sizes(page) -> list[str]:
                 txt = getattr(el, "get_all_text", lambda: "")()
                 if isinstance(txt, str):
                     txt = txt.strip()
+                    if not txt:
+                        continue
+                    # Combined sizes like "XS/S" → split
+                    if "/" in txt and len(txt) <= 10:
+                        for part in txt.split("/"):
+                            part = part.strip()
+                            if part.upper() in _SIZE_SET:
+                                found.add(part)
                     # Sizes are short tokens, not long descriptions
-                    if txt and len(txt) <= 6 and txt.upper() in _SIZE_SET:
+                    elif len(txt) <= 6 and (txt.upper() in _SIZE_SET or txt.isdigit()):
                         found.add(txt)
         except Exception:
             pass
@@ -737,6 +748,7 @@ async def analyze(url: str = Query(min_length=1)):
 
     html: str | None = None
     page = None
+    _was_playwright = False  # track whether we already tried Playwright
 
     proxy = os.getenv("PROXY_URL")
 
@@ -756,6 +768,7 @@ async def analyze(url: str = Query(min_length=1)):
 
     # Level 2 — Playwright stealth
     if html is None:
+        _was_playwright = True
         try:
             pw_kwargs = {
                 "headless": True,
@@ -802,6 +815,33 @@ async def analyze(url: str = Query(min_length=1)):
 
     # --- Universal extraction from rendered DOM + raw HTML ---
     result = _universal_extract(page, html, url)
+
+    # If no sizes found and we only did Level 1 HTTP, try Playwright
+    # for JS-rendered size selectors (COS, other SPA retailers).
+    logger.debug("Post-extract: sizes=%s was_playwright=%s", result.get("sizes"), _was_playwright)
+    if not result.get("sizes") and page is not None and not _was_playwright:
+        try:
+            pw_page = await _asyncio.to_thread(
+                PlayWrightFetcher.fetch,
+                url,
+                headless=True,
+                stealth=True,
+                hide_canvas=True,
+                disable_resources=True,
+                timeout=20000,
+                wait=2000,
+            )
+            pw_html = getattr(pw_page, "html_content", "")
+            if pw_html:
+                pw_result = _universal_extract(pw_page, pw_html, url)
+                if pw_result["sizes"]:
+                    result["sizes"] = pw_result["sizes"]
+                if pw_result["colors"]:
+                    result["colors"] = pw_result["colors"]
+                if pw_result["variants"]:
+                    result["variants"] = pw_result["variants"]
+        except Exception:
+            logger.debug("Playwright fallback for sizes failed", exc_info=True)
 
     return {
         "ok": True,
