@@ -400,20 +400,13 @@ function AnalyzeProgress({ current, message }: { current: string; message: strin
                 <div className="flex flex-col items-center gap-1.5">
                   <motion.div
                     initial={false}
-                    animate={{
-                      scale: isActive ? 1.1 : 1,
-                      borderColor: isDone
-                        ? "rgb(16 185 129)" // emerald-500
-                        : isActive
-                          ? "var(--brand-orange)"
-                          : "rgb(212 212 216)", // zinc-300
-                      backgroundColor: isDone
-                        ? "rgb(16 185 129)"
-                        : isActive
-                          ? "var(--brand-orange)"
-                          : "transparent",
-                    }}
-                    className="flex h-7 w-7 items-center justify-center rounded-full border-2"
+                    animate={{ scale: isActive ? 1.1 : 1 }}
+                    className={cn(
+                      "flex h-7 w-7 items-center justify-center rounded-full border-2",
+                      isDone && "border-emerald-500 bg-emerald-500",
+                      isActive && "border-[var(--brand-orange)] bg-[var(--brand-orange)]",
+                      !isDone && !isActive && "border-zinc-300 bg-transparent",
+                    )}
                   >
                     {isDone ? (
                       <Check className="h-3.5 w-3.5 text-white" />
@@ -443,12 +436,12 @@ function AnalyzeProgress({ current, message }: { current: string; message: strin
                   <div className="mx-2 mb-5 h-0.5 w-8 rounded-full overflow-hidden">
                     <motion.div
                       initial={false}
-                      animate={{
-                        width: isDone ? "100%" : "0%",
-                        backgroundColor: isDone ? "rgb(16 185 129)" : "rgb(212 212 216)",
-                      }}
+                      animate={{ width: isDone ? "100%" : "0%" }}
                       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                      className="h-full rounded-full"
+                      className={cn(
+                        "h-full rounded-full",
+                        isDone ? "bg-emerald-500" : "bg-zinc-300",
+                      )}
                     />
                   </div>
                 )}
