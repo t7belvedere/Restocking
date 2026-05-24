@@ -1,10 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowUpRight, Pause } from "lucide-react";
+import { motion } from "motion/react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Watch, WatchStatus } from "@/lib/supabase/types";
 import { formatDateTime, formatPrice, shortHost } from "@/lib/utils";
+import { stagger, listItem } from "@/lib/animations";
 
 const STATUS_LABEL: Record<WatchStatus, string> = {
   IN_STOCK: "En stock",
@@ -61,14 +65,19 @@ interface WatchListProps {
 
 export function WatchList({ watches }: WatchListProps) {
   return (
-    <div className="grid gap-4">
+    <motion.div
+      className="grid gap-4"
+      variants={stagger}
+      initial="hidden"
+      animate="visible"
+    >
       {watches.map((w) => (
-        <Link
-          key={w.id}
-          href={`/dashboard/watches/${w.id}`}
-          className="group rounded-2xl outline-none transition-transform focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <Card className="flex flex-col gap-4 p-4 transition-shadow group-hover:shadow-md sm:flex-row sm:items-center">
+        <motion.div key={w.id} variants={listItem}>
+          <Link
+            href={`/dashboard/watches/${w.id}`}
+            className="group rounded-2xl outline-none transition-transform focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Card className="flex flex-col gap-4 p-4 transition-shadow group-hover:shadow-md sm:flex-row sm:items-center">
             <div className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-muted">
               {w.image_url ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
@@ -114,8 +123,9 @@ export function WatchList({ watches }: WatchListProps) {
             </div>
           </Card>
         </Link>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }
 

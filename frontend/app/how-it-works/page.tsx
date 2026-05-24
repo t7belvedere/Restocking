@@ -4,6 +4,11 @@ import Link from "next/link";
 import { ArrowRight, Clipboard, Bell, Sparkles, ShieldCheck, MapPin, RefreshCcw } from "lucide-react";
 import { useLocale } from "@/components/site/locale-provider";
 import { WaitlistForm } from "@/components/site/waitlist-form";
+import {
+  ScrollReveal,
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/ui/scroll-reveal";
 
 const STEP_ASSETS = [
   "https://static.prod-images.emergentagent.com/jobs/40fdc8e3-cfec-4df7-8e98-e85f89d6fe27/images/900cf514768684e136ea91a398eefac18ad6e9aa5d094d05f3780a8e1cb11a73.png",
@@ -28,25 +33,31 @@ export default function HowItWorksPage() {
       <section className="relative border-b-2 border-ink">
         <div className="dot-paper absolute inset-0" aria-hidden />
         <div className="container relative mx-auto max-w-6xl px-5 py-20 lg:px-8 lg:py-24">
-          <span className="inline-flex items-center gap-2 rounded-full border-2 border-ink bg-paper px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.18em] shadow-brutal-sm">
-            <Sparkles className="h-3.5 w-3.5 text-[var(--brand-orange)]" />
-            {t.how.eyebrow}
-          </span>
-          <h1 className="mt-6 max-w-4xl font-display text-5xl font-extrabold leading-none tracking-tighter md:text-7xl">
-            {t.how.title}
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg text-ink/70">{t.how.sub}</p>
+          <ScrollReveal>
+            <span className="inline-flex items-center gap-2 rounded-full border-2 border-ink bg-paper px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.18em] shadow-brutal-sm">
+              <Sparkles className="h-3.5 w-3.5 text-[var(--brand-orange)]" />
+              {t.how.eyebrow}
+            </span>
+          </ScrollReveal>
+          <ScrollReveal delay={0.1}>
+            <h1 className="mt-6 max-w-4xl font-display text-5xl font-extrabold leading-none tracking-tighter md:text-7xl">
+              {t.how.title}
+            </h1>
+          </ScrollReveal>
+          <ScrollReveal delay={0.2}>
+            <p className="mt-6 max-w-2xl text-lg text-ink/70">{t.how.sub}</p>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* BENTO STEPS */}
       <section className="border-b-2 border-ink bg-cream">
         <div className="container mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
-          <div className="grid gap-6 lg:grid-cols-3">
+          <StaggerContainer className="grid gap-6 lg:grid-cols-3">
             {t.how.steps.map((step, i) => {
               const Icon = STEP_ICONS[i];
               return (
-                <div
+                <StaggerItem
                   key={step.n}
                   data-testid={`step-${i + 1}-card`}
                   className={`relative flex flex-col rounded-3xl border-2 border-ink p-7 shadow-brutal-lg ${STEP_BGS[i]}`}
@@ -78,65 +89,72 @@ export default function HowItWorksPage() {
                       className="h-full w-full object-contain drop-shadow-[2px_2px_0_var(--ink)]"
                     />
                   </div>
-                </div>
+                </StaggerItem>
               );
             })}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 
       {/* DETAILS */}
       <section className="border-b-2 border-ink bg-paper" data-testid="under-the-hood">
         <div className="container mx-auto max-w-6xl px-5 py-20 lg:px-8 lg:py-24">
-          <h2 className="font-display text-4xl font-extrabold leading-tight tracking-tighter md:text-5xl">
-            {t.how.detailsTitle}
-          </h2>
-          <div className="mt-12 grid gap-5 md:grid-cols-2">
+          <ScrollReveal>
+            <h2 className="font-display text-4xl font-extrabold leading-tight tracking-tighter md:text-5xl">
+              {t.how.detailsTitle}
+            </h2>
+          </ScrollReveal>
+          <StaggerContainer className="mt-12 grid gap-5 md:grid-cols-2">
             {t.how.details.map((d, i) => {
               const Icon = DETAIL_ICONS[i % DETAIL_ICONS.length];
               return (
-                <div
+                <StaggerItem
                   key={d.title}
                   data-testid={`detail-${i}`}
-                  className="group flex gap-4 rounded-3xl border-2 border-ink bg-cream p-6 transition-transform hover-lift"
                 >
-                  <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 border-ink bg-[var(--brand-lime)]">
-                    <Icon className="h-5 w-5 text-ink" />
-                  </span>
-                  <div>
-                    <h3 className="font-display text-xl font-bold tracking-tight text-ink">
-                      {d.title}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-ink/70">
-                      {d.body}
-                    </p>
+                  <div className="group flex gap-4 rounded-3xl border-2 border-ink bg-cream p-6 transition-transform hover-lift">
+                    <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 border-ink bg-[var(--brand-lime)]">
+                      <Icon className="h-5 w-5 text-ink" />
+                    </span>
+                    <div>
+                      <h3 className="font-display text-xl font-bold tracking-tight text-ink">
+                        {d.title}
+                      </h3>
+                      <p className="mt-2 text-sm leading-relaxed text-ink/70">
+                        {d.body}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                </StaggerItem>
               );
             })}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 
       {/* CTA */}
       <section className="border-b-2 border-ink bg-[var(--brand-orange)]">
         <div className="container mx-auto max-w-5xl px-5 py-16 lg:px-8 lg:py-20">
-          <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
-            <h2 className="font-display text-3xl font-extrabold leading-tight tracking-tighter text-ink md:text-5xl">
-              {t.home.bigCtaTitle}
-            </h2>
-            <Link
-              href="/#waitlist"
-              data-testid="how-to-waitlist-cta"
-              className="inline-flex h-14 items-center gap-2 rounded-full border-2 border-ink bg-ink px-6 font-display text-base font-bold uppercase tracking-wide text-cream shadow-brutal hover-press"
-            >
-              {t.nav.cta}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-          <div className="mt-8 max-w-xl">
-            <WaitlistForm testIdPrefix="how" />
-          </div>
+          <ScrollReveal>
+            <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
+              <h2 className="font-display text-3xl font-extrabold leading-tight tracking-tighter text-ink md:text-5xl">
+                {t.home.bigCtaTitle}
+              </h2>
+              <Link
+                href="/#waitlist"
+                data-testid="how-to-waitlist-cta"
+                className="inline-flex h-14 items-center gap-2 rounded-full border-2 border-ink bg-ink px-6 font-display text-base font-bold uppercase tracking-wide text-cream shadow-brutal hover-press"
+              >
+                {t.nav.cta}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal delay={0.1}>
+            <div className="mt-8 max-w-xl">
+              <WaitlistForm testIdPrefix="how" />
+            </div>
+          </ScrollReveal>
         </div>
       </section>
     </main>

@@ -10,6 +10,11 @@ import {
   ProductDemoCard,
   NotificationMockup,
 } from "@/components/site/product-demo";
+import {
+  ScrollReveal,
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/ui/scroll-reveal";
 
 export default function HomePage() {
   const { t } = useLocale();
@@ -29,60 +34,70 @@ export default function HomePage() {
         <div className="container relative mx-auto grid max-w-7xl gap-14 px-5 py-16 lg:grid-cols-[1.15fr_1fr] lg:items-start lg:gap-10 lg:px-8 lg:py-24">
           {/* LEFT */}
           <div className="relative">
-            <span
-              data-testid="hero-eyebrow"
-              className="inline-flex items-center gap-2 rounded-full border-2 border-ink bg-paper px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.18em] shadow-brutal-sm"
-            >
-              <Sparkles className="h-3.5 w-3.5 text-[var(--brand-orange)]" />
-              {t.home.eyebrow}
-            </span>
-
-            <h1
-              data-testid="hero-title"
-              className="mt-6 font-display text-[3.25rem] font-extrabold leading-[0.92] tracking-tighter text-ink md:text-[4.5rem] lg:text-[5.5rem]"
-            >
-              <span className="block">{t.home.h1Top}</span>
-              <span className="relative inline-block">
-                <span className="relative z-10">{t.home.h1Mid}</span>
-                <span
-                  aria-hidden
-                  className="absolute inset-x-[-6px] bottom-2 -z-0 block h-[0.38em] -rotate-1 bg-[var(--brand-lime)]"
-                />
-              </span>{" "}
-              <span className="text-[var(--brand-orange)]">
-                {t.home.h1Bot}
+            <ScrollReveal>
+              <span
+                data-testid="hero-eyebrow"
+                className="inline-flex items-center gap-2 rounded-full border-2 border-ink bg-paper px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.18em] shadow-brutal-sm"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-[var(--brand-orange)]" />
+                {t.home.eyebrow}
               </span>
-            </h1>
+            </ScrollReveal>
 
-            <p
-              data-testid="hero-sub"
-              className="mt-6 max-w-xl text-lg leading-relaxed text-ink/75"
-            >
-              {t.home.sub}
-            </p>
-
-            <div className="mt-8 max-w-xl space-y-4" data-testid="hero-form-wrap">
-              <WaitlistForm testIdPrefix="hero" />
-              <LiveCounter />
-            </div>
-
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link
-                href="/how-it-works"
-                data-testid="hero-secondary-cta"
-                className="inline-flex h-12 items-center gap-2 rounded-full border-2 border-ink bg-paper px-5 font-display text-sm font-bold uppercase tracking-wide text-ink shadow-brutal-sm hover-press"
+            <ScrollReveal delay={0.1}>
+              <h1
+                data-testid="hero-title"
+                className="mt-6 font-display text-[3.25rem] font-extrabold leading-[0.92] tracking-tighter text-ink md:text-[4.5rem] lg:text-[5.5rem]"
               >
-                {t.home.ctaSecondary}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/pricing"
-                data-testid="hero-pricing-cta"
-                className="text-sm font-semibold text-ink/70 underline decoration-ink/30 underline-offset-4 hover:text-ink"
+                <span className="block">{t.home.h1Top}</span>
+                <span className="relative inline-block">
+                  <span className="relative z-10">{t.home.h1Mid}</span>
+                  <span
+                    aria-hidden
+                    className="absolute inset-x-[-6px] bottom-2 -z-0 block h-[0.38em] -rotate-1 bg-[var(--brand-lime)]"
+                  />
+                </span>{" "}
+                <span className="text-[var(--brand-orange)]">
+                  {t.home.h1Bot}
+                </span>
+              </h1>
+            </ScrollReveal>
+
+            <ScrollReveal delay={0.2}>
+              <p
+                data-testid="hero-sub"
+                className="mt-6 max-w-xl text-lg leading-relaxed text-ink/75"
               >
-                {t.nav.pricing} →
-              </Link>
-            </div>
+                {t.home.sub}
+              </p>
+            </ScrollReveal>
+
+            <ScrollReveal delay={0.3}>
+              <div className="mt-8 max-w-xl space-y-4" data-testid="hero-form-wrap">
+                <WaitlistForm testIdPrefix="hero" />
+                <LiveCounter />
+              </div>
+            </ScrollReveal>
+
+            <ScrollReveal delay={0.35}>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Link
+                  href="/how-it-works"
+                  data-testid="hero-secondary-cta"
+                  className="inline-flex h-12 items-center gap-2 rounded-full border-2 border-ink bg-paper px-5 font-display text-sm font-bold uppercase tracking-wide text-ink shadow-brutal-sm hover-press"
+                >
+                  {t.home.ctaSecondary}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  href="/pricing"
+                  data-testid="hero-pricing-cta"
+                  className="text-sm font-semibold text-ink/70 underline decoration-ink/30 underline-offset-4 hover:text-ink"
+                >
+                  {t.nav.pricing} →
+                </Link>
+              </div>
+            </ScrollReveal>
           </div>
 
           {/* RIGHT */}
@@ -115,9 +130,9 @@ export default function HomePage() {
         data-testid="stats-section"
         className="border-b-2 border-ink bg-paper"
       >
-        <div className="container mx-auto grid max-w-7xl grid-cols-2 gap-0 px-0 lg:grid-cols-4">
+        <StaggerContainer className="container mx-auto grid max-w-7xl grid-cols-2 gap-0 px-0 lg:grid-cols-4">
           {t.home.stats.map((s, i) => (
-            <div
+            <StaggerItem
               key={s.label}
               className={`flex flex-col gap-2 border-ink px-6 py-10 ${
                 i < t.home.stats.length - 1 ? "lg:border-r-2" : ""
@@ -130,9 +145,9 @@ export default function HomePage() {
                 {s.value}
               </p>
               <p className="text-sm font-medium text-ink/70">{s.label}</p>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       </section>
 
       {/* SOCIAL PROOF */}
@@ -141,16 +156,18 @@ export default function HomePage() {
         className="border-b-2 border-ink bg-cream"
       >
         <div className="container mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24">
-          <div className="grid gap-4 lg:grid-cols-[1fr_2fr] lg:items-end">
-            <h2 className="font-display text-4xl font-extrabold leading-tight tracking-tighter text-ink md:text-5xl">
-              {t.home.proofTitle}
-            </h2>
-            <p className="max-w-xl text-base text-ink/70">
-              {t.home.bigCtaSub}
-            </p>
-          </div>
+          <ScrollReveal>
+            <div className="grid gap-4 lg:grid-cols-[1fr_2fr] lg:items-end">
+              <h2 className="font-display text-4xl font-extrabold leading-tight tracking-tighter text-ink md:text-5xl">
+                {t.home.proofTitle}
+              </h2>
+              <p className="max-w-xl text-base text-ink/70">
+                {t.home.bigCtaSub}
+              </p>
+            </div>
+          </ScrollReveal>
 
-          <div className="mt-12 grid gap-5 md:grid-cols-2">
+          <StaggerContainer className="mt-12 grid gap-5 md:grid-cols-2">
             {t.home.proofItems.map((q, i) => {
               const palette = [
                 "bg-[var(--brand-lime)]",
@@ -159,34 +176,37 @@ export default function HomePage() {
                 "bg-paper",
               ];
               return (
-                <figure
+                <StaggerItem
                   key={i}
                   data-testid={`testimonial-${i}`}
-                  className={`group relative rounded-3xl border-2 border-ink p-6 shadow-brutal hover-lift ${
-                    palette[i % palette.length]
-                  }`}
                 >
-                  <Quote className="absolute right-5 top-5 h-6 w-6 text-ink/40" />
-                  <blockquote className="font-display text-xl font-semibold leading-snug text-ink">
-                    “{q.quote}”
-                  </blockquote>
-                  <figcaption className="mt-5 flex items-center gap-3 text-sm">
-                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border-2 border-ink bg-paper font-display font-bold text-ink">
-                      {q.author.slice(0, 1).toUpperCase()}
-                    </span>
-                    <span>
-                      <span className="block font-semibold text-ink">
-                        {q.author}
+                  <figure
+                    className={`group relative rounded-3xl border-2 border-ink p-6 shadow-brutal hover-lift ${
+                      palette[i % palette.length]
+                    }`}
+                  >
+                    <Quote className="absolute right-5 top-5 h-6 w-6 text-ink/40" />
+                    <blockquote className="font-display text-xl font-semibold leading-snug text-ink">
+                      "{q.quote}"
+                    </blockquote>
+                    <figcaption className="mt-5 flex items-center gap-3 text-sm">
+                      <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border-2 border-ink bg-paper font-display font-bold text-ink">
+                        {q.author.slice(0, 1).toUpperCase()}
                       </span>
-                      <span className="block text-xs uppercase tracking-widest text-ink/60">
-                        {q.source}
+                      <span>
+                        <span className="block font-semibold text-ink">
+                          {q.author}
+                        </span>
+                        <span className="block text-xs uppercase tracking-widest text-ink/60">
+                          {q.source}
+                        </span>
                       </span>
-                    </span>
-                  </figcaption>
-                </figure>
+                    </figcaption>
+                  </figure>
+                </StaggerItem>
               );
             })}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 
@@ -194,32 +214,36 @@ export default function HomePage() {
       <section data-testid="big-cta" className="relative bg-ink text-cream">
         <div className="dot-paper absolute inset-0" aria-hidden />
         <div className="container relative mx-auto grid max-w-6xl gap-12 px-5 py-20 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:px-8 lg:py-28">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full border-2 border-cream/40 px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.2em] text-cream/80">
-              <Sparkles className="h-3.5 w-3.5 text-[var(--brand-lime)]" />
-              {t.common.waitlist}
-            </span>
-            <h2 className="mt-5 font-display text-4xl font-extrabold leading-tight tracking-tighter text-cream md:text-6xl">
-              {t.home.bigCtaTitle}
-            </h2>
-            <p className="mt-5 max-w-xl text-base text-cream/70">
-              {t.home.bigCtaSub}
-            </p>
-          </div>
-          <div className="relative">
-            <div className="rounded-3xl border-2 border-cream/30 bg-cream p-6 text-ink shadow-brutal-xl">
-              <h3 className="font-display text-xl font-bold text-ink">
-                {t.common.joinWaitlist}
-              </h3>
-              <p className="mt-1 text-sm text-ink/60">{t.common.privacy}</p>
-              <div className="mt-5">
-                <WaitlistForm testIdPrefix="big-cta" />
-              </div>
-              <div className="mt-4">
-                <LiveCounter variant="blue" />
+          <ScrollReveal>
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full border-2 border-cream/40 px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.2em] text-cream/80">
+                <Sparkles className="h-3.5 w-3.5 text-[var(--brand-lime)]" />
+                {t.common.waitlist}
+              </span>
+              <h2 className="mt-5 font-display text-4xl font-extrabold leading-tight tracking-tighter text-cream md:text-6xl">
+                {t.home.bigCtaTitle}
+              </h2>
+              <p className="mt-5 max-w-xl text-base text-cream/70">
+                {t.home.bigCtaSub}
+              </p>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal delay={0.15}>
+            <div className="relative">
+              <div className="rounded-3xl border-2 border-cream/30 bg-cream p-6 text-ink shadow-brutal-xl">
+                <h3 className="font-display text-xl font-bold text-ink">
+                  {t.common.joinWaitlist}
+                </h3>
+                <p className="mt-1 text-sm text-ink/60">{t.common.privacy}</p>
+                <div className="mt-5">
+                  <WaitlistForm testIdPrefix="big-cta" />
+                </div>
+                <div className="mt-4">
+                  <LiveCounter variant="blue" />
+                </div>
               </div>
             </div>
-          </div>
+          </ScrollReveal>
         </div>
       </section>
     </main>

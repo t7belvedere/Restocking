@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Plus, Sparkles } from "lucide-react";
 import { useLocale } from "@/components/site/locale-provider";
+import { FaqJsonLd } from "@/components/site/json-ld";
 import { cn } from "@/lib/utils";
 
 export default function FaqPage() {
@@ -12,6 +13,7 @@ export default function FaqPage() {
 
   return (
     <main data-testid="faq-page" className="overflow-hidden">
+      <FaqJsonLd questions={t.faq.items} />
       <section className="relative border-b-2 border-ink">
         <div className="dot-paper absolute inset-0" aria-hidden />
         <div className="container relative mx-auto max-w-4xl px-5 py-20 lg:px-8 lg:py-24">

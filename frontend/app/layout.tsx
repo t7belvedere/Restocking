@@ -3,19 +3,43 @@ import { Toaster } from "@/components/ui/toaster";
 import { LocaleProvider } from "@/components/site/locale-provider";
 import { SiteHeader } from "@/components/site/header";
 import { SiteFooter } from "@/components/site/footer";
+import { OrganizationJsonLd } from "@/components/site/json-ld";
 import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "restocking — alertes de retour en stock, taille par taille",
+  title: {
+    default: "restocking — alertes de retour en stock, taille par taille",
+    template: "%s — restocking",
+  },
   description:
     "Restocking surveille les boutiques mode européennes (Zara, COS, Aritzia, Sézane, Uniqlo…) et te prévient en moins de 5 minutes dès que ta taille revient en stock.",
-  metadataBase: new URL("https://restocking.app"),
+  metadataBase: new URL("https://www.restocking.app"),
+  alternates: {
+    canonical: "https://www.restocking.app",
+  },
   openGraph: {
     title: "restocking — your size, the moment it comes back",
     description:
       "Size-specific restock alerts for European fashion. Zara, COS, Aritzia, Sézane and 100+ stores.",
+    url: "https://www.restocking.app",
+    siteName: "restocking",
     type: "website",
+    images: [
+      {
+        url: "https://www.restocking.app/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "restocking — alertes de retour en stock",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "restocking — your size, the moment it comes back",
+    description:
+      "Size-specific restock alerts for European fashion. Zara, COS, Aritzia, Sézane and 100+ stores.",
+    images: ["https://www.restocking.app/og-image.png"],
   },
 };
 
@@ -52,6 +76,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="min-h-dvh bg-cream text-ink antialiased">
+        <OrganizationJsonLd />
         <LocaleProvider>
           <SiteHeader isAuthenticated={isAuthenticated} />
           {children}
