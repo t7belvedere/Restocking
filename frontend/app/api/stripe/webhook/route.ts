@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
         stripe_customer_id: sub.customer as string,
         current_period_end: periodEnd,
         updated_at: new Date().toISOString(),
-      });
+      }, { onConflict: "user_id" });
       break;
     }
 
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
         stripe_sub_id: null,
         current_period_end: null,
         updated_at: new Date().toISOString(),
-      });
+      }, { onConflict: "user_id" });
       break;
     }
 
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
             plan: "pro",
             stripe_sub_id: session.subscription as string,
             updated_at: new Date().toISOString(),
-          });
+          }, { onConflict: "user_id" });
         }
       }
       break;
