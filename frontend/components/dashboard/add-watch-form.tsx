@@ -255,7 +255,7 @@ export function AddWatchForm() {
                     className={cn(
                       "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
                       "active:scale-[0.97]",
-                      !inStock && "opacity-40 line-through cursor-not-allowed border-muted-foreground/20 text-muted-foreground",
+                      !inStock && "opacity-30 line-through cursor-not-allowed border-dashed border-red-200 bg-red-50/50 text-red-400 select-none",
                       inStock && active
                         ? "border-foreground bg-foreground text-background shadow-sm"
                         : inStock
@@ -263,7 +263,7 @@ export function AddWatchForm() {
                           : "",
                     )}
                   >
-                    {s}
+                    {s}{!inStock ? <span className="ml-1 text-[9px] opacity-60">épuisé</span> : null}
                   </button>
                 );
               })}
@@ -286,7 +286,7 @@ export function AddWatchForm() {
                     className={cn(
                       "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
                       "active:scale-[0.97]",
-                      !inStock && "opacity-40 line-through cursor-not-allowed border-muted-foreground/20 text-muted-foreground",
+                      !inStock && "opacity-30 line-through cursor-not-allowed border-dashed border-red-200 bg-red-50/50 text-red-400 select-none",
                       inStock && active
                         ? "border-foreground bg-foreground text-background shadow-sm"
                         : inStock
@@ -294,7 +294,7 @@ export function AddWatchForm() {
                           : "",
                     )}
                   >
-                    {c}
+                    {c}{!inStock ? <span className="ml-1 text-[9px] opacity-60">épuisé</span> : null}
                   </button>
                 );
               })}
