@@ -19,11 +19,11 @@ for (const r of RETAILERS) {
 }
 
 const STYLE_CLASSES: Record<WordmarkStyle, string> = {
-  "serif-bold": "font-['Playfair_Display',ui-serif,Georgia,serif] font-black tracking-[0.06em]",
-  "serif-italic": "font-['Playfair_Display',ui-serif,Georgia,serif] font-medium italic tracking-tight",
-  "italiana-thin": "font-['Italiana',ui-serif,Georgia,serif] font-normal tracking-[0.08em]",
-  "italiana-caps": "font-['Italiana',ui-serif,Georgia,serif] font-normal uppercase tracking-[0.12em]",
-  "anton-caps": "font-['Anton',ui-sans-serif,system-ui,sans-serif] font-normal uppercase tracking-tight",
+  "serif-bold": "font-[var(--font-playfair),ui-serif,Georgia,serif] font-black tracking-[0.06em]",
+  "serif-italic": "font-[var(--font-playfair),ui-serif,Georgia,serif] font-medium italic tracking-tight",
+  "italiana-thin": "font-[var(--font-italiana),ui-serif,Georgia,serif] font-normal tracking-[0.08em]",
+  "italiana-caps": "font-[var(--font-italiana),ui-serif,Georgia,serif] font-normal uppercase tracking-[0.12em]",
+  "anton-caps": "font-[var(--font-anton),ui-sans-serif,system-ui,sans-serif] font-normal uppercase tracking-tight",
   "mono-caps": "font-mono font-bold uppercase tracking-[0.18em]",
   "bricolage-tight": "font-display font-extrabold tracking-tighter",
   "bricolage-wide": "font-display font-bold uppercase tracking-[0.18em]",

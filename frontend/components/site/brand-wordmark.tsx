@@ -6,19 +6,19 @@ import type { WordmarkStyle } from "@/lib/data/retailers";
 const STYLE_CLASSES: Record<WordmarkStyle, string> = {
   // Bold serif — Zara/Massimo Dutti energy
   "serif-bold":
-    "font-['Playfair_Display',ui-serif,Georgia,serif] font-black tracking-[0.06em]",
+    "font-[var(--font-playfair),ui-serif,Georgia,serif] font-black tracking-[0.06em]",
   // Italic serif — Stradivarius / boutique
   "serif-italic":
-    "font-['Playfair_Display',ui-serif,Georgia,serif] font-medium italic tracking-tight",
+    "font-[var(--font-playfair),ui-serif,Georgia,serif] font-medium italic tracking-tight",
   // Ultra-thin elegant serif — Sézane / Acne / Lisa Yang
   "italiana-thin":
-    "font-['Italiana',ui-serif,Georgia,serif] font-normal tracking-[0.08em]",
+    "font-[var(--font-italiana),ui-serif,Georgia,serif] font-normal tracking-[0.08em]",
   // Thin serif caps — Aritzia / Khaite / Vince
   "italiana-caps":
-    "font-['Italiana',ui-serif,Georgia,serif] font-normal uppercase tracking-[0.12em]",
+    "font-[var(--font-italiana),ui-serif,Georgia,serif] font-normal uppercase tracking-[0.12em]",
   // Heavy condensed — Ganni / Carhartt / Bershka
   "anton-caps":
-    "font-['Anton',ui-sans-serif,system-ui,sans-serif] font-normal uppercase tracking-tight",
+    "font-[var(--font-anton),ui-sans-serif,system-ui,sans-serif] font-normal uppercase tracking-tight",
   // Mono caps — A.P.C.
   "mono-caps":
     "font-mono font-bold uppercase tracking-[0.18em]",

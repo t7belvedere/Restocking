@@ -1,4 +1,12 @@
 import type { Metadata } from "next";
+import {
+  Bricolage_Grotesque,
+  DM_Sans,
+  DM_Mono,
+  Italiana,
+  Playfair_Display,
+  Anton,
+} from "next/font/google";
 import { Toaster } from "@/components/ui/toaster";
 import { LocaleProvider } from "@/components/site/locale-provider";
 import { SiteHeader } from "@/components/site/header";
@@ -6,6 +14,47 @@ import { SiteFooter } from "@/components/site/footer";
 import { OrganizationJsonLd } from "@/components/site/json-ld";
 import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
+
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-bricolage",
+  display: "swap",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-dm-sans",
+  display: "swap",
+});
+
+const dmMono = DM_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-dm-mono",
+  display: "swap",
+});
+
+const italiana = Italiana({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-italiana",
+  display: "swap",
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+
+const anton = Anton({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-anton",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -17,6 +66,10 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.restocking.app"),
   alternates: {
     canonical: "https://www.restocking.app",
+    languages: {
+      fr: "https://www.restocking.app",
+      en: "https://www.restocking.app/en",
+    },
   },
   openGraph: {
     title: "restocking — your size, the moment it comes back",
@@ -62,19 +115,11 @@ export default async function RootLayout({
   const isAuthenticated = await getAuthState();
 
   return (
-    <html lang="fr" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Italiana&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Anton&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html
+      lang="fr"
+      suppressHydrationWarning
+      className={`${bricolage.variable} ${dmSans.variable} ${dmMono.variable} ${italiana.variable} ${playfair.variable} ${anton.variable}`}
+    >
       <body className="min-h-dvh bg-cream text-ink antialiased">
         <OrganizationJsonLd />
         <LocaleProvider>
