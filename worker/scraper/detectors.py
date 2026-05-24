@@ -32,14 +32,17 @@ def detect_stock(
     if result is not None:
         return result, "dataLayer"
 
-    result = _strategy_add_to_cart(page)
-    if result is not None:
-        return result, "add_to_cart_btn"
-
+    # Variant-specific check BEFORE generic add-to-cart button
+    # (variant_attr can detect OOS for a specific size even when the
+    #  product-level add-to-cart button is still enabled for other sizes)
     if variant_label or variant_id:
         result = _strategy_variant_attr(page, variant_label, variant_id)
         if result is not None:
             return result, "variant_attr"
+
+    result = _strategy_add_to_cart(page)
+    if result is not None:
+        return result, "add_to_cart_btn"
 
     result = _strategy_text_keywords(page)
     return result, None
@@ -119,8 +122,8 @@ def _status_from_value(key: str, raw_value) -> str | None:
 def _search_dict(obj, variant_label: str | None, variant_id: str | None) -> str | None:
     """Recursively search a parsed JSON object for stock keys.
 
-    If a variant is specified, try to match by label/id first before falling
-    back to top-level keys — avoids returning a different size's status.
+    When a variant is specified, variant-specific status takes priority over
+    top-level product status — avoids reporting IN_STOCK for an OOS variant.
     """
     if not isinstance(obj, (dict, list)):
         return None
@@ -140,30 +143,52 @@ def _search_dict(obj, variant_label: str | None, variant_id: str | None) -> str 
                 return status
         return None
 
-    # It's a dict — try direct keys first
+    # It's a dict
+    # When a variant is specified, recurse into nested values BEFORE checking
+    # top-level keys — nested values may contain variant-specific stock data.
+    if variant_label or variant_id:
+        for v in obj.values():
+            status = _search_dict(v, variant_label, variant_id)
+            if status:
+                return status
+
+    # Top-level keys (or fallback when no variant specified)
     status = _extract_stock_from_dict(obj)
     if status:
         return status
 
-    # Recurse into nested values
-    for v in obj.values():
-        status = _search_dict(v, variant_label, variant_id)
-        if status:
-            return status
+    # If no variant was specified, recurse (already done for variant case above)
+    if not (variant_label or variant_id):
+        for v in obj.values():
+            status = _search_dict(v, variant_label, variant_id)
+            if status:
+                return status
     return None
 
 
 def _item_matches_variant(item: dict, variant_label: str | None, variant_id: str | None) -> bool:
-    """Return True if this dict entry looks like it corresponds to the target variant."""
+    """Return True if this dict entry looks like it corresponds to the target variant.
+
+    Handles combined labels like "XL / marron" by checking each part separately.
+    """
+    # Build list of search terms: full label + individual parts
+    search_terms: list[str] = []
+    if variant_label:
+        search_terms.append(variant_label.strip().lower())
+        if " / " in variant_label:
+            search_terms.extend(p.strip().lower() for p in variant_label.split(" / "))
+    if variant_id:
+        search_terms.append(variant_id.strip().lower())
+        if " / " in variant_id:
+            search_terms.extend(p.strip().lower() for p in variant_id.split(" / "))
+
     candidate_keys = ("size", "label", "name", "id", "sku", "variantId", "variant_id")
     for k in candidate_keys:
         val = item.get(k)
         if val is None:
             continue
         val_str = str(val).strip().lower()
-        if variant_label and val_str == variant_label.strip().lower():
-            return True
-        if variant_id and val_str == variant_id.strip().lower():
+        if val_str in search_terms:
             return True
     return False
 
@@ -282,28 +307,48 @@ _VARIANT_SELECTORS = [
 ]
 
 _UNAVAILABLE_CLASS_FRAGMENTS = frozenset(
-    ["unavailable", "disabled", "out-of-stock", "out_of_stock", "sold-out", "sold_out"]
+    ["unavailable", "disabled", "out-of-stock", "out_of_stock", "sold-out", "sold_out",
+     "pointer-events-none", "opacity-20", "opacity-30", "opacity-40", "opacity-50"]
 )
 
 
 def _element_matches_variant(element, variant_label: str | None, variant_id: str | None) -> bool:
-    """Check whether this element corresponds to the target variant."""
+    """Check whether this element corresponds to the target variant.
+
+    Handles combined labels like "XL / marron" by checking each part separately.
+    """
+    # Build list of search terms: full label + individual parts if combined with " / "
+    search_terms: list[str] = []
+    if variant_label:
+        search_terms.append(variant_label.strip().lower())
+        if " / " in variant_label:
+            search_terms.extend(p.strip().lower() for p in variant_label.split(" / "))
+    if variant_id:
+        search_terms.append(variant_id.strip().lower())
+        if " / " in variant_id:
+            search_terms.extend(p.strip().lower() for p in variant_id.split(" / "))
+
     # Check data attributes
     for attr_key in ("data-size", "data-value", "data-id", "value"):
         attr_val = element.attrib.get(attr_key)
         if attr_val:
             attr_norm = attr_val.strip().lower()
-            if variant_label and attr_norm == variant_label.strip().lower():
-                return True
-            if variant_id and attr_norm == variant_id.strip().lower():
+            if attr_norm in search_terms:
                 return True
 
-    # Check text content
+    # Check text content (exact match or contains a search term)
     text = str(element.get_all_text()).strip().lower()
-    if variant_label and text == variant_label.strip().lower():
+    # Skip elements that are clearly NOT variant selectors:
+    # size guides, long descriptions, measurement tables
+    if len(text) > 100 or any(w in text for w in ("tour de poitrine", "tour de taille",
+            "chest", "waist", "hips", "bassin", "guide des tailles", "size guide")):
+        return False
+    if text in search_terms:
         return True
-    if variant_id and text == variant_id.strip().lower():
-        return True
+    # Also check if any search term appears as a word in the text
+    for term in search_terms:
+        if re.search(rf"\b{re.escape(term)}\b", text):
+            return True
 
     return False
 
@@ -326,18 +371,42 @@ def _strategy_variant_attr(
     variant_id: str | None,
 ) -> str | None:
     """Strategy 3: check variant/size element attributes for the target variant."""
+    # Collect all matching elements, prioritising visible ones
+    matches: list = []
     for selector in _VARIANT_SELECTORS:
         elements = page.css(selector)
         if not elements:
             continue
-
         for element in elements:
-            if not _element_matches_variant(element, variant_label, variant_id):
-                continue
-            if _element_is_unavailable(element):
-                return "OUT_OF_STOCK"
-            # Matched and no unavailability signal → assume in stock
+            if _element_matches_variant(element, variant_label, variant_id):
+                matches.append(element)
+
+    # Sort: visible elements first (hidden elements often have no OOS markup)
+    def _is_hidden(el) -> bool:
+        cls = (el.attrib.get("class") or "").lower()
+        return any(h in cls for h in ("u-hidden", "hidden", "display-none", "sr-only", "visually-hidden"))
+    matches.sort(key=lambda el: (1 if _is_hidden(el) else 0))
+
+    for element in matches:
+        # Check the element itself
+        if _element_is_unavailable(element):
+            return "OUT_OF_STOCK"
+        # Also check parent (Pimkie: OOS class on parent, text on child label)
+        parent = getattr(element, "parent", None)
+        if parent is not None and _element_is_unavailable(parent):
+            return "OUT_OF_STOCK"
+        # Check siblings too (some themes use adjacent divs)
+        if parent is not None:
+            for sibling in getattr(parent, "children", []):
+                if _element_is_unavailable(sibling):
+                    return "OUT_OF_STOCK"
+        # Visible match with no OOS signal → assume in stock
+        if not _is_hidden(element):
             return "IN_STOCK"
+
+    # Only hidden matches found → treat as available
+    if matches:
+        return "IN_STOCK"
 
     return None
 
