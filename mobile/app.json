@@ -44,7 +44,15 @@
       ],
       "expo-web-browser",
       "expo-font",
-      "expo-splash-screen"
+      "expo-splash-screen",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ]
     ],
     "extra": {
       "router": {},
