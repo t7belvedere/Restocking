@@ -8,6 +8,8 @@ import re
 import time
 from urllib.parse import urlparse
 
+import httpx
+
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -177,6 +179,185 @@ def _extract_title(html: str) -> str | None:
                 title = parts[0].strip()
                 break
     return title or None
+
+
+# ---------------------------------------------------------------------------
+# LLM-based universal extraction (DeepSeek)
+# ---------------------------------------------------------------------------
+
+_DEEPSEEK_KEY = os.getenv("DEEPSEEK_API_KEY")
+_DEEPSEEK_URL = "https://api.deepseek.com/v1/chat/completions"
+
+_LLM_PROMPT = """Extract product details from this product page. Return ONLY valid JSON, no explanation.
+
+{
+  "name": "product name (string or null)",
+  "price": 29.95,
+  "image_url": "full image URL (string or null)",
+  "sizes": ["XS", "S", "M"],
+  "colors": ["Bleu", "Rouge"]
+}
+
+Rules:
+- name: the product title. Prefer og:title meta > JSON-LD name > h1.
+- price: numeric only (no currency symbol). IMPORTANT: use the actual selling price from JSON-LD "price" field or og:price:amount meta. Ignore sale/discounted labels.
+- image_url: the FULL URL of the main product image from og:image or JSON-LD
+- sizes: ALL available sizes (XS, S, M, L, XL, 36, 38, 40, etc). Look in JSON-LD offers array, select options, and aria-labels. Return [] if none found.
+- colors: ALL available colors, not just the selected one. Look for aria-labels on color buttons, JSON-LD offers with different colors, color swatches. Return [] if none found.
+- Be thorough — extract ALL variants, not just the first one."""
+
+
+def _prepare_html_for_llm(html: str, page, url: str) -> str:
+    """Strip HTML down to extraction-relevant parts to minimize LLM tokens."""
+    parts: list[str] = []
+    parts.append(f"URL: {url}")
+
+    # <title>
+    m = re.search(r"<title[^>]*>([^<]+)</title>", html, re.I)
+    if m:
+        parts.append(f"Title: {m.group(1).strip()}")
+
+    # Meta tags
+    metas: list[str] = []
+    for m in re.finditer(
+        r'<meta[^>]+(?:property|name)=["\']([^"\']+)["\'][^>]+content=["\']([^"\']+)["\']',
+        html, re.I,
+    ):
+        key, val = m.group(1), m.group(2)
+        if any(p in key.lower() for p in ("og:", "product:", "twitter:", "description", "price", "title")):
+            metas.append(f"  {key}: {val}")
+    if metas:
+        parts.append("Meta:\n" + "\n".join(metas))
+
+    # JSON-LD
+    for m in re.finditer(
+        r'<script[^>]+type="application/ld\+json"[^>]*>(.*?)</script>',
+        html, re.DOTALL,
+    ):
+        try:
+            data = json.loads(m.group(1))
+            parts.append(f"JSON-LD: {json.dumps(data, ensure_ascii=False)[:6000]}")
+        except Exception:
+            pass
+
+    # Select dropdowns
+    if page is not None:
+        try:
+            for sel in page.css("select"):
+                name = sel.attrib.get("name", "") or sel.attrib.get("aria-label", "") or sel.attrib.get("id", "")
+                opts: list[str] = []
+                for opt in sel.css("option"):
+                    txt = (opt.get_all_text() or "").strip()
+                    if txt and txt not in ("--", "-", "Select", "Choisir", "Sélectionner"):
+                        opts.append(txt)
+                if opts:
+                    parts.append(f"Select '{name}': {', '.join(opts)}")
+        except Exception:
+            pass
+
+    # Aria-labels on buttons/links inside product sections (color/size selectors)
+    if page is not None:
+        try:
+            color_candidates: set[str] = set()
+            size_candidates: set[str] = set()
+            other_labels: set[str] = set()
+            for sel in (
+                "button[aria-label]",
+                "[class*=product] [aria-label]",
+                "[class*=selector] [aria-label]",
+                "[class*=color] [aria-label]",
+                "[class*=size] [aria-label]",
+            ):
+                for el in page.css(sel):
+                    label = (el.attrib.get("aria-label") or "").strip()
+                    if not label or len(label) > 30:
+                        continue
+                    # Heuristic: if it looks like a color word, put in color_candidates
+                    if re.search(r"(?:Bleu|Blanc|Noir|Rouge|Jaune|Vert|Rose|Gris|Brun|Orange|Violet|Marron|Beige|Ivoire|Kaki|Argent|Doré|Turquoise|Bordeaux|Lavande)", label, re.I):
+                        color_candidates.add(label)
+                    elif label.upper() in SIZE_TOKENS or re.match(r"^\d{1,2}$", label):
+                        size_candidates.add(label)
+                    else:
+                        other_labels.add(label)
+
+            if color_candidates:
+                parts.append(f"Color labels found: {', '.join(sorted(color_candidates))}")
+            if size_candidates:
+                parts.append(f"Size labels found: {', '.join(sorted(size_candidates))}")
+            if other_labels and len(other_labels) <= 20:
+                parts.append(f"Other aria-labels: {', '.join(sorted(other_labels))}")
+        except Exception:
+            pass
+
+    # Visible text from product-related sections (first ~2000 chars)
+    if page is not None:
+        try:
+            for sel in (
+                "[class*=product-detail]",
+                "[class*=product-info]",
+                "[class*=pdp]",
+                "main",
+                "[class*=product]",
+            ):
+                els = page.css(sel)
+                if els:
+                    txt = els[0].get_all_text()
+                    if isinstance(txt, str) and len(txt) > 50:
+                        parts.append(f"Body text: {txt[:2000]}")
+                        break
+        except Exception:
+            pass
+
+    return "\n\n".join(parts)
+
+
+async def _llm_extract(html: str, page, url: str) -> dict | None:
+    """Use DeepSeek to extract product metadata from a cleaned HTML representation.
+
+    Returns None if LLM is not configured or fails.
+    """
+    if not _DEEPSEEK_KEY:
+        return None
+
+    cleaned = _prepare_html_for_llm(html, page, url)
+    logger.debug("LLM input size: %d chars", len(cleaned))
+
+    try:
+        async with httpx.AsyncClient(timeout=20) as client:
+            resp = await client.post(
+                _DEEPSEEK_URL,
+                headers={
+                    "Authorization": f"Bearer {_DEEPSEEK_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": "deepseek-chat",
+                    "messages": [
+                        {"role": "system", "content": _LLM_PROMPT},
+                        {"role": "user", "content": cleaned},
+                    ],
+                    "temperature": 0,
+                    "max_tokens": 500,
+                },
+            )
+            if resp.status_code != 200:
+                logger.warning("DeepSeek API error: %s — %s", resp.status_code, resp.text[:200])
+                return None
+
+            data = resp.json()
+            content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+            # Extract JSON from the response (it might have markdown fences)
+            json_match = re.search(r"\{.*\}", content, re.DOTALL)
+            if not json_match:
+                return None
+            result = json.loads(json_match.group(0))
+            logger.info("LLM extracted: name=%s price=%s sizes=%s colors=%s",
+                        result.get("name"), result.get("price"),
+                        result.get("sizes"), result.get("colors"))
+            return result
+    except Exception:
+        logger.debug("LLM extraction failed", exc_info=True)
+        return None
 
 
 def _universal_extract(page, html: str, url: str) -> dict:
@@ -850,6 +1031,36 @@ async def _analyze_scrape(url: str, proxy_url: str | None, pw_proxy: dict | None
     # --- Universal extraction ---
     yield _sse_event("progress", {"step": "extracting", "message": "Lecture du produit..."})
     result = _universal_extract(page, html, url)
+
+    # --- LLM enrichment (DeepSeek) — fills gaps in traditional extraction ---
+    if _DEEPSEEK_KEY:
+        try:
+            llm_result = await _llm_extract(html, page, url)
+            if llm_result:
+                # Merge: traditional is more reliable for structured data,
+                # LLM is better at colors and natural-language names
+                if not result.get("name") and llm_result.get("name"):
+                    result["name"] = llm_result["name"]
+                if result.get("price") is None and llm_result.get("price"):
+                    result["price"] = llm_result["price"]
+                if not result.get("image_url") and llm_result.get("image_url"):
+                    result["image_url"] = llm_result["image_url"]
+                # Colors: LLM is often better — merge both
+                llm_colors = llm_result.get("colors") or []
+                existing_colors = set(result.get("colors") or [])
+                for c in llm_colors:
+                    if c not in existing_colors:
+                        result["colors"].append(c)
+                # Sizes: merge both, deduplicate
+                llm_sizes = llm_result.get("sizes") or []
+                existing_sizes = set(result.get("sizes") or [])
+                for s in llm_sizes:
+                    if s not in existing_sizes:
+                        result["sizes"].append(s)
+                        result["variants"].append(s)
+                logger.debug("LLM merge: sizes=%s colors=%s", result["sizes"], result["colors"])
+        except Exception:
+            logger.debug("LLM enrichment failed", exc_info=True)
 
     # If no sizes found and we only did Level 1 HTTP, try Playwright
     # for JS-rendered size selectors (COS, other SPA retailers).
