@@ -1,4 +1,4 @@
-import { templateFr, templateEn } from "./templates.ts";
+import { templateFr, templateEn, resetPasswordTemplateFr, resetPasswordTemplateEn } from "./templates.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const HOOK_SECRET = Deno.env.get("HOOK_SECRET") || "";
@@ -50,15 +50,26 @@ Deno.serve(async (req) => {
 
   // Récupérer la langue choisie lors de l'inscription (fr par défaut)
   const locale = user?.user_metadata?.locale === "fr" ? "fr" : "en";
-  let html = locale === "fr" ? templateFr : templateEn;
+  const isRecovery = emailData?.email_action_type === "recovery";
+
+  let html: string;
+  let subject: string;
+
+  if (isRecovery) {
+    html = locale === "fr" ? resetPasswordTemplateFr : resetPasswordTemplateEn;
+    subject = locale === "fr"
+      ? "Réinitialise ton mot de passe"
+      : "Reset your password";
+  } else {
+    html = locale === "fr" ? templateFr : templateEn;
+    subject = locale === "fr"
+      ? "Confirme ton adresse email ⚡️"
+      : "Confirm your email address ⚡️";
+  }
 
   // On remplace les variables "Supabase" par leurs vraies valeurs
   html = html.replace("{{ .SiteURL }}", SITE_URL);
   html = html.replace("{{ .TokenHash }}", emailData.token_hash);
-
-  const subject = locale === "fr" 
-    ? "Confirme ton adresse email ⚡️" 
-    : "Confirm your email address ⚡️";
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
