@@ -15,6 +15,8 @@ export type AnalyzeResult = {
   image_url: string | null;
   price: number | null;
   variants: string[];
+  sizes: string[];
+  colors: string[];
   enrichment_pending?: boolean;
   error?: "FETCH_FAILED" | "INVALID_URL" | "TIMEOUT";
 };
@@ -156,6 +158,8 @@ export async function analyzeUrl(url: string): Promise<AnalyzeResult> {
       image_url: data.image_url ?? null,
       price: data.price ?? null,
       variants: Array.isArray(data.variants) ? data.variants : [],
+      sizes: Array.isArray(data.sizes) ? data.sizes : [],
+      colors: Array.isArray(data.colors) ? data.colors : [],
     };
   } catch (err) {
     const aborted = err instanceof Error && err.name === "AbortError";
@@ -166,6 +170,8 @@ export async function analyzeUrl(url: string): Promise<AnalyzeResult> {
       image_url: null,
       price: null,
       variants: [],
+      sizes: [],
+      colors: [],
       enrichment_pending: true,
       error: aborted ? "TIMEOUT" : "FETCH_FAILED",
     };

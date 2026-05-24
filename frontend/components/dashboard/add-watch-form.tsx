@@ -28,13 +28,25 @@ export function AddWatchForm() {
   const [analysis, setAnalysis] = useState<AnalyzeResult | null>(null);
   const [name, setName] = useState("");
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [manualVariant, setManualVariant] = useState("");
 
+  const sizes = analysis?.sizes ?? [];
+  const colors = analysis?.colors ?? [];
   const variants = analysis?.variants ?? [];
+  // Multi-select: use sizes+colors when available, else fall back to legacy variants
+  const hasMultiSelect = sizes.length > 0 && colors.length > 0;
+  const hasLegacyVariants = !hasMultiSelect && variants.length > 0;
+
   const variantLabel = useMemo(() => {
-    if (variants.length > 0) return selectedVariant;
+    if (hasMultiSelect) {
+      const parts = [selectedSize, selectedColor].filter(Boolean);
+      return parts.length > 0 ? parts.join(" / ") : null;
+    }
+    if (hasLegacyVariants) return selectedVariant;
     return manualVariant.trim() || null;
-  }, [variants, selectedVariant, manualVariant]);
+  }, [hasMultiSelect, hasLegacyVariants, selectedSize, selectedColor, selectedVariant, manualVariant]);
 
   async function handleAnalyze(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -45,6 +57,8 @@ export function AddWatchForm() {
       setAnalysis(res);
       setName(res.name ?? "");
       setSelectedVariant(null);
+      setSelectedSize(null);
+      setSelectedColor(null);
       setManualVariant("");
       setStep("confirm");
       if (!res.ok) {
@@ -71,7 +85,11 @@ export function AddWatchForm() {
     event.preventDefault();
     if (!analysis) return;
     if (!variantLabel) {
-      toast.error("Choisissez une taille / couleur avant d'activer.");
+      if (hasMultiSelect) {
+        toast.error("Sélectionnez une taille et une couleur avant d'activer.");
+      } else {
+        toast.error("Choisissez une taille / couleur avant d'activer.");
+      }
       return;
     }
 
@@ -210,16 +228,71 @@ export function AddWatchForm() {
         </CardContent>
       </Card>
 
-      <div className="space-y-3">
-        <Label>Sélectionne ta taille / couleur</Label>
-        {analysis?.enrichment_pending ? (
-          <p className="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
-            Le site bloque notre lecture automatique. Vous pouvez créer
-            l&apos;alerte et notre worker enrichira la fiche dans quelques
-            minutes.
-          </p>
-        ) : null}
-        {variants.length > 0 ? (
+      {analysis?.enrichment_pending ? (
+        <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          Le site bloque notre lecture automatique. Vous pouvez créer
+          l&apos;alerte et notre worker enrichira la fiche dans quelques
+          minutes.
+        </p>
+      ) : null}
+
+      {hasMultiSelect ? (
+        <>
+          {/* Size selection */}
+          <div className="space-y-3">
+            <Label>Taille</Label>
+            <div className="flex flex-wrap gap-2">
+              {sizes.map((s) => {
+                const active = selectedSize === s;
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setSelectedSize(active ? null : s)}
+                    className={cn(
+                      "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
+                      "active:scale-[0.97]",
+                      active
+                        ? "border-foreground bg-foreground text-background shadow-sm"
+                        : "border-border bg-background hover:border-foreground/40 hover:bg-muted",
+                    )}
+                  >
+                    {s}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Color selection */}
+          <div className="space-y-3">
+            <Label>Couleur</Label>
+            <div className="flex flex-wrap gap-2">
+              {colors.map((c) => {
+                const active = selectedColor === c;
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setSelectedColor(active ? null : c)}
+                    className={cn(
+                      "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
+                      "active:scale-[0.97]",
+                      active
+                        ? "border-foreground bg-foreground text-background shadow-sm"
+                        : "border-border bg-background hover:border-foreground/40 hover:bg-muted",
+                    )}
+                  >
+                    {c}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      ) : hasLegacyVariants ? (
+        <div className="space-y-3">
+          <Label>Sélectionne ta taille / couleur</Label>
           <div className="flex flex-wrap gap-2">
             {variants.map((v) => {
               const active = selectedVariant === v;
@@ -241,19 +314,23 @@ export function AddWatchForm() {
               );
             })}
           </div>
-        ) : (
+          <p className="text-xs text-muted-foreground">
+            Sélectionnez la variante exacte que vous souhaitez surveiller.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <Label>Sélectionne ta taille / couleur</Label>
           <Input
             placeholder="ex: Taille S / Bleu marine"
             value={manualVariant}
             onChange={(e) => setManualVariant(e.target.value)}
           />
-        )}
-        <p className="text-xs text-muted-foreground">
-          {variants.length > 0
-            ? "Sélectionnez la variante exacte que vous souhaitez surveiller."
-            : "Aucune variante détectée — saisissez la taille / couleur manuellement."}
-        </p>
-      </div>
+          <p className="text-xs text-muted-foreground">
+            Aucune variante détectée — saisissez la taille / couleur manuellement.
+          </p>
+        </div>
+      )}
 
       <div className="flex items-center justify-end gap-2">
         <Button

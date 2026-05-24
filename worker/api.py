@@ -140,6 +140,37 @@ def _extract_css_text(page, selector: str) -> str | None:
     return None
 
 
+def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
+    """Separate a merged variant list into sizes and colors.
+
+    Sizes are short tokens that match standard apparel sizing patterns.
+    Colors are longer natural-language descriptions.
+    """
+    _SIZE_SET = set(SIZE_TOKENS)  # XXS..XXXL, 34..50
+    sizes: list[str] = []
+    colors: list[str] = []
+
+    for v in variants:
+        v_clean = v.strip()
+        if not v_clean:
+            continue
+        # Exact size token match
+        if v_clean.upper() in _SIZE_SET:
+            sizes.append(v_clean)
+        # Short uppercase + optional digits (L, XL, XXL, 2XL, etc.)
+        elif re.fullmatch(r"[A-Z0-9 ]{1,6}", v_clean) and len(v_clean) <= 6:
+            sizes.append(v_clean)
+        else:
+            colors.append(v_clean)
+
+    # Normalize order — standard sizes first, then numeric
+    _SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL"]
+    sizes.sort(key=lambda s: (_SIZE_ORDER.index(s) if s in _SIZE_ORDER else len(_SIZE_ORDER) + int(s) if s.isdigit() else 999))
+    colors.sort()
+
+    return sizes, colors
+
+
 def _extract_css_colors(page) -> list[str]:
     """Extract color variants from a rendered page (Zara, COS, etc.).
 
@@ -398,11 +429,16 @@ async def analyze(url: str = Query(min_length=1)):
             if c not in variants:
                 variants.append(c)
 
+    # Split into sizes and colors for multi-select UI
+    sizes, colors = _classify_variants(variants)
+
     return {
         "ok": True,
         "url": url,
         "name": name,
         "image_url": image_url,
         "price": price,
-        "variants": variants,
+        "variants": variants,   # legacy — full merged list
+        "sizes": sizes,
+        "colors": colors,
     }
