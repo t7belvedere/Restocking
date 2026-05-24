@@ -1,12 +1,5 @@
-import { useEffect } from "react";
-import { Platform } from "react-native";
 import "../global.css";
 import { Stack } from "expo-router";
-
-if (Platform.OS === "web") {
-  const { StyleSheet } = require("react-native");
-  StyleSheet.setFlag?.("darkMode", "class");
-}
 import { AuthProvider } from "@/lib/auth";
 import { I18nProvider } from "@/lib/i18n";
 import {
