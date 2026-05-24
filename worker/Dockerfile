@@ -10,8 +10,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-# Install Chromium for Playwright (StealthyFetcher fallback)
+# Install Chromium for both regular Playwright and rebrowser-playwright (Scrapling)
 RUN python -m playwright install --with-deps chromium
+RUN python -m rebrowser_playwright install --with-deps chromium
 
 COPY . .
 
