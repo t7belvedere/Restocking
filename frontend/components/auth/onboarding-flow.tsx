@@ -93,7 +93,23 @@ export function OnboardingFlow() {
 
   // ── Step 5: Email signup ──────────────────────────────────────────
 
+  const [confirmError, setConfirmError] = useState<string | null>(null);
+
   function handleEmailSignUp(formData: FormData) {
+    const pwd = formData.get("password") as string;
+    const confirm = formData.get("confirm_password") as string;
+
+    // Client-side password match check
+    if (pwd && confirm && pwd !== confirm) {
+      setConfirmError(
+        locale === "fr"
+          ? "Les mots de passe ne correspondent pas."
+          : "Passwords do not match.",
+      );
+      return;
+    }
+    setConfirmError(null);
+
     // Append onboarding answers to form data
     formData.set("onboarding", JSON.stringify(answers));
     // Also set cookie for metadata persistence after email confirmation
@@ -204,6 +220,7 @@ export function OnboardingFlow() {
             locale={locale}
             isPending={isPending}
             state={state}
+            confirmError={confirmError}
             onGoogleSignIn={handleGoogleSignIn}
             onEmailSignUp={handleEmailSignUp}
           />

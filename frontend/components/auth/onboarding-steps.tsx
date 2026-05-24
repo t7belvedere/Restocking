@@ -283,6 +283,95 @@ export function ProductStep({
 }
 
 // ---------------------------------------------------------------------------
+// PasswordField (internal, with custom brutalist eye toggle)
+// ---------------------------------------------------------------------------
+
+function PasswordField({
+  id,
+  name,
+  label,
+  autoComplete,
+  ariaInvalid,
+  disabled,
+  error,
+  hint,
+  locale,
+}: {
+  id: string;
+  name: string;
+  label: string;
+  autoComplete?: string;
+  ariaInvalid?: boolean;
+  disabled?: boolean;
+  error?: string;
+  hint?: string;
+  locale: string;
+}) {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <div className="space-y-1.5">
+      <label
+        htmlFor={id}
+        className="block font-display text-xs font-bold uppercase tracking-[0.2em] text-ink"
+      >
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          id={id}
+          name={name}
+          type={visible ? "text" : "password"}
+          autoComplete={autoComplete}
+          minLength={8}
+          required
+          aria-invalid={ariaInvalid}
+          disabled={disabled}
+          className={cn(
+            "h-12 w-full rounded-xl border-2 border-ink bg-paper pr-14 pl-4 font-medium text-ink shadow-brutal-sm",
+            "placeholder:text-ink/40",
+            "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-orange)]/40",
+            error && "border-[oklch(0.55_0.22_27)]",
+          )}
+        />
+        <button
+          type="button"
+          tabIndex={-1}
+          onClick={() => setVisible((v) => !v)}
+          aria-label={visible ? (locale === "fr" ? "Masquer" : "Hide") : (locale === "fr" ? "Afficher" : "Show")}
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-lg text-ink/40 hover:text-ink transition-colors"
+        >
+          <svg width="18" height="14" viewBox="0 0 18 14" fill="none" aria-hidden>
+            <path
+              d="M1 7c1.6-3.6 4.8-6 8-6s6.4 2.4 8 6-4.8 6-8 6-6.4-2.4-8-6Z"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <circle
+              cx="9" cy="7" r="2"
+              fill="currentColor"
+              className={visible ? "text-[var(--brand-orange)]" : ""}
+            />
+            {visible && (
+              <line x1="1" y1="1" x2="17" y2="13" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" />
+            )}
+          </svg>
+        </button>
+      </div>
+      {error ? (
+        <p className="text-xs font-medium text-[oklch(0.55_0.22_27)]">
+          {error}
+        </p>
+      ) : hint ? (
+        <p className="text-xs text-ink/55">{hint}</p>
+      ) : null}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // GoogleIcon
 // ---------------------------------------------------------------------------
 
@@ -321,6 +410,7 @@ export function SignupStep({
   locale,
   isPending,
   state,
+  confirmError,
   onGoogleSignIn,
   onEmailSignUp,
 }: {
@@ -329,6 +419,7 @@ export function SignupStep({
   locale: Locale;
   isPending: boolean;
   state: SignupState;
+  confirmError?: string | null;
   onGoogleSignIn: () => void;
   onEmailSignUp: (formData: FormData) => void;
 }) {
@@ -392,36 +483,27 @@ export function SignupStep({
           ) : null}
         </div>
 
-        <div className="space-y-1.5">
-          <label
-            htmlFor="onboarding-signup-password"
-            className="block font-display text-xs font-bold uppercase tracking-[0.2em] text-ink"
-          >
-            {t.auth.password}
-          </label>
-          <input
-            id="onboarding-signup-password"
-            name="password"
-            type="password"
-            autoComplete="new-password"
-            minLength={8}
-            required
-            aria-invalid={Boolean(state.fieldErrors?.password)}
-            disabled={isPending}
-            className={cn(
-              "h-12 w-full rounded-xl border-2 border-ink bg-paper px-4 font-medium text-ink shadow-brutal-sm",
-              "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-orange)]/40",
-              state.fieldErrors?.password && "border-[oklch(0.55_0.22_27)]",
-            )}
-          />
-          {state.fieldErrors?.password ? (
-            <p className="text-xs font-medium text-[oklch(0.55_0.22_27)]">
-              {state.fieldErrors.password}
-            </p>
-          ) : (
-            <p className="text-xs text-ink/55">{t.auth.passwordHint}</p>
-          )}
-        </div>
+        <PasswordField
+          id="onboarding-signup-password"
+          name="password"
+          label={t.auth.password}
+          autoComplete="new-password"
+          ariaInvalid={Boolean(state.fieldErrors?.password)}
+          disabled={isPending}
+          error={state.fieldErrors?.password}
+          hint={t.auth.passwordHint}
+          locale={locale}
+        />
+
+        <PasswordField
+          id="onboarding-signup-confirm"
+          name="confirm_password"
+          label={locale === "fr" ? "Confirme le mot de passe" : "Confirm password"}
+          autoComplete="new-password"
+          disabled={isPending}
+          locale={locale}
+          error={confirmError ?? undefined}
+        />
 
         <button
           type="submit"
