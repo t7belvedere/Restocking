@@ -255,6 +255,20 @@ def _prepare_html_for_llm(html: str, page, url: str) -> str:
         except Exception:
             pass
 
+    # data-color attributes (color swatches — Shopify, Stüssy, etc.)
+    data_colors: set[str] = set()
+    for m in re.finditer(r'data-color=["\']([^"\']{1,40})["\']', html, re.I):
+        data_colors.add(m.group(1).strip())
+    if data_colors:
+        parts.append(f"Available colors (data-color): {', '.join(sorted(data_colors))}")
+
+    # data-size attributes
+    data_sizes: set[str] = set()
+    for m in re.finditer(r'data-size=["\']([^"\']{1,20})["\']', html, re.I):
+        data_sizes.add(m.group(1).strip())
+    if data_sizes:
+        parts.append(f"Available sizes (data-size): {', '.join(sorted(data_sizes))}")
+
     # Aria-labels on buttons/links inside product sections (color/size selectors)
     if page is not None:
         try:
@@ -550,6 +564,7 @@ def _extract_css_text(page, selector: str) -> str | None:
 def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
     """Separate a merged variant list into sizes and colors."""
     _SIZE_SET = set(SIZE_TOKENS)  # XXS..XXXL, 34..50
+    _SIZE_SET.update({"ONE SIZE", "UNIQUE", "TU", "OS", "ONESIZE", "TAILLE UNIQUE"})
     # Common French/English color names that look like short size tokens
     _COLOR_WORDS = {
         "BLANC", "NOIR", "ROUGE", "BLEU", "VERT", "ROSE", "GRIS", "JAUNE",
@@ -557,6 +572,10 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
         "KAKI", "IVOIRE", "CRÈME", "CREME", "ECRU", "ÉCRU", "ARGENT", "OR",
         "WHITE", "BLACK", "RED", "BLUE", "GREEN", "PINK", "GREY", "GRAY",
         "YELLOW", "BROWN", "PURPLE", "SILVER", "GOLD", "NAVY", "CREAM",
+        "CAMEL", "BURGUNDY", "CORAL", "TEAL", "MINT", "LAVENDER", "INDIGO",
+        "COPPER", "BRONZE", "MAUVE", "OLIVE", "MUSTARD", "CRIMSON", "AQUA",
+        "MAROON", "TAN", "DENIM", "COBALT", "SLATE", "CHARCOAL", "MAGENTA",
+        "CYAN", "LILAC", "RUST", "SAGE", "TAUPE", "OCHRE", "JADE", "PLUM",
     }
     sizes: list[str] = []
     colors: list[str] = []
@@ -568,27 +587,61 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
         "in stock", "out of stock", "en stock", "rupture",
         "ok", "cancel", "annuler", "size guide", "guide des tailles",
         "clear", "effacer", "reset", "réinitialiser",
+        "select color", "select size", "sélectionne ta taille",
+        "sélectionne ta taille / couleur", "sélectionnez votre taille",
+        "choisissez votre taille", "taille", "couleur", "color", "size",
     }
+
+    def _classify_one(token: str) -> str | None:
+        """Classify a single token as 'size', 'color', or None (skip)."""
+        t = token.strip()
+        if not t:
+            return None
+        low = t.lower()
+        if low in _UI_GARBAGE:
+            return None
+        # Known color word → color
+        if t.upper() in _COLOR_WORDS:
+            return "color"
+        # Exact size token match
+        if t.upper() in _SIZE_SET:
+            return "size"
+        # Short uppercase alphanumeric → size
+        if re.fullmatch(r"[A-Z0-9 .\-]{1,6}", t) and len(t) <= 8:
+            return "size"
+        # Pure numeric → size
+        if t.isdigit():
+            return "size"
+        # Multi-word: check if it contains a known color or size
+        words = t.upper().split()
+        if any(w in _COLOR_WORDS for w in words):
+            return "color"
+        if any(w in _SIZE_SET for w in words):
+            return "size"
+        # Remaining longer text → color (conservative: multi-word color names)
+        if len(t) <= 40:
+            return "color"
+        return None
+
     for v in variants:
         v_clean = v.strip()
         if not v_clean:
             continue
-        if v_clean.lower() in _UI_GARBAGE:
-            continue
-        # Known color words (even short ones) → color
-        if v_clean.upper() in _COLOR_WORDS:
-            colors.append(v_clean)
-        # Exact size token match (numeric or alpha size)
-        elif v_clean.upper() in _SIZE_SET:
-            sizes.append(v_clean)
-        # Short uppercase alphanumeric that's NOT a known color → size
-        elif re.fullmatch(r"[A-Z0-9 ]{1,6}", v_clean) and len(v_clean) <= 6:
-            sizes.append(v_clean)
-        # Numeric strings not in SIZE_TOKENS (e.g. 24-33 for jeans) → size
-        elif v_clean.isdigit():
-            sizes.append(v_clean)
+
+        # Split combined variants like "Night Black / ONE SIZE"
+        if " / " in v_clean:
+            parts = v_clean.split(" / ")
         else:
-            colors.append(v_clean)
+            parts = [v_clean]
+
+        for part in parts:
+            kind = _classify_one(part)
+            if kind == "size":
+                if part not in sizes:
+                    sizes.append(part)
+            elif kind == "color":
+                if part not in colors:
+                    colors.append(part)
 
     _SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL"]
     sizes.sort(key=lambda s: (_SIZE_ORDER.index(s) if s in _SIZE_ORDER else len(_SIZE_ORDER) + int(s) if s.isdigit() else 999))
