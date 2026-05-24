@@ -11,6 +11,10 @@ export const metadata: Metadata = {
   description:
     "Restocking surveille les boutiques mode européennes (Zara, COS, Aritzia, Sézane, Uniqlo…) et te prévient en moins de 5 minutes dès que ta taille revient en stock.",
   metadataBase: new URL("https://restocking.app"),
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     title: "restocking — your size, the moment it comes back",
     description:

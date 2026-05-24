@@ -103,10 +103,11 @@ def _is_due(watch: dict) -> bool:
         )
         return True
 
-    # Newly created watches: if last_check was set at creation time (by a DB
-    # default or trigger), still treat as due so the worker scrapes+enriches
-    # immediately instead of waiting for the full interval.
-    if watch.get("last_status") == "UNKNOWN" and watch.get("name") is None:
+    # Watches that have never been successfully checked — always due.
+    # UNKNOWN is the initial status at creation, and also the status when
+    # detection fails. We want to retry immediately on every loop until
+    # we get a definitive IN_STOCK or OUT_OF_STOCK.
+    if watch.get("last_status") == "UNKNOWN":
         return True
 
     interval = CHECK_INTERVAL_PRO if watch.get("plan") == "pro" else CHECK_INTERVAL_FREE
