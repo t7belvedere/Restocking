@@ -633,6 +633,7 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
     }
     sizes: list[str] = []
     colors: list[str] = []
+    _seen_colors_lower: set[str] = set()  # case-insensitive dedup
 
     _UI_GARBAGE = {
         "qte", "qté", "qty", "q.ty", "quantité", "quantity", "rechercher", "search",
@@ -713,8 +714,11 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
                 if value not in sizes:
                     sizes.append(value)
             elif kind == "color":
-                if value not in colors:
-                    colors.append(value)
+                # Normalize: replace hyphens with spaces for readability
+                display = value.replace("-", " ").replace("_", " ")
+                if display.lower() not in _seen_colors_lower:
+                    _seen_colors_lower.add(display.lower())
+                    colors.append(display)
 
     _SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL"]
     sizes.sort(key=lambda s: (_SIZE_ORDER.index(s) if s in _SIZE_ORDER else len(_SIZE_ORDER) + int(s) if s.isdigit() else 999))
