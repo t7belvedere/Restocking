@@ -250,12 +250,11 @@ export function AddWatchForm() {
                   <button
                     key={s}
                     type="button"
-                    disabled={!inStock}
-                    onClick={() => { if (inStock) setSelectedSize(active ? null : s); }}
+                    onClick={() => setSelectedSize(active ? null : s)}
                     className={cn(
                       "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
                       "active:scale-[0.97]",
-                      !inStock && "opacity-30 line-through cursor-not-allowed border-dashed border-red-200 bg-red-50/50 text-red-400 select-none",
+                      !inStock && "border-dashed border-red-200 bg-red-50/50 text-red-400 line-through",
                       inStock && active
                         ? "border-foreground bg-foreground text-background shadow-sm"
                         : inStock
@@ -281,12 +280,11 @@ export function AddWatchForm() {
                   <button
                     key={c}
                     type="button"
-                    disabled={!inStock}
-                    onClick={() => { if (inStock) setSelectedColor(active ? null : c); }}
+                    onClick={() => setSelectedColor(active ? null : c)}
                     className={cn(
                       "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
                       "active:scale-[0.97]",
-                      !inStock && "opacity-30 line-through cursor-not-allowed border-dashed border-red-200 bg-red-50/50 text-red-400 select-none",
+                      !inStock && "border-dashed border-red-200 bg-red-50/50 text-red-400 line-through",
                       inStock && active
                         ? "border-foreground bg-foreground text-background shadow-sm"
                         : inStock
