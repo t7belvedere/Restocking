@@ -14,6 +14,8 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const tokenHash = url.searchParams.get("token_hash");
   const type = url.searchParams.get("type") as EmailOtpType | null;
+  const code = url.searchParams.get("code");
+  const nextParam = url.searchParams.get("next");
   const origin = url.origin;
   const loginUrl = new URL("/login", origin);
 
@@ -22,7 +24,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (!tokenHash || !type) {
+  if (!tokenHash && !code) {
     loginUrl.searchParams.set("error", "missing-token");
     return NextResponse.redirect(loginUrl);
   }
@@ -34,16 +36,28 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  const { error } = await supabase.auth.verifyOtp({
-    type,
-    token_hash: tokenHash,
-  });
-
-  if (error) {
-    loginUrl.searchParams.set("error", "invalid-or-expired-link");
+  if (tokenHash && type) {
+    const { error } = await supabase.auth.verifyOtp({
+      type,
+      token_hash: tokenHash,
+    });
+    if (error) {
+      loginUrl.searchParams.set("error", "invalid-or-expired-link");
+      return NextResponse.redirect(loginUrl);
+    }
+  } else if (code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      loginUrl.searchParams.set("error", "invalid-or-expired-link");
+      return NextResponse.redirect(loginUrl);
+    }
+  } else {
+    loginUrl.searchParams.set("error", "missing-token");
     return NextResponse.redirect(loginUrl);
   }
 
-  const dashboardUrl = new URL("/dashboard", origin);
-  return NextResponse.redirect(dashboardUrl, { headers: response.headers });
+  const destinationPath =
+    nextParam && nextParam.startsWith("/") ? nextParam : "/dashboard";
+  const destination = new URL(destinationPath, origin);
+  return NextResponse.redirect(destination, { headers: response.headers });
 }
