@@ -180,7 +180,7 @@ export function QuickAddBrand({ brands }: QuickAddBrandProps) {
                             }
                           }}
                           disabled={tile.kind === "loading"}
-                          className="h-10 flex-1 rounded-lg border-2 border-ink bg-paper px-3 text-base font-medium shadow-brutal-sm placeholder:text-ink/30 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-orange)]/40 sm:text-sm"
+                          className="h-11 flex-1 rounded-lg border-2 border-ink bg-paper px-3 text-base font-medium shadow-brutal-sm placeholder:text-ink/30 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-orange)]/40 sm:text-sm"
                         />
                         <button
                           type="button"

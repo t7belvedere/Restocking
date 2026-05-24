@@ -127,7 +127,7 @@ export function BrandStep({
               addCustom();
             }
           }}
-          className="h-11 flex-1 rounded-full border-2 border-dashed border-ink/30 bg-paper px-4 text-base font-medium text-ink placeholder:text-ink/40 focus-visible:outline-none focus-visible:border-ink/60 sm:text-sm"
+          className="h-12 flex-1 rounded-full border-2 border-dashed border-ink/30 bg-paper px-4 text-base font-medium text-ink placeholder:text-ink/40 focus-visible:outline-none focus-visible:border-ink/60 sm:text-sm"
         />
         <button
           type="button"
