@@ -271,6 +271,12 @@ def _process_watch(watch: dict) -> None:
     if parser is not None:
         status, signal_source = parser(page, variant_label, variant_id, url=url)
         logger.debug("watch %s: retailer parser → %s (source: %s)", watch_id, status, signal_source)
+        # Fallback to generic detector if retailer parser returns UNKNOWN
+        if status == "UNKNOWN":
+            gen_status, gen_source = detect_stock(page, variant_label, variant_id)
+            if gen_status != "UNKNOWN":
+                status, signal_source = gen_status, gen_source
+                logger.debug("watch %s: fallback to generic → %s (source: %s)", watch_id, status, signal_source)
     else:
         status, signal_source = detect_stock(page, variant_label, variant_id)
         logger.debug("watch %s: generic detector → %s (source: %s)", watch_id, status, signal_source)
