@@ -212,6 +212,13 @@ export function AddWatchForm() {
 
       <div className="space-y-3">
         <Label>Sélectionne ta taille / couleur</Label>
+        {analysis?.enrichment_pending ? (
+          <p className="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+            Le site bloque notre lecture automatique. Vous pouvez créer
+            l&apos;alerte et notre worker enrichira la fiche dans quelques
+            minutes.
+          </p>
+        ) : null}
         {variants.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {variants.map((v) => {

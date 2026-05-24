@@ -83,6 +83,24 @@ def insert_check_log(
     supabase.table("check_logs").insert(row).execute()
 
 
+def update_watch_metadata(
+    watch_id: str,
+    name: str | None = None,
+    image_url: str | None = None,
+    price: float | None = None,
+) -> None:
+    """Update product metadata on a watch (called after enrichment scrape)."""
+    patch: dict = {}
+    if name is not None:
+        patch["name"] = name
+    if image_url is not None:
+        patch["image_url"] = image_url
+    if price is not None:
+        patch["price"] = price
+    if patch:
+        supabase.table("watches").update(patch).eq("id", watch_id).execute()
+
+
 def insert_notification(watch_id: str, channel: str, success: bool = True) -> None:
     """Insert a row into notifications."""
     supabase.table("notifications").insert({

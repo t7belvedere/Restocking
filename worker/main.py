@@ -18,6 +18,7 @@ Flow (every LOOP_SLEEP seconds):
 import logging
 import os
 import random
+import re
 import time
 import urllib.parse
 from datetime import datetime, timezone
@@ -56,6 +57,7 @@ from db.client import (
     get_user_email,
     insert_check_log,
     insert_notification,
+    update_watch_metadata,
     update_watch_status,
 )
 from notifier.email import send_restock_email
@@ -117,6 +119,49 @@ def _apply_domain_rate_limit(url: str) -> None:
     domain_last_request[hostname] = time.monotonic()
 
 
+def _enrich_watch(watch_id: str, page) -> None:
+    """Extract product metadata from a Scrapling page and update the watch row.
+
+    Mirrors the frontend's analyzeUrl logic: reads og:meta tags, price, etc.
+    """
+    html = getattr(page, "html_content", "")
+    if not html:
+        return
+
+    def _pick_meta(prop: str) -> str | None:
+        m = re.search(
+            rf'<meta[^>]+(?:property|name)=["\']{prop}["\'][^>]+content=["\']([^"\']+)["\']',
+            html,
+            re.IGNORECASE,
+        )
+        return m.group(1) if m else None
+
+    name = _pick_meta("og:title")
+    image_url = _pick_meta("og:image")
+
+    # Price: try og:price:amount first, then regex fallback
+    price: float | None = None
+    for key in ("og:price:amount", "product:price:amount"):
+        raw = _pick_meta(key)
+        if raw:
+            try:
+                price = float(raw.replace(",", "."))
+                break
+            except (ValueError, TypeError):
+                pass
+    if price is None:
+        m = re.search(r"(\d{1,4}(?:[.,]\d{2})?)\s*€", html)
+        if m:
+            try:
+                price = float(m.group(1).replace(",", "."))
+            except (ValueError, TypeError):
+                pass
+
+    if name or image_url or price is not None:
+        update_watch_metadata(watch_id, name=name, image_url=image_url, price=price)
+        logger.info("watch %s: metadata enriched — name=%s price=%s", watch_id, name, price)
+
+
 def _send_notifications(watch: dict, status: str) -> None:
     """Send email (all plans) and SMS (pro only, skipped — no phone in schema)."""
     watch_id = watch["id"]
@@ -169,6 +214,13 @@ def _process_watch(watch: dict) -> None:
     # --- Scrape ---
     page, method = fetch_with_fallback(url)
     logger.debug("watch %s: fetched via %s", watch_id, method)
+
+    # --- Enrich metadata if missing ---
+    if not watch.get("name"):
+        try:
+            _enrich_watch(watch_id, page)
+        except Exception:
+            logger.exception("watch %s: enrichment failed — continuing with stock check", watch_id)
 
     # --- Detect stock ---
     parser = get_parser(url)

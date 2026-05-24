@@ -15,6 +15,7 @@ export type AnalyzeResult = {
   image_url: string | null;
   price: number | null;
   variants: string[];
+  enrichment_pending?: boolean;
   error?: "FETCH_FAILED" | "INVALID_URL" | "TIMEOUT";
 };
 
@@ -144,12 +145,13 @@ export async function analyzeUrl(url: string): Promise<AnalyzeResult> {
 
     if (!res.ok) {
       return {
-        ok: false,
+        ok: true,
         url: parsed.toString(),
         name: null,
         image_url: null,
         price: null,
         variants: [],
+        enrichment_pending: true,
         error: "FETCH_FAILED",
       };
     }
@@ -171,12 +173,13 @@ export async function analyzeUrl(url: string): Promise<AnalyzeResult> {
   } catch (err) {
     const aborted = err instanceof Error && err.name === "AbortError";
     return {
-      ok: false,
+      ok: true,
       url: parsed.toString(),
       name: null,
       image_url: null,
       price: null,
       variants: [],
+      enrichment_pending: true,
       error: aborted ? "TIMEOUT" : "FETCH_FAILED",
     };
   } finally {
