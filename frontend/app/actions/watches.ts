@@ -125,8 +125,13 @@ export async function analyzeUrl(url: string): Promise<AnalyzeResult> {
     };
   }
 
+  // Always use the Railway worker in production.
+  // process.env.WORKER_API_URL may be set to localhost from .env.local
+  // which doesn't work on Vercel's servers.
   const workerApiUrl =
-    process.env.WORKER_API_URL || "https://restocking-production.up.railway.app";
+    process.env.VERCEL_ENV === "production"
+      ? "https://restocking-production.up.railway.app"
+      : process.env.WORKER_API_URL || "https://restocking-production.up.railway.app";
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 35000);
