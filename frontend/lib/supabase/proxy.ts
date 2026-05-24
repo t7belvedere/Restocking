@@ -7,7 +7,7 @@ import {
 } from "./env";
 
 const PROTECTED_PREFIXES = ["/dashboard", "/upgrade", "/admin"];
-const AUTH_PREFIXES = ["/login", "/signup"];
+const AUTH_PREFIXES = ["/login", "/signup", "/forgot-password", "/reset-password"];
 
 /**
  * Refreshes the Supabase session for every request, writes refreshed cookies
