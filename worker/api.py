@@ -64,17 +64,51 @@ def _pick_price(html: str) -> float | None:
 
 
 def _extract_variants(html: str) -> list[str]:
+    """Extract size and color variants from HTML.
+
+    Tries: data-size/data-color attrs, JSON-LD offers, text nodes near selectors.
+    """
     found: set[str] = set()
+
+    # 1. Data attributes and HTML patterns
     for token in SIZE_TOKENS:
         if re.search(
             rf'(?:>\s*{re.escape(token)}\s*<|data-size=["\']{re.escape(token)}["\']|aria-label=["\'][^"\']*{re.escape(token)}[^"\']*["\'])',
             html,
         ):
             found.add(token)
+
+    # 2. JSON-LD Product offers (Zara, other retailers)
+    for m in re.finditer(
+        r'<script type="application/ld\+json"[^>]*>(.*?)</script>',
+        html,
+        re.DOTALL,
+    ):
+        try:
+            data = json.loads(m.group(1))
+            if isinstance(data, dict) and data.get("@type") == "Product":
+                offers = data.get("offers", [])
+                if isinstance(offers, dict):
+                    offers = [offers]
+                for o in offers:
+                    for key in ("size", "color", "name"):
+                        v = o.get(key, "").strip()
+                        if v:
+                            found.add(v)
+        except Exception:
+            pass
+
+    # 2b. Structured data: \"size\":\"TOKEN\" or \"color\":\"TOKEN\" in JSON or HTML
+    for token in SIZE_TOKENS:
+        if re.search(rf'"(?:size|color|name)"\s*:\s*"{re.escape(token)}"', html):
+            found.add(token)
+
+    # 3. data-color attributes
     for m in re.finditer(r'data-color=["\']([^"\']{1,32})["\']', html, re.IGNORECASE):
         found.add(m.group(1).strip())
         if len(found) > 24:
             break
+
     return list(found)[:18]
 
 
@@ -106,30 +140,159 @@ def _extract_css_text(page, selector: str) -> str | None:
     return None
 
 
-def _extract_css_image(page) -> str | None:
+def _extract_css_colors(page) -> list[str]:
+    """Extract color variants from a rendered page (Zara, COS, etc.).
+
+    Targets elements with data-qa-action='select-color' or class '*color-item*'.
+    """
+    found: set[str] = set()
+    for sel in (
+        "[data-qa-action=select-color]",
+        "[class*=color-item] button",
+        "[class*=color-selector] button",
+        "[class*=swatch]",
+    ):
+        try:
+            els = page.css(sel)
+            for el in els[:30]:
+                txt = getattr(el, "get_all_text", lambda: "")()
+                if isinstance(txt, str):
+                    txt = txt.strip()
+                    if 1 < len(txt) < 50 and not txt.startswith("€") and not txt.isdigit():
+                        found.add(txt)
+        except Exception:
+            pass
+        if len(found) >= 12:
+            break
+    return list(found)
+
+
+def _extract_css_image(page, url: str = "") -> str | None:
     """Extract the main product image from a rendered page.
 
-    Takes the first large-looking image, skipping transparent placeholders
-    and tiny icons. Falls back to og:image in HTML.
+    Skips SVGs, tracking pixels, cookie banners, transparent placeholders.
+    Prefers product-detail images, then large images on product CDN.
     """
+    import re as _re
+    from urllib.parse import urlparse as _urlparse
+
+    product_domain = _urlparse(url).netloc if url else ""
+    _BAD_DOMAINS = {"cookielaw.org", "onetrust.com", "google.com", "facebook.net",
+                    "doubleclick.net", "googletagmanager.com", "consensu.org"}
+
     try:
         imgs = page.css("img")
-        for img in imgs[:30]:
+        candidates: list[tuple[int, str]] = []  # (score, src)
+
+        for img in imgs[:50]:
             src = img.attrib.get("src") or img.attrib.get("data-src") or ""
-            if not src or "transparent" in src.lower():
+            # Also check srcset (Zara, other modern retailers) — take the first URL
+            if not src:
+                srcset = img.attrib.get("srcset", "")
+                if srcset:
+                    src = srcset.split(",")[0].strip().split(" ")[0]
+            if not src:
                 continue
-            if len(src) > 20:
+            low = src.lower()
+            if "transparent" in low:
+                continue
+            if _re.search(r"\.svg(\?|$)", low):
+                continue
+            if any(bad in low for bad in ("/pixel", "/akam", "tracking", "beacon")):
+                continue
+
+            # Skip known non-product domains (substring match)
+            try:
+                img_domain = _urlparse(src).netloc.lower()
+                if any(bad in img_domain for bad in _BAD_DOMAINS):
+                    continue
+            except Exception:
+                pass
+
+            score = 0
+            classes = img.attrib.get("class", "").lower()
+            if "product" in classes or "main-image" in classes:
+                score += 30
+            if product_domain and product_domain in low:
+                score += 20
+            if "static." in low or "assets" in low or "cdn" in low:
+                score += 10
+            if any(ext in low for ext in (".jpg?", ".jpeg?", ".png?", ".webp?", ".avif?")):
+                score += 15
+            if not _re.search(r"\.(svg|gif)(\?|$)", low):
+                score += 5
+
+            candidates.append((score, src))
+
+        # Return highest scoring image
+        candidates.sort(key=lambda x: x[0], reverse=True)
+        if candidates and candidates[0][0] > 0:
+            return candidates[0][1]
+
+        # If no good candidates, return first non-bad image longer than 60 chars
+        for img in imgs[:50]:
+            src = img.attrib.get("src") or img.attrib.get("data-src") or ""
+            if not src:
+                srcset = img.attrib.get("srcset", "")
+                if srcset:
+                    src = srcset.split(",")[0].strip().split(" ")[0]
+            if not src:
+                continue
+            low = src.lower()
+            if not src or "transparent" in low or _re.search(r"\.svg(\?|$)", low):
+                continue
+            if any(bad in low for bad in ("/pixel", "/akam", "tracking", "beacon")):
+                continue
+            try:
+                if any(bad in _urlparse(src).netloc.lower() for bad in _BAD_DOMAINS):
+                    continue
+            except Exception:
+                pass
+            if len(src) > 60:
                 return src
     except Exception:
         pass
-    # Fallback: search raw HTML for og:image
+    # Fallback: search raw HTML for product images
     html = getattr(page, "html_content", "")
-    m = re.search(
+    # 1. og:image meta tag
+    m = _re.search(
         r'(?:property|name)=["\']og:image["\'][^>]+content=["\']([^"\']+)',
         html,
-        re.IGNORECASE,
+        _re.IGNORECASE,
     )
-    return m.group(1) if m else None
+    if m:
+        return m.group(1)
+    # 2. imagesrcset / srcset preload links (Zara, React Helmet)
+    for attr in ("imagesrcset", "srcset"):
+        m = _re.search(
+            rf'{attr}=["\']([^"\']*?(?:\.jpg|\.jpeg|\.png|\.webp)[^"\']*)["\']',
+            html,
+            _re.IGNORECASE,
+        )
+        if m:
+            # Take the first URL from the set
+            first = m.group(1).split(",")[0].strip().split(" ")[0]
+            # Decode HTML entities
+            first = first.replace("&amp;", "&")
+            if len(first) > 40:
+                return first
+    # 3. JSON-LD image field
+    for m in _re.finditer(
+        r'<script type="application/ld\+json"[^>]*>(.*?)</script>',
+        html,
+        _re.DOTALL,
+    ):
+        try:
+            data = __import__("json").loads(m.group(1))
+            if isinstance(data, dict):
+                img = data.get("image")
+                if isinstance(img, str) and img.startswith("http"):
+                    return img
+                if isinstance(img, list) and img:
+                    return img[0]
+        except Exception:
+            pass
+    return None
 
 
 def _extract_css_price(page) -> float | None:
@@ -220,13 +383,20 @@ async def analyze(url: str = Query(min_length=1)):
 
     image_url = _pick_meta(html, "og:image")
     if not image_url and page is not None:
-        image_url = _extract_css_image(page)
+        image_url = _extract_css_image(page, url)
 
     price = _pick_price(html)
     if price is None and page is not None:
         price = _extract_css_price(page)
 
     variants = _extract_variants(html)
+
+    # Extract colors from rendered page (retailers that render them in buttons/swatches)
+    if page is not None:
+        css_colors = _extract_css_colors(page)
+        for c in css_colors:
+            if c not in variants:
+                variants.append(c)
 
     return {
         "ok": True,
