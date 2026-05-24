@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import {
-  View, Text, FlatList, RefreshControl, TouchableOpacity, StyleSheet, Image, ActivityIndicator,
+  View,
+  Text,
+  FlatList,
+  RefreshControl,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { supabase } from "@/lib/supabase";
@@ -8,11 +14,42 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 
 interface Watch {
-  id: string; name: string; image_url?: string;
-  size_label?: string; price?: number; currency?: string;
-  in_stock: boolean; last_checked_at?: string; url: string;
+  id: string;
+  name: string;
+  image_url?: string;
+  size_label?: string;
+  price?: number;
+  currency?: string;
+  in_stock: boolean;
+  last_checked_at?: string;
+  url: string;
 }
 
+// ── Neo-brutalist hard shadows ────────────────────────────────────────────
+const shadowHard = {
+  shadowColor: "#262626",
+  shadowOffset: { width: 2, height: 2 },
+  shadowOpacity: 1,
+  shadowRadius: 0,
+  elevation: 4,
+} as const;
+
+const shadowHardLg = {
+  shadowColor: "#262626",
+  shadowOffset: { width: 4, height: 4 },
+  shadowOpacity: 1,
+  shadowRadius: 0,
+  elevation: 8,
+} as const;
+
+// ── Price formatter ───────────────────────────────────────────────────────
+const fmtPrice = (price: number, currency: string | undefined) =>
+  new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency: currency ?? "EUR",
+  }).format(price);
+
+// ── Dashboard ─────────────────────────────────────────────────────────────
 export default function Dashboard() {
   const { user } = useAuth();
   const { t } = useI18n();
@@ -23,99 +60,137 @@ export default function Dashboard() {
 
   const fetchWatches = async () => {
     if (!user) return;
-    const { data } = await supabase.from("watches").select("*")
-      .eq("user_id", user.id).order("created_at", { ascending: false });
-    setWatches((data ?? []).map((w: any) => ({ ...w, in_stock: w.in_stock ?? false })));
+    const { data } = await supabase
+      .from("watches")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+    setWatches(
+      (data ?? []).map((w: any) => ({ ...w, in_stock: w.in_stock ?? false })),
+    );
     setLoading(false);
     setRefreshing(false);
   };
 
-  useEffect(() => { fetchWatches(); }, [user]);
+  useEffect(() => {
+    fetchWatches();
+  }, [user]);
 
+  // ── Loading state ────────────────────────────────────────────────────
   if (loading) {
     return (
-      <View style={s.center}>
+      <View className="flex-1 items-center justify-center bg-[#F9F8F6]">
         <ActivityIndicator size="large" color="#F85C15" />
       </View>
     );
   }
 
+  // ── Empty state ──────────────────────────────────────────────────────
   if (watches.length === 0) {
     return (
-      <View style={s.center}>
-        <Text style={s.emptyTitle}>{t.noWatches}</Text>
-        <Text style={s.emptyDesc}>{t.noWatchesDesc}</Text>
-        <TouchableOpacity onPress={() => router.push("/(tabs)/add")} style={s.addBtn}>
-          <Text style={s.addBtnText}>+ {t.addWatch}</Text>
+      <View className="flex-1 items-center justify-center bg-[#F9F8F6] px-8">
+        <Text className="text-2xl font-bold text-[#262626] text-center">
+          {t.noWatches}
+        </Text>
+        <Text className="text-base text-[#737373] text-center mt-2">
+          {t.noWatchesDesc}
+        </Text>
+        <TouchableOpacity
+          onPress={() => router.push("/(tabs)/add")}
+          className="mt-6 rounded-xl border-2 border-[#262626] bg-[#F85C15] px-5 py-3.5"
+          style={shadowHardLg}
+          activeOpacity={0.85}
+        >
+          <Text className="text-base font-bold text-white">
+            + {t.addWatch}
+          </Text>
         </TouchableOpacity>
       </View>
     );
   }
 
-  return (
-    <View style={s.container}>
-      <View style={s.bar}>
-        <Text style={s.barTitle}>restocking</Text>
-        <Text style={s.barSub}>{watches.length} alerte{watches.length > 1 ? "s" : ""}</Text>
+  // ── Watch list ───────────────────────────────────────────────────────
+  const renderItem = ({ item }: { item: Watch }) => (
+    <View
+      className="flex-row rounded-xl border-2 border-[#262626] bg-white p-3"
+      style={shadowHard}
+    >
+      {/* Product image */}
+      {item.image_url ? (
+        <Image
+          source={{ uri: item.image_url }}
+          className="w-[72px] h-[72px] rounded-lg border border-[#E5E5E5]"
+          resizeMode="cover"
+        />
+      ) : (
+        <View className="w-[72px] h-[72px] rounded-lg border border-[#E5E5E5] bg-[#F5F5F4]" />
+      )}
+
+      {/* Card body */}
+      <View className="flex-1 ml-3 gap-1">
+        <Text
+          className="text-base font-semibold text-[#262626]"
+          numberOfLines={2}
+        >
+          {item.name}
+        </Text>
+
+        {/* Badges */}
+        <View className="flex-row gap-1.5">
+          <View
+            className={`px-2.5 py-0.5 rounded-md border border-[#262626] ${item.in_stock ? "bg-[#C9F040]" : "bg-[#F5A0B5]"}`}
+          >
+            <Text className="text-[11px] font-medium text-[#262626] uppercase tracking-widest">
+              {item.in_stock ? t.inStock : t.outOfStock}
+            </Text>
+          </View>
+          {item.size_label ? (
+            <View className="px-2.5 py-0.5 rounded-md border border-[#262626] bg-[#F5F5F4]">
+              <Text className="text-[11px] font-medium text-[#262626] uppercase tracking-widest">
+                {item.size_label}
+              </Text>
+            </View>
+          ) : null}
+        </View>
+
+        {/* Price */}
+        {item.price ? (
+          <Text className="text-sm text-[#262626] mt-0.5">
+            {fmtPrice(item.price, item.currency)}
+          </Text>
+        ) : null}
       </View>
+    </View>
+  );
+
+  return (
+    <View className="flex-1 bg-[#F9F8F6]">
+      {/* Top bar */}
+      <View className="bg-white border-b-2 border-[#262626] px-6 pb-4 pt-14">
+        <Text className="text-3xl font-extrabold text-[#262626] tracking-tight">
+          restocking
+        </Text>
+        <Text className="text-sm text-[#737373] mt-1">
+          {watches.length} alerte{watches.length > 1 ? "s" : ""}
+        </Text>
+      </View>
+
+      {/* Watch list */}
       <FlatList
         data={watches}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={s.list}
-        renderItem={({ item }) => (
-          <View style={s.card}>
-            {item.image_url ? (
-              <Image source={{ uri: item.image_url }} style={s.cardImg} resizeMode="cover" />
-            ) : (
-              <View style={[s.cardImg, s.cardImgPlaceholder]} />
-            )}
-            <View style={s.cardBody}>
-              <Text style={s.cardName} numberOfLines={2}>{item.name}</Text>
-              <View style={s.badges}>
-                <View style={[s.badge, item.in_stock ? s.badgeSuccess : s.badgeDanger]}>
-                  <Text style={s.badgeText}>{item.in_stock ? t.inStock : t.outOfStock}</Text>
-                </View>
-                {item.size_label ? (
-                  <View style={s.badgeDefault}>
-                    <Text style={s.badgeText}>{item.size_label}</Text>
-                  </View>
-                ) : null}
-              </View>
-              {item.price ? (
-                <Text style={s.price}>
-                  {new Intl.NumberFormat("fr-FR", { style: "currency", currency: item.currency ?? "EUR" }).format(item.price)}
-                </Text>
-              ) : null}
-            </View>
-          </View>
-        )}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchWatches(); }} />}
+        contentContainerStyle={{ padding: 16, gap: 12 }}
+        renderItem={renderItem}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              fetchWatches();
+            }}
+          />
+        }
       />
     </View>
   );
 }
-
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F9F8F6" },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#F9F8F6", paddingHorizontal: 32 },
-  bar: { backgroundColor: "#FFF", borderBottomWidth: 2, borderBottomColor: "#262626", paddingHorizontal: 24, paddingBottom: 16, paddingTop: 56 },
-  barTitle: { fontSize: 30, fontWeight: "800", color: "#262626", letterSpacing: -0.5 },
-  barSub: { marginTop: 4, fontSize: 14, color: "#737373" },
-  list: { padding: 16, gap: 12 },
-  card: { flexDirection: "row", borderRadius: 12, borderWidth: 2, borderColor: "#262626", backgroundColor: "#FFF", padding: 12, gap: 12, shadowColor: "#262626", shadowOffset: { width: 2, height: 2 }, shadowOpacity: 1, shadowRadius: 0 },
-  cardImg: { width: 72, height: 72, borderRadius: 8, borderWidth: 1, borderColor: "#E5E5E5" },
-  cardImgPlaceholder: { backgroundColor: "#F5F5F4" },
-  cardBody: { flex: 1, gap: 4 },
-  cardName: { fontSize: 16, fontWeight: "600", color: "#262626" },
-  badges: { flexDirection: "row", gap: 6 },
-  badge: { paddingHorizontal: 10, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: "#262626" },
-  badgeSuccess: { backgroundColor: "#C9F040" },
-  badgeDanger: { backgroundColor: "#F5A0B5" },
-  badgeDefault: { paddingHorizontal: 10, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: "#262626", backgroundColor: "#F5F5F4" },
-  badgeText: { fontSize: 11, fontWeight: "500", color: "#262626", textTransform: "uppercase", letterSpacing: 1 },
-  price: { fontSize: 14, color: "#262626", marginTop: 2 },
-  emptyTitle: { fontSize: 24, fontWeight: "700", color: "#262626", textAlign: "center" },
-  emptyDesc: { fontSize: 16, color: "#737373", textAlign: "center", marginTop: 8 },
-  addBtn: { marginTop: 24, borderRadius: 10, borderWidth: 2, borderColor: "#262626", backgroundColor: "#F85C15", paddingHorizontal: 20, paddingVertical: 14, shadowColor: "#262626", shadowOffset: { width: 4, height: 4 }, shadowOpacity: 1, shadowRadius: 0 },
-  addBtnText: { fontSize: 16, fontWeight: "700", color: "#FFF" },
-});

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView,
-  Platform, ScrollView, ActivityIndicator, StyleSheet,
+  Platform, ScrollView, ActivityIndicator,
 } from "react-native";
 import { Link } from "expo-router";
 import { useAuth } from "@/lib/auth";
@@ -20,59 +20,91 @@ export default function Register() {
     setError("");
     setLoading(true);
     const res = await signUp(email, password);
-    if (res.error) { setError(res.error); } else { setSent(true); }
+    if (res.error) {
+      setError(res.error);
+    } else {
+      setSent(true);
+    }
     setLoading(false);
   };
 
   if (sent) {
     return (
-      <View style={s.centered}>
-        <Text style={s.bigText}>{t.checkEmail}</Text>
+      <View className="flex-1 items-center justify-center bg-cream px-8">
+        <Text className="text-center text-2xl font-bold text-ink">
+          {t.checkEmail}
+        </Text>
+        <Link href="/(auth)/login" className="mt-6">
+          <Text className="text-sm font-bold text-primary underline">
+            {t.signIn}
+          </Text>
+        </Link>
       </View>
     );
   }
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={s.container}>
-      <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled">
-        <View style={s.header}>
-          <Text style={s.brand}>restocking</Text>
-          <Text style={s.subtitle}>{t.register}</Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      className="flex-1 bg-cream"
+    >
+      <ScrollView
+        contentContainerClassName="flex-1 justify-center px-8"
+        keyboardShouldPersistTaps="handled"
+      >
+        <View className="mb-10">
+          <Text className="font-extrabold text-5xl text-ink tracking-tighter">
+            restocking
+          </Text>
+          <Text className="mt-2 text-lg text-ink-soft">{t.register}</Text>
         </View>
-        <View style={s.form}>
-          <Text style={s.label}>{t.email}</Text>
-          <TextInput style={s.input} placeholder="hello@example.com" placeholderTextColor="#737373" keyboardType="email-address" autoCapitalize="none" autoCorrect={false} value={email} onChangeText={setEmail} />
-          <Text style={s.label}>{t.password}</Text>
-          <TextInput style={s.input} placeholder="..." placeholderTextColor="#737373" secureTextEntry value={password} onChangeText={setPassword} onSubmitEditing={handleRegister} />
-          {error ? <Text style={s.error}>{error}</Text> : null}
-          <TouchableOpacity onPress={handleRegister} disabled={loading} style={s.button} activeOpacity={0.8}>
-            {loading ? <ActivityIndicator color="#FFF" /> : <Text style={s.buttonText}>{t.signUp}</Text>}
+        <View className="gap-4">
+          <Text className="text-sm font-semibold text-ink">{t.email}</Text>
+          <TextInput
+            className="mb-2 rounded-lg border-2 border-ink bg-paper px-4 py-3.5 text-base text-ink"
+            placeholder="hello@example.com"
+            placeholderTextColor="#737373"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            value={email}
+            onChangeText={setEmail}
+          />
+          <Text className="text-sm font-semibold text-ink">{t.password}</Text>
+          <TextInput
+            className="mb-2 rounded-lg border-2 border-ink bg-paper px-4 py-3.5 text-base text-ink"
+            placeholder="..."
+            placeholderTextColor="#737373"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+            onSubmitEditing={handleRegister}
+          />
+          {error ? <Text className="text-sm text-destructive">{error}</Text> : null}
+          <TouchableOpacity
+            onPress={handleRegister}
+            disabled={loading}
+            className="mt-2 rounded-lg border-2 border-ink bg-primary px-6 py-4 shadow-brutal"
+            activeOpacity={0.8}
+          >
+            {loading ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text className="text-center text-lg font-bold text-primary-foreground">
+                {t.signUp}
+              </Text>
+            )}
           </TouchableOpacity>
         </View>
-        <View style={s.links}>
-          <Text style={s.muted}>{t.hasAccount} </Text>
-          <Link href="/(auth)/login"><Text style={s.link}>{t.signIn}</Text></Link>
+        <View className="mt-4 flex-row justify-center gap-x-1">
+          <Text className="text-sm text-ink-soft">{t.hasAccount} </Text>
+          <Link href="/(auth)/login">
+            <Text className="text-sm font-bold text-primary underline">
+              {t.signIn}
+            </Text>
+          </Link>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
-
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F9F8F6" },
-  scroll: { flexGrow: 1, justifyContent: "center", paddingHorizontal: 32 },
-  header: { marginBottom: 40 },
-  brand: { fontSize: 48, fontWeight: "800", color: "#262626", letterSpacing: -1 },
-  subtitle: { marginTop: 8, fontSize: 18, color: "#737373" },
-  form: { gap: 12 },
-  label: { marginBottom: 4, fontSize: 14, fontWeight: "600", color: "#262626" },
-  input: { borderRadius: 10, borderWidth: 2, borderColor: "#262626", backgroundColor: "#FFF", paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: "#262626", marginBottom: 8 },
-  error: { fontSize: 14, color: "#EF4444" },
-  button: { marginTop: 8, borderRadius: 10, borderWidth: 2, borderColor: "#262626", backgroundColor: "#F85C15", paddingHorizontal: 24, paddingVertical: 16, shadowColor: "#262626", shadowOffset: { width: 4, height: 4 }, shadowOpacity: 1, shadowRadius: 0 },
-  buttonText: { textAlign: "center", fontSize: 18, fontWeight: "700", color: "#FFF" },
-  links: { marginTop: 16, flexDirection: "row", justifyContent: "center" },
-  link: { fontSize: 14, fontWeight: "700", color: "#F85C15", textDecorationLine: "underline" },
-  muted: { fontSize: 14, color: "#737373" },
-  centered: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#F9F8F6", paddingHorizontal: 32 },
-  bigText: { textAlign: "center", fontSize: 28, fontWeight: "700", color: "#262626" },
-});

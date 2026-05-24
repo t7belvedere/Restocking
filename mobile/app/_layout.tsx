@@ -1,3 +1,4 @@
+import "../global.css";
 import { Stack } from "expo-router";
 import { AuthProvider } from "@/lib/auth";
 import { I18nProvider } from "@/lib/i18n";

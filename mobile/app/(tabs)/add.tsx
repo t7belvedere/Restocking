@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
-  Image, ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet,
+  Image, ActivityIndicator, KeyboardAvoidingView, Platform,
 } from "react-native";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
@@ -22,14 +22,17 @@ export default function AddWatch() {
   const [done, setDone] = useState(false);
 
   const handleAnalyze = async () => {
-    setError(""); setResult(null);
+    setError("");
+    setResult(null);
     if (!url.trim()) return;
     setAnalyzing(true);
     try {
       const data = await analyzeUrl(url.trim());
       if (data.ok) setResult(data);
       else setError(data.error ?? "Cannot analyze this URL");
-    } catch { setError("Network error"); }
+    } catch {
+      setError("Network error");
+    }
     setAnalyzing(false);
   };
 
@@ -37,77 +40,176 @@ export default function AddWatch() {
     if (!user || !result) return;
     setCreating(true);
     const { error: dbError } = await supabase.from("watches").insert({
-      user_id: user.id, name: result.name ?? url, url: url.trim(),
-      image_url: result.image_url ?? null, price: result.price ?? null,
-      currency: result.currency ?? "EUR", size_label: selectedSize ?? null,
+      user_id: user.id,
+      name: result.name ?? url,
+      url: url.trim(),
+      image_url: result.image_url ?? null,
+      price: result.price ?? null,
+      currency: result.currency ?? "EUR",
+      size_label: selectedSize ?? null,
       enrichment_pending: result.enrichment_pending ?? false,
     });
-    if (dbError) { setError(dbError.message); setCreating(false); return; }
-    setCreating(false); setDone(true);
+    if (dbError) {
+      setError(dbError.message);
+      setCreating(false);
+      return;
+    }
+    setCreating(false);
+    setDone(true);
   };
 
+  const reset = () => {
+    setDone(false);
+    setUrl("");
+    setResult(null);
+    setSelectedSize(undefined);
+    setError("");
+  };
+
+  // ---------- Done state ----------
   if (done) {
     return (
-      <View style={s.centered}>
-        <Text style={s.doneTitle}>Alerte creee !</Text>
-        <TouchableOpacity onPress={() => { setDone(false); setUrl(""); setResult(null); setSelectedSize(undefined); }} style={s.outlineBtn}>
-          <Text style={s.outlineBtnText}>+ Ajouter un autre article</Text>
+      <View className="flex-1 items-center justify-center bg-cream px-8 gap-4">
+        <Text className="text-3xl font-bold text-ink mb-2">
+          Alerte créée !
+        </Text>
+        <TouchableOpacity
+          onPress={reset}
+          className="rounded-lg border-2 border-ink bg-paper px-5 py-3.5 shadow-brutal"
+        >
+          <Text className="text-base font-bold text-ink">
+            + Ajouter un autre article
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/(tabs)")} style={s.btn}>
-          <Text style={s.btnText}>Voir mes alertes</Text>
+        <TouchableOpacity
+          onPress={() => router.push("/(tabs)")}
+          className="rounded-lg border-2 border-ink bg-orange px-6 py-4 items-center shadow-brutal"
+        >
+          <Text className="text-lg font-bold text-white">
+            Voir mes alertes
+          </Text>
         </TouchableOpacity>
       </View>
     );
   }
 
+  // ---------- Main form ----------
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={s.container}>
-      <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled">
-        <Text style={s.title}>{t.addWatch}</Text>
-        <Text style={s.subtitle}>{t.pasteUrl}</Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      className="flex-1 bg-cream"
+    >
+      <ScrollView
+        contentContainerStyle={{
+          paddingHorizontal: 24,
+          paddingTop: 56,
+          paddingBottom: 40,
+        }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text className="text-3xl font-extrabold text-ink tracking-tight">
+          {t.addWatch}
+        </Text>
+        <Text className="mt-1 text-sm text-ink-soft">{t.pasteUrl}</Text>
 
-        <View style={s.row}>
+        {/* ---- URL input row ---- */}
+        <View className="mt-6 flex-row gap-3">
           <TextInput
-            style={s.input}
-            placeholder={t.urlPlaceholder} placeholderTextColor="#737373"
-            autoCapitalize="none" autoCorrect={false} keyboardType="url"
-            value={url} onChangeText={setUrl} onSubmitEditing={handleAnalyze}
+            className="flex-1 rounded-lg border-2 border-ink bg-paper px-4 py-3.5 text-base text-ink"
+            placeholder={t.urlPlaceholder}
+            placeholderTextColor="#737373"
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
+            value={url}
+            onChangeText={setUrl}
+            onSubmitEditing={handleAnalyze}
             returnKeyType="go"
           />
-          <TouchableOpacity onPress={handleAnalyze} disabled={analyzing} style={s.goBtn}>
-            {analyzing ? <ActivityIndicator color="#FFF" /> : <Text style={s.goBtnText}>Go</Text>}
+          <TouchableOpacity
+            onPress={handleAnalyze}
+            disabled={analyzing}
+            className="justify-center rounded-lg border-2 border-ink bg-ink px-5 py-3.5 shadow-brutal"
+          >
+            {analyzing ? (
+              <ActivityIndicator color="#FFF" />
+            ) : (
+              <Text className="text-base font-bold text-white">Go</Text>
+            )}
           </TouchableOpacity>
         </View>
 
-        {error ? <Text style={s.error}>{error}</Text> : null}
+        {/* ---- Error ---- */}
+        {error ? (
+          <Text className="mt-3 text-sm text-destructive">{error}</Text>
+        ) : null}
 
+        {/* ---- Product preview ---- */}
         {result ? (
-          <View style={s.preview}>
-            {result.image_url ? <Image source={{ uri: result.image_url }} style={s.previewImg} resizeMode="cover" /> : null}
-            {result.name ? <Text style={s.previewName}>{result.name}</Text> : null}
-            {result.price ? (
-              <Text style={s.previewPrice}>
-                {new Intl.NumberFormat("fr-FR", { style: "currency", currency: result.currency ?? "EUR" }).format(result.price)}
+          <View className="mt-6 gap-4">
+            {result.image_url ? (
+              <Image
+                source={{ uri: result.image_url }}
+                className="h-48 w-full rounded-xl border-2 border-ink"
+                resizeMode="cover"
+              />
+            ) : null}
+
+            {result.name ? (
+              <Text className="text-xl font-semibold text-ink">
+                {result.name}
               </Text>
             ) : null}
+
+            {result.price != null ? (
+              <Text className="text-lg text-ink">
+                {new Intl.NumberFormat("fr-FR", {
+                  style: "currency",
+                  currency: result.currency ?? "EUR",
+                }).format(result.price)}
+              </Text>
+            ) : null}
+
+            {/* Enrichment pending banner */}
             {result.enrichment_pending ? (
-              <View style={s.enrichBanner}>
-                <Text style={s.enrichText}>{t.enrichmentMessage}</Text>
+              <View className="rounded-lg border-2 border-orange bg-[#FFF7F0] p-4">
+                <Text className="text-sm text-ink">
+                  {t.enrichmentMessage}
+                </Text>
               </View>
             ) : null}
+
+            {/* Variant picker */}
             {result.variants && result.variants.length > 0 ? (
               <View>
-                <Text style={s.variantLabel}>{t.selectSize}</Text>
-                <View style={s.variants}>
+                <Text className="mb-2 text-sm font-semibold text-ink">
+                  {t.selectSize}
+                </Text>
+                <View className="flex-row flex-wrap gap-2">
                   {result.variants.map((v) => {
                     const sel = selectedSize === v.label;
                     return (
                       <TouchableOpacity
-                        key={v.label} onPress={() => setSelectedSize(v.label)}
+                        key={v.label}
+                        onPress={() => setSelectedSize(v.label)}
                         disabled={!v.in_stock}
-                        style={[s.varItem, sel && s.varSel, !v.in_stock && s.varDisabled]}
+                        className={`rounded-lg border-2 px-4 py-2.5 ${
+                          sel
+                            ? "border-ink bg-ink"
+                            : v.in_stock
+                              ? "border-ink bg-paper"
+                              : "border-ink-soft/30 opacity-40"
+                        }`}
                       >
-                        <Text style={[s.varText, sel && s.varTextSel, !v.in_stock && s.varTextDisabled]}>
+                        <Text
+                          className={`text-sm font-medium ${
+                            sel
+                              ? "text-white"
+                              : v.in_stock
+                                ? "text-ink"
+                                : "text-ink-soft line-through"
+                          }`}
+                        >
                           {v.label}
                         </Text>
                       </TouchableOpacity>
@@ -116,8 +218,20 @@ export default function AddWatch() {
                 </View>
               </View>
             ) : null}
-            <TouchableOpacity onPress={handleCreate} disabled={creating} style={s.btn}>
-              {creating ? <ActivityIndicator color="#FFF" /> : <Text style={s.btnText}>{t.createAlert}</Text>}
+
+            {/* Create button */}
+            <TouchableOpacity
+              onPress={handleCreate}
+              disabled={creating}
+              className="items-center rounded-lg border-2 border-ink bg-orange px-6 py-4 shadow-brutal"
+            >
+              {creating ? (
+                <ActivityIndicator color="#FFF" />
+              ) : (
+                <Text className="text-lg font-bold text-white">
+                  {t.createAlert}
+                </Text>
+              )}
             </TouchableOpacity>
           </View>
         ) : null}
@@ -125,35 +239,3 @@ export default function AddWatch() {
     </KeyboardAvoidingView>
   );
 }
-
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F9F8F6" },
-  scroll: { paddingHorizontal: 24, paddingTop: 56, paddingBottom: 40 },
-  title: { fontSize: 30, fontWeight: "800", color: "#262626", letterSpacing: -0.5 },
-  subtitle: { marginTop: 4, fontSize: 14, color: "#737373" },
-  row: { marginTop: 24, flexDirection: "row", gap: 12 },
-  input: { flex: 1, borderRadius: 10, borderWidth: 2, borderColor: "#262626", backgroundColor: "#FFF", paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: "#262626" },
-  goBtn: { borderRadius: 10, borderWidth: 2, borderColor: "#262626", backgroundColor: "#262626", paddingHorizontal: 20, paddingVertical: 14, justifyContent: "center", shadowColor: "#262626", shadowOffset: { width: 4, height: 4 }, shadowOpacity: 1, shadowRadius: 0 },
-  goBtnText: { fontSize: 16, fontWeight: "700", color: "#FFF" },
-  error: { marginTop: 12, fontSize: 14, color: "#EF4444" },
-  preview: { marginTop: 24, gap: 16 },
-  previewImg: { width: "100%", height: 200, borderRadius: 12, borderWidth: 2, borderColor: "#262626" },
-  previewName: { fontSize: 20, fontWeight: "600", color: "#262626" },
-  previewPrice: { fontSize: 18, color: "#262626" },
-  enrichBanner: { borderRadius: 10, borderWidth: 2, borderColor: "#F85C15", backgroundColor: "#FFF7F0", padding: 16 },
-  enrichText: { fontSize: 14, color: "#262626" },
-  variantLabel: { fontSize: 14, fontWeight: "600", color: "#262626", marginBottom: 8 },
-  variants: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  varItem: { borderRadius: 10, borderWidth: 2, borderColor: "#262626", backgroundColor: "#FFF", paddingHorizontal: 16, paddingVertical: 10 },
-  varSel: { borderColor: "#262626", backgroundColor: "#262626" },
-  varDisabled: { borderColor: "#E5E5E5", opacity: 0.4 },
-  varText: { fontSize: 14, fontWeight: "500", color: "#262626" },
-  varTextSel: { color: "#FFF" },
-  varTextDisabled: { color: "#A3A3A3", textDecorationLine: "line-through" },
-  btn: { borderRadius: 10, borderWidth: 2, borderColor: "#262626", backgroundColor: "#F85C15", paddingHorizontal: 24, paddingVertical: 16, alignItems: "center", shadowColor: "#262626", shadowOffset: { width: 4, height: 4 }, shadowOpacity: 1, shadowRadius: 0 },
-  btnText: { fontSize: 18, fontWeight: "700", color: "#FFF" },
-  centered: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#F9F8F6", paddingHorizontal: 32, gap: 16 },
-  doneTitle: { fontSize: 28, fontWeight: "700", color: "#262626", marginBottom: 8 },
-  outlineBtn: { borderRadius: 10, borderWidth: 2, borderColor: "#262626", backgroundColor: "#FFF", paddingHorizontal: 20, paddingVertical: 14, shadowColor: "#262626", shadowOffset: { width: 4, height: 4 }, shadowOpacity: 1, shadowRadius: 0 },
-  outlineBtnText: { fontSize: 16, fontWeight: "700", color: "#262626" },
-});

@@ -1,14 +1,7 @@
 import { useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  ActivityIndicator,
-  StyleSheet,
+  View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView,
+  Platform, ScrollView, ActivityIndicator,
 } from "react-native";
 import { Link } from "expo-router";
 import { useAuth } from "@/lib/auth";
@@ -33,21 +26,22 @@ export default function Login() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
+      className="flex-1 bg-cream"
     >
       <ScrollView
-        contentContainerStyle={styles.scroll}
+        contentContainerClassName="flex-1 justify-center px-8"
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.header}>
-          <Text style={styles.brand}>restocking</Text>
-          <Text style={styles.subtitle}>{t.login}</Text>
+        <View className="mb-10">
+          <Text className="font-extrabold text-5xl text-ink tracking-tighter">
+            restocking
+          </Text>
+          <Text className="mt-2 text-lg text-ink-soft">{t.login}</Text>
         </View>
-
-        <View style={styles.form}>
-          <Text style={styles.label}>{t.email}</Text>
+        <View className="gap-4">
+          <Text className="text-sm font-semibold text-ink">{t.email}</Text>
           <TextInput
-            style={styles.input}
+            className="mb-2 rounded-lg border-2 border-ink bg-paper px-4 py-3.5 text-base text-ink"
             placeholder="hello@example.com"
             placeholderTextColor="#737373"
             keyboardType="email-address"
@@ -56,10 +50,9 @@ export default function Login() {
             value={email}
             onChangeText={setEmail}
           />
-
-          <Text style={styles.label}>{t.password}</Text>
+          <Text className="text-sm font-semibold text-ink">{t.password}</Text>
           <TextInput
-            style={styles.input}
+            className="mb-2 rounded-lg border-2 border-ink bg-paper px-4 py-3.5 text-base text-ink"
             placeholder="..."
             placeholderTextColor="#737373"
             secureTextEntry
@@ -67,101 +60,33 @@ export default function Login() {
             onChangeText={setPassword}
             onSubmitEditing={handleLogin}
           />
-
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-
+          {error ? <Text className="text-sm text-destructive">{error}</Text> : null}
           <TouchableOpacity
-            onPress={handleLogin}
-            disabled={loading}
-            style={styles.button}
+            onPress={handleLogin} disabled={loading}
+            className="mt-2 rounded-lg border-2 border-ink bg-primary px-6 py-4 shadow-brutal"
             activeOpacity={0.8}
           >
             {loading ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={styles.buttonText}>{t.signIn}</Text>
+              <Text className="text-center text-lg font-bold text-primary-foreground">
+                {t.signIn}
+              </Text>
             )}
           </TouchableOpacity>
         </View>
-
-        <View style={styles.links}>
+        <View className="mt-6 flex-row justify-center">
           <Link href="/(auth)/forgot-password">
-            <Text style={styles.link}>{t.forgotPassword}</Text>
+            <Text className="text-sm text-ink-soft underline">{t.forgotPassword}</Text>
           </Link>
         </View>
-
-        <View style={styles.links}>
-          <Text style={styles.mutedText}>{t.noAccount} </Text>
+        <View className="mt-4 flex-row justify-center gap-x-1">
+          <Text className="text-sm text-ink-soft">{t.noAccount} </Text>
           <Link href="/(auth)/register">
-            <Text style={styles.linkBold}>{t.signUp}</Text>
+            <Text className="text-sm font-bold text-primary underline">{t.signUp}</Text>
           </Link>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F9F8F6" },
-  scroll: { flexGrow: 1, justifyContent: "center", paddingHorizontal: 32 },
-  header: { marginBottom: 40 },
-  brand: {
-    fontSize: 48,
-    fontFamily: "System",
-    fontWeight: "800",
-    color: "#262626",
-    letterSpacing: -1,
-  },
-  subtitle: { marginTop: 8, fontSize: 18, color: "#737373" },
-  form: { gap: 12 },
-  label: {
-    marginBottom: 4,
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#262626",
-  },
-  input: {
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "#262626",
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: "#262626",
-    marginBottom: 8,
-  },
-  error: { fontSize: 14, color: "#EF4444", marginTop: 4 },
-  button: {
-    marginTop: 8,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "#262626",
-    backgroundColor: "#F85C15",
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    shadowColor: "#262626",
-    shadowOffset: { width: 4, height: 4 },
-    shadowOpacity: 1,
-    shadowRadius: 0,
-  },
-  buttonText: {
-    textAlign: "center",
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#FFFFFF",
-  },
-  links: {
-    marginTop: 16,
-    flexDirection: "row",
-    justifyContent: "center",
-  },
-  link: { fontSize: 14, color: "#737373", textDecorationLine: "underline" },
-  linkBold: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#F85C15",
-    textDecorationLine: "underline",
-  },
-  mutedText: { fontSize: 14, color: "#737373" },
-});

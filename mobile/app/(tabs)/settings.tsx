@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity, ScrollView, Alert, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+} from "react-native";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 
@@ -7,73 +13,117 @@ export default function Settings() {
   const { t, locale, setLocale } = useI18n();
 
   const handleSignOut = () => {
-    Alert.alert(t.signOut, "Es-tu sur(e) ?", [
-      { text: "Annuler", style: "cancel" },
-      { text: t.signOut, style: "destructive", onPress: signOut },
+    Alert.alert(t.signOut, t.signOutConfirm ?? "Are you sure?", [
+      { text: t.cancel ?? "Cancel", style: "cancel" },
+      {
+        text: t.signOut,
+        style: "destructive",
+        onPress: () => {
+          signOut();
+        },
+      },
     ]);
   };
 
+  const avatarLetter = (user?.email ?? "?")[0].toUpperCase();
+
   return (
-    <ScrollView style={s.container} contentContainerStyle={s.scroll}>
-      <Text style={s.title}>{t.settings}</Text>
+    <ScrollView
+      className="flex-1 bg-cream"
+      contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 56, paddingBottom: 40 }}
+    >
+      {/* Header */}
+      <Text className="text-3xl font-extrabold text-ink tracking-tight mb-8">
+        {t.settings}
+      </Text>
 
-      <View style={s.section}>
-        <Text style={s.sectionTitle}>{t.account}</Text>
-        <View style={s.card}>
-          <View style={[s.avatar, { backgroundColor: "#C9F040" }]}>
-            <Text style={s.avatarText}>{(user?.email ?? "?")[0].toUpperCase()}</Text>
+      {/* Account Section */}
+      <View className="mb-8 gap-3">
+        <Text className="text-xs font-bold text-ink-soft uppercase tracking-widest mb-1">
+          {t.account}
+        </Text>
+
+        {/* Account card */}
+        <View className="flex-row items-center gap-3 rounded-xl border-2 border-ink bg-paper p-4 shadow-brutal-sm">
+          <View className="h-10 w-10 rounded-full border-2 border-ink bg-lime items-center justify-center">
+            <Text className="text-lg font-bold text-ink">
+              {avatarLetter}
+            </Text>
           </View>
-          <View style={{ flex: 1 }}>
-            <Text style={s.email}>{user?.email ?? "..."}</Text>
-            <Text style={s.uid}>{user?.id?.slice(0, 8)}...</Text>
+          <View className="flex-1">
+            <Text className="text-base font-semibold text-ink">
+              {user?.email ?? "..."}
+            </Text>
+            <Text className="text-xs text-ink-soft">
+              {user?.id?.slice(0, 8)}...
+            </Text>
           </View>
         </View>
 
-        <TouchableOpacity style={s.row} onPress={() => setLocale(locale === "fr" ? "en" : "fr")}>
-          <Text style={s.rowLabel}>{t.language}</Text>
-          <View style={s.badge}>
-            <Text style={s.badgeText}>{locale.toUpperCase()}</Text>
+        {/* Language row */}
+        <TouchableOpacity
+          className="flex-row items-center justify-between rounded-xl border-2 border-ink bg-paper p-4 shadow-brutal-sm"
+          onPress={() => setLocale(locale === "fr" ? "en" : "fr")}
+          activeOpacity={0.7}
+        >
+          <Text className="text-base font-semibold text-ink">
+            {t.language}
+          </Text>
+          <View className="px-2.5 py-1 rounded-md border border-ink bg-muted">
+            <Text className="text-xs font-semibold text-ink">
+              {locale.toUpperCase()}
+            </Text>
           </View>
         </TouchableOpacity>
       </View>
 
-      <View style={s.section}>
-        <Text style={s.sectionTitle}>Abonnement</Text>
-        <View style={s.card}>
-          <Text style={s.planName}>{t.freePlan}</Text>
-          <Text style={s.planDesc}>3 articles · 30 min</Text>
+      {/* Subscription Section */}
+      <View className="mb-8 gap-3">
+        <Text className="text-xs font-bold text-ink-soft uppercase tracking-widest mb-1">
+          {t.subscription ?? "Subscription"}
+        </Text>
+
+        {/* Free plan card */}
+        <View className="rounded-xl border-2 border-ink bg-paper p-4 shadow-brutal-sm">
+          <Text className="text-base font-semibold text-ink">
+            {t.freePlan}
+          </Text>
+          <Text className="text-xs text-ink-soft mt-0.5">
+            3 articles · 30 min
+          </Text>
         </View>
-        <TouchableOpacity style={[s.btn, { backgroundColor: "#296FEC" }]}>
-          <Text style={s.btnText}>{t.upgrade} — 7,99€/mois</Text>
+
+        {/* Upgrade to Pro button */}
+        <TouchableOpacity
+          className="rounded-lg border-2 border-ink bg-blue px-6 py-4 items-center shadow-brutal-sm"
+          activeOpacity={0.7}
+        >
+          <Text className="text-base font-bold text-white">
+            {t.upgrade}
+          </Text>
+        </TouchableOpacity>
+
+        {/* Manage subscription link */}
+        <TouchableOpacity
+          className="items-center py-2"
+          activeOpacity={0.7}
+        >
+          <Text className="text-sm text-ink-soft underline">
+            {t.manageSubscription}
+          </Text>
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={s.logout} onPress={handleSignOut}>
-        <Text style={s.logoutText}>{t.signOut}</Text>
+      {/* Sign Out */}
+      <TouchableOpacity
+        className="mt-4 rounded-lg border-2 border-destructive bg-paper px-6 py-4 items-center"
+        onPress={handleSignOut}
+        activeOpacity={0.7}
+      >
+        <Text className="text-base font-semibold text-destructive">
+          {t.signOut}
+        </Text>
       </TouchableOpacity>
     </ScrollView>
   );
 }
-
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F9F8F6" },
-  scroll: { paddingHorizontal: 24, paddingTop: 56, paddingBottom: 40 },
-  title: { fontSize: 30, fontWeight: "800", color: "#262626", letterSpacing: -0.5, marginBottom: 32 },
-  section: { marginBottom: 32, gap: 12 },
-  sectionTitle: { fontSize: 12, fontWeight: "700", color: "#737373", textTransform: "uppercase", letterSpacing: 2 },
-  card: { flexDirection: "row", alignItems: "center", gap: 12, borderRadius: 12, borderWidth: 2, borderColor: "#262626", backgroundColor: "#FFF", padding: 16, shadowColor: "#262626", shadowOffset: { width: 2, height: 2 }, shadowOpacity: 1, shadowRadius: 0 },
-  avatar: { width: 40, height: 40, borderRadius: 20, borderWidth: 2, borderColor: "#262626", alignItems: "center", justifyContent: "center" },
-  avatarText: { fontSize: 18, fontWeight: "700", color: "#262626" },
-  email: { fontSize: 16, fontWeight: "600", color: "#262626" },
-  uid: { fontSize: 12, color: "#737373" },
-  row: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderRadius: 12, borderWidth: 2, borderColor: "#262626", backgroundColor: "#FFF", padding: 16, shadowColor: "#262626", shadowOffset: { width: 2, height: 2 }, shadowOpacity: 1, shadowRadius: 0 },
-  rowLabel: { fontSize: 16, fontWeight: "600", color: "#262626" },
-  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, borderWidth: 1, borderColor: "#262626", backgroundColor: "#F5F5F4" },
-  badgeText: { fontSize: 11, fontWeight: "600", color: "#262626" },
-  planName: { fontSize: 16, fontWeight: "600", color: "#262626" },
-  planDesc: { fontSize: 12, color: "#737373", marginTop: 2 },
-  btn: { borderRadius: 10, borderWidth: 2, borderColor: "#262626", backgroundColor: "#F85C15", paddingHorizontal: 24, paddingVertical: 16, alignItems: "center", shadowColor: "#262626", shadowOffset: { width: 4, height: 4 }, shadowOpacity: 1, shadowRadius: 0 },
-  btnText: { fontSize: 16, fontWeight: "700", color: "#FFF" },
-  logout: { marginTop: 16, borderRadius: 10, borderWidth: 2, borderColor: "#EF4444", backgroundColor: "#FFF", paddingHorizontal: 24, paddingVertical: 16, alignItems: "center" },
-  logoutText: { fontSize: 16, fontWeight: "600", color: "#EF4444" },
-});
