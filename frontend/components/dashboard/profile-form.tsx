@@ -7,8 +7,12 @@ import {
   CheckCircle2,
   Crown,
   ExternalLink,
+  Eye,
+  EyeOff,
+  Key,
   Loader2,
   LogOut,
+  Mail,
   Trash2,
   User,
 } from "lucide-react";
@@ -30,7 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
-import { updateProfile, deleteAccount, type ProfileData } from "@/app/actions/profile";
+import { updateProfile, deleteAccount, changeEmail, changePassword, type ProfileData } from "@/app/actions/profile";
 import { sendPhoneOtp, verifyPhoneOtp } from "@/app/actions/phone-verification";
 import { ONBOARDING_BRANDS, EU_SIZES, LETTER_SIZES } from "@/components/auth/onboarding-steps";
 
@@ -58,6 +62,18 @@ export function ProfileForm({ initial, email, plan }: Props) {
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [size, setSize] = useState<string | null>(initial.preferred_size ?? null);
   const [brands, setBrands] = useState<string[]>(initial.preferred_brands ?? []);
+
+  // Email change
+  const [newEmail, setNewEmail] = useState("");
+  const [changingEmail, setChangingEmail] = useState(false);
+
+  // Password change
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
 
   const supabase = createClient();
 
@@ -128,6 +144,41 @@ export function ProfileForm({ initial, email, plan }: Props) {
       toast.success(locale === "fr" ? "Profil sauvegardé" : "Profile saved");
       setTimeout(() => setSaved(false), 2000);
     });
+  }
+
+  async function handleChangeEmail() {
+    if (!newEmail.trim() || !newEmail.includes("@")) return;
+    setChangingEmail(true);
+    const res = await changeEmail(newEmail.trim());
+    setChangingEmail(false);
+    if (res.ok) {
+      setNewEmail("");
+      toast.success(t.profile.changeEmailSuccess);
+    } else {
+      toast.error(res.error ?? "Erreur");
+    }
+  }
+
+  async function handleChangePassword() {
+    if (newPassword.length < 8) {
+      toast.error(t.profile.passwordTooShort);
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error(t.profile.passwordMismatch);
+      return;
+    }
+    setChangingPassword(true);
+    const res = await changePassword(currentPassword, newPassword);
+    setChangingPassword(false);
+    if (res.ok) {
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      toast.success(t.profile.changePasswordSuccess);
+    } else {
+      toast.error(res.error ?? "Erreur");
+    }
   }
 
   async function handleSignOut() {
@@ -213,6 +264,120 @@ export function ProfileForm({ initial, email, plan }: Props) {
             {locale === "fr" ? "Se déconnecter" : "Sign out"}
           </Button>
         </div>
+      </div>
+
+      {/* Change email */}
+      <div className="space-y-4 rounded-2xl border bg-card p-5">
+        <div>
+          <h2 className="font-display text-lg font-semibold tracking-tight flex items-center gap-2">
+            <Mail className="h-4 w-4 text-muted-foreground" />
+            {t.profile.changeEmailTitle}
+          </h2>
+          <p className="text-xs text-muted-foreground mt-1">
+            {t.profile.changeEmailDesc}
+          </p>
+        </div>
+
+        <div className="flex gap-2">
+          <Input
+            type="email"
+            value={newEmail}
+            onChange={(e) => setNewEmail(e.target.value)}
+            placeholder="nouveau@exemple.fr"
+            className="flex-1"
+          />
+          <Button
+            type="button"
+            size="sm"
+            onClick={handleChangeEmail}
+            disabled={changingEmail || !newEmail.trim() || !newEmail.includes("@")}
+            className="shrink-0 gap-1.5"
+          >
+            {changingEmail ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : null}
+            {changingEmail ? t.profile.changeEmailPending : t.profile.changeEmailButton}
+          </Button>
+        </div>
+      </div>
+
+      {/* Change password */}
+      <div className="space-y-4 rounded-2xl border bg-card p-5">
+        <div>
+          <h2 className="font-display text-lg font-semibold tracking-tight flex items-center gap-2">
+            <Key className="h-4 w-4 text-muted-foreground" />
+            {t.profile.changePasswordTitle}
+          </h2>
+          <p className="text-xs text-muted-foreground mt-1">
+            {t.profile.changePasswordDesc}
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="current-password">{t.profile.currentPasswordLabel}</Label>
+            <div className="relative">
+              <Input
+                id="current-password"
+                type={showCurrentPw ? "text" : "password"}
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowCurrentPw(!showCurrentPw)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showCurrentPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="new-password">{t.profile.newPasswordLabel}</Label>
+              <div className="relative">
+                <Input
+                  id="new-password"
+                  type={showNewPw ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPw(!showNewPw)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showNewPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="confirm-password">{t.profile.confirmPasswordLabel}</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          size="sm"
+          onClick={handleChangePassword}
+          disabled={changingPassword || !currentPassword || newPassword.length < 8 || !confirmPassword}
+          className="gap-1.5"
+        >
+          {changingPassword ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : null}
+          {changingPassword ? t.profile.changePasswordPending : t.profile.changePasswordButton}
+        </Button>
       </div>
 
       {/* Notifications */}

@@ -48,6 +48,61 @@ export async function updateProfile(data: ProfileData): Promise<ProfileResult> {
   return { ok: true };
 }
 
+export async function changeEmail(newEmail: string): Promise<ProfileResult> {
+  const supabase = await createClient();
+  if (!supabase) {
+    return { ok: false, error: "Non authentifié. Reconnecte-toi." };
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { ok: false, error: "Session expirée. Reconnecte-toi." };
+  }
+
+  const { error } = await supabase.auth.updateUser({ email: newEmail });
+
+  if (error) {
+    return { ok: false, error: "Impossible de changer l'email. Réessaie." };
+  }
+  return { ok: true };
+}
+
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+): Promise<ProfileResult> {
+  const supabase = await createClient();
+  if (!supabase) {
+    return { ok: false, error: "Non authentifié. Reconnecte-toi." };
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user || !user.email) {
+    return { ok: false, error: "Session expirée. Reconnecte-toi." };
+  }
+
+  // Re-authenticate with current password before changing
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: currentPassword,
+  });
+
+  if (signInError) {
+    return { ok: false, error: "Mot de passe actuel incorrect." };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+  if (error) {
+    return { ok: false, error: "Impossible de changer le mot de passe. Réessaie." };
+  }
+  return { ok: true };
+}
+
 export async function deleteAccount(): Promise<ProfileResult> {
   const supabase = await createClient();
   if (!supabase) {
