@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { motion, AnimatePresence } from "motion/react";
 import { cn, formatPrice, shortHost } from "@/lib/utils";
 import {
   analyzeUrl,
@@ -125,9 +126,16 @@ export function AddWatchForm() {
     });
   }
 
-  if (step === "url" || !analysis) {
-    return (
-      <form onSubmit={handleAnalyze} className="space-y-4">
+  const slideAnim = {
+    initial: { opacity: 0, x: 20 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -20 },
+  };
+
+  return (
+    <AnimatePresence mode="wait">
+      {step === "url" || !analysis ? (
+        <motion.form key="url" onSubmit={handleAnalyze} className="space-y-4" {...slideAnim} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}>
         <div className="space-y-2">
           <Label htmlFor="product-url">URL du produit</Label>
           <Input
@@ -172,12 +180,9 @@ export function AddWatchForm() {
             </CardContent>
           </Card>
         ) : null}
-      </form>
-    );
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+      </motion.form>
+      ) : (
+        <motion.form key="confirm" onSubmit={handleSubmit} className="space-y-6" {...slideAnim} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}>
       <button
         type="button"
         onClick={() => setStep("url")}
@@ -351,6 +356,8 @@ export function AddWatchForm() {
           )}
         </Button>
       </div>
-    </form>
+    </motion.form>
+      )}
+    </AnimatePresence>
   );
 }

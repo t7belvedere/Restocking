@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, Plus, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { useLocale } from "@/components/site/locale-provider";
+import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
 import { RETAILERS, type WordmarkStyle } from "@/lib/data/retailers";
 import {
@@ -151,8 +152,15 @@ export function QuickAddBrand({ brands }: QuickAddBrandProps) {
               </button>
 
               {/* Dropdown / inline input */}
-              {isActive && (
-                <div className="absolute left-0 top-full z-20 mt-2 w-full min-w-[260px] rounded-xl border-2 border-ink bg-paper p-3 shadow-brutal">
+              <AnimatePresence>
+                {isActive && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                    transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute left-0 top-full z-20 mt-2 w-full min-w-[260px] rounded-xl border-2 border-ink bg-paper p-3 shadow-brutal"
+                  >
                   {tile.kind === "idle" && null}
 
                   {(tile.kind === "open" || tile.kind === "loading") && (
@@ -270,8 +278,9 @@ export function QuickAddBrand({ brands }: QuickAddBrandProps) {
                       </button>
                     </div>
                   )}
-                </div>
+                </motion.div>
               )}
+              </AnimatePresence>
             </div>
           );
         })}

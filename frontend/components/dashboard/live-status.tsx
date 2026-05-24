@@ -1,0 +1,112 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import type { WatchStatus } from "@/lib/supabase/types";
+
+function useRelativeTime(iso: string | null): string {
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 15_000);
+    return () => clearInterval(id);
+  }, []);
+
+  if (!iso) return "jamais vérifié";
+
+  const diff = Date.now() - new Date(iso).getTime();
+  const sec = Math.floor(diff / 1000);
+  if (sec < 60) return `il y a ${sec}s`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `il y a ${min} min`;
+  const hours = Math.floor(min / 60);
+  if (hours < 24) return `il y a ${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `il y a ${days}j`;
+}
+
+function freshness(iso: string | null): "live" | "warm" | "cold" {
+  if (!iso) return "cold";
+  const diff = Date.now() - new Date(iso).getTime();
+  const min = diff / 60_000;
+  if (min < 8) return "live";
+  if (min < 40) return "warm";
+  return "cold";
+}
+
+const STATUS_COLORS: Record<WatchStatus, string> = {
+  IN_STOCK: "bg-emerald-500",
+  OUT_OF_STOCK: "bg-amber-500",
+  UNKNOWN: "bg-muted-foreground/50",
+};
+
+const STATUS_LABEL: Record<WatchStatus, string> = {
+  IN_STOCK: "En stock",
+  OUT_OF_STOCK: "Rupture",
+  UNKNOWN: "En attente",
+};
+
+export function LiveStatus({
+  lastCheck,
+  status,
+  isActive,
+}: {
+  lastCheck: string | null;
+  status: WatchStatus;
+  isActive: boolean;
+}) {
+  const relative = useRelativeTime(lastCheck);
+  const fresh = freshness(lastCheck);
+
+  if (!isActive) {
+    return (
+      <div className="flex items-center gap-2.5 rounded-full border-2 border-ink/20 bg-muted/50 px-4 py-1.5">
+        <span className="flex h-2.5 w-2.5 rounded-full bg-muted-foreground/40" />
+        <span className="text-sm font-medium text-muted-foreground">En pause</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2.5 rounded-full border-2 border-ink/20 bg-cream px-4 py-1.5">
+      <span className="relative flex h-2.5 w-2.5">
+        <span
+          className={cn(
+            "absolute inset-0 rounded-full",
+            fresh === "live"
+              ? "animate-ping bg-emerald-400/60"
+              : fresh === "warm"
+                ? "animate-ping bg-amber-400/40"
+                : "",
+          )}
+        />
+        <span
+          className={cn(
+            "relative inline-flex h-2.5 w-2.5 rounded-full",
+            fresh === "live"
+              ? "bg-emerald-500"
+              : fresh === "warm"
+                ? "bg-amber-500"
+                : "bg-muted-foreground/40",
+          )}
+        />
+      </span>
+      <span className="text-sm font-medium text-ink/80">
+        {STATUS_LABEL[status]}
+      </span>
+      <span className="text-xs text-ink/40">·</span>
+      <span
+        className={cn(
+          "font-mono text-xs",
+          fresh === "live"
+            ? "text-emerald-700"
+            : fresh === "warm"
+              ? "text-amber-700"
+              : "text-ink/40",
+        )}
+      >
+        Dernier check {relative}
+      </span>
+    </div>
+  );
+}
