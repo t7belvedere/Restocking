@@ -751,7 +751,7 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
     def _classify_one(token: str) -> tuple[str, str] | None:
         """Classify a single token. Returns (kind, cleaned_value) or None to skip."""
         t = token.strip()
-        if not t:
+        if not t or t in ("-", "--", "---", "/", "."):
             return None
         low = t.lower()
         # UI garbage
@@ -1351,18 +1351,16 @@ async def _analyze_scrape(url: str, proxy_url: str | None, pw_proxy: dict | None
                     result["price"] = llm_result["price"]
                 if not result.get("image_url") and llm_result.get("image_url"):
                     result["image_url"] = llm_result["image_url"]
-                # Colors & sizes: merge both sources — LLM catches what regex misses
+                # Colors: LLM overrides — regex picks up recommended product names
                 llm_colors = llm_result.get("colors") or []
-                existing_colors = set(c.lower() for c in (result.get("colors") or []))
-                for c in llm_colors:
-                    if c.lower() not in existing_colors:
-                        result["colors"].append(c)
+                if llm_colors:
+                    result["colors"] = llm_colors
+                # Sizes: LLM overrides when it finds results (avoids recommended product junk)
                 llm_sizes = llm_result.get("sizes") or []
-                existing_sizes = set(s.lower() for s in (result.get("sizes") or []))
-                for s in llm_sizes:
-                    if s.lower() not in existing_sizes:
-                        result["sizes"].append(s)
-                        result["variants"].append(s)
+                if llm_sizes:
+                    result["sizes"] = llm_sizes
+                    # Update variants to match
+                    result["variants"] = llm_sizes + (result.get("colors") or [])
                 logger.info("LLM validated: sizes=%s colors=%s", result["sizes"], result["colors"])
         except Exception:
             logger.debug("LLM validation failed", exc_info=True)
