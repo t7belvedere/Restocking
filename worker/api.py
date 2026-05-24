@@ -9,9 +9,10 @@ import time
 from urllib.parse import urlparse
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from scrapling.fetchers import Fetcher, PlayWrightFetcher
+from starlette.responses import StreamingResponse
 
 load_dotenv()
 
@@ -26,6 +27,7 @@ app.add_middleware(
         "https://restocking.app",
         "http://localhost:3000",
     ],
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_methods=["GET"],
     allow_headers=["*"],
 )
@@ -763,44 +765,24 @@ async def debug_playwright():
         }
 
 
-@app.get("/analyze")
-async def analyze(url: str = Query(min_length=1)):
-    """Scrape a product URL and return metadata.
+def _sse_event(event: str, data: dict) -> str:
+    """Format a Server-Sent Event line."""
+    return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
 
-    All scraping runs via asyncio.to_thread to keep Playwright
-    out of the uvicorn event loop and avoid asyncio conflicts.
+
+async def _analyze_scrape(url: str, proxy_url: str | None, pw_proxy: dict | None):
+    """Core scraping logic — shared by SSE streaming and JSON endpoints.
+
+    Yields SSE-formatted progress/result/error event strings.
     """
     import asyncio as _asyncio
 
-    try:
-        parsed = urlparse(url)
-        if parsed.scheme not in ("http", "https"):
-            raise HTTPException(status_code=400, detail="Invalid URL scheme")
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid URL")
-
     html: str | None = None
     page = None
-    _was_playwright = False  # track whether we already tried Playwright
-
-    proxy_url = os.getenv("PROXY_URL")
-
-    # For Playwright, proxy must be a dict with server/username/password
-    pw_proxy: dict | None = None
-    if proxy_url:
-        try:
-            from urllib.parse import urlparse as _urlparse
-            _p = _urlparse(proxy_url)
-            pw_proxy = {"server": f"{_p.scheme}://{_p.hostname}:{_p.port or 80}"}
-            if _p.username:
-                pw_proxy["username"] = _p.username
-            if _p.password:
-                pw_proxy["password"] = _p.password
-        except Exception:
-            pw_proxy = None
-            logger.debug("Failed to parse PROXY_URL, ignoring", exc_info=True)
+    _was_playwright = False
 
     # Level 1 — plain HTTP
+    yield _sse_event("progress", {"step": "http", "message": "Connexion au site..."})
     try:
         kwargs = {"stealthy_headers": True, "timeout": 15}
         if proxy_url:
@@ -817,6 +799,7 @@ async def analyze(url: str = Query(min_length=1)):
     # Level 2 — Playwright stealth
     if html is None:
         _was_playwright = True
+        yield _sse_event("progress", {"step": "playwright", "message": "Ouverture du navigateur..."})
         try:
             pw_kwargs = {
                 "headless": True,
@@ -840,6 +823,7 @@ async def analyze(url: str = Query(min_length=1)):
 
     # Level 3 — Playwright best effort
     if html is None:
+        yield _sse_event("progress", {"step": "playwright_retry", "message": "Nouvelle tentative..."})
         try:
             pw3_kwargs = {
                 "headless": True,
@@ -860,9 +844,11 @@ async def analyze(url: str = Query(min_length=1)):
             logger.debug("Level 3 (PlayWrightFetcher) failed", exc_info=True)
 
     if not html:
-        raise HTTPException(status_code=502, detail="All fetch levels failed")
+        yield _sse_event("error", {"error": "All fetch levels failed"})
+        return
 
-    # --- Universal extraction from rendered DOM + raw HTML ---
+    # --- Universal extraction ---
+    yield _sse_event("progress", {"step": "extracting", "message": "Lecture du produit..."})
     result = _universal_extract(page, html, url)
 
     # If no sizes found and we only did Level 1 HTTP, try Playwright
@@ -892,8 +878,65 @@ async def analyze(url: str = Query(min_length=1)):
         except Exception:
             logger.debug("Playwright fallback for sizes failed", exc_info=True)
 
-    return {
-        "ok": True,
-        "url": url,
-        **result,
-    }
+    yield _sse_event("result", {"ok": True, "url": url, **result})
+
+
+@app.get("/analyze")
+async def analyze(request: Request, url: str = Query(min_length=1)):
+    """Scrape a product URL and return metadata.
+
+    Returns SSE streaming progress when Accept: text/event-stream is set,
+    or plain JSON otherwise.
+
+    All scraping runs via asyncio.to_thread to keep Playwright
+    out of the uvicorn event loop and avoid asyncio conflicts.
+    """
+    try:
+        parsed = urlparse(url)
+        if parsed.scheme not in ("http", "https"):
+            raise HTTPException(status_code=400, detail="Invalid URL scheme")
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid URL")
+
+    proxy_url = os.getenv("PROXY_URL")
+
+    # For Playwright, proxy must be a dict with server/username/password
+    pw_proxy: dict | None = None
+    if proxy_url:
+        try:
+            from urllib.parse import urlparse as _urlparse
+            _p = _urlparse(proxy_url)
+            pw_proxy = {"server": f"{_p.scheme}://{_p.hostname}:{_p.port or 80}"}
+            if _p.username:
+                pw_proxy["username"] = _p.username
+            if _p.password:
+                pw_proxy["password"] = _p.password
+        except Exception:
+            pw_proxy = None
+            logger.debug("Failed to parse PROXY_URL, ignoring", exc_info=True)
+
+    # SSE streaming path (client-side fetch from the frontend)
+    if "text/event-stream" in request.headers.get("accept", ""):
+        return StreamingResponse(
+            _analyze_scrape(url, proxy_url, pw_proxy),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "X-Accel-Buffering": "no",
+            },
+        )
+
+    # JSON path (server-action / backward compat)
+    result = None
+    async for event_str in _analyze_scrape(url, proxy_url, pw_proxy):
+        for line in event_str.split("\n"):
+            if line.startswith("data: "):
+                data = json.loads(line[6:])
+                if "ok" in data:
+                    result = data
+                elif "error" in data:
+                    raise HTTPException(status_code=502, detail=data["error"])
+
+    if result is None:
+        raise HTTPException(status_code=502, detail="All fetch levels failed")
+    return result

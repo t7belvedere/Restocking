@@ -2,20 +2,16 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, Search } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "motion/react";
 import { cn, formatPrice, shortHost } from "@/lib/utils";
-import {
-  analyzeUrl,
-  createWatch,
-  type AnalyzeResult,
-} from "@/app/actions/watches";
+import { createWatch, type AnalyzeResult } from "@/app/actions/watches";
+import { analyzeUrlStream, type ProgressEvent } from "@/lib/analyze-stream";
 
 type Step = "url" | "confirm";
 
@@ -32,6 +28,7 @@ export function AddWatchForm() {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [manualVariant, setManualVariant] = useState("");
+  const [progress, setProgress] = useState<ProgressEvent | null>(null);
 
   const sizes = analysis?.sizes ?? [];
   const colors = analysis?.colors ?? [];
@@ -53,8 +50,9 @@ export function AddWatchForm() {
     event.preventDefault();
     if (!url.trim()) return;
     setAnalyzing(true);
+    setProgress({ step: "http", message: "Connexion au site..." });
     try {
-      const res = await analyzeUrl(url.trim());
+      const res = await analyzeUrlStream(url.trim(), (evt) => setProgress(evt));
       setAnalysis(res);
       setName(res.name ?? "");
       setSelectedVariant(null);
@@ -62,10 +60,8 @@ export function AddWatchForm() {
       setSelectedColor(null);
       setManualVariant("");
       setStep("confirm");
-      if (!res.ok) {
-        if (res.error === "INVALID_URL") {
-          toast.error("URL invalide. Vérifiez le lien.");
-        } else if (res.error === "TIMEOUT") {
+      if (!res.ok || res.enrichment_pending) {
+        if (res.error === "TIMEOUT") {
           toast.warning(
             "Analyse partielle — la page a mis trop de temps à répondre.",
           );
@@ -79,6 +75,7 @@ export function AddWatchForm() {
       toast.error("Erreur réseau. Réessayez dans un instant.");
     } finally {
       setAnalyzing(false);
+      setProgress(null);
     }
   }
 
@@ -168,17 +165,8 @@ export function AddWatchForm() {
           )}
         </Button>
 
-        {analyzing ? (
-          <Card className="mt-2">
-            <CardContent className="flex items-center gap-4 p-4">
-              <Skeleton className="h-20 w-20 rounded-xl" />
-              <div className="flex-1 space-y-2">
-                <Skeleton className="h-4 w-1/2" />
-                <Skeleton className="h-3 w-1/3" />
-                <Skeleton className="h-3 w-2/3" />
-              </div>
-            </CardContent>
-          </Card>
+        {analyzing && progress ? (
+          <AnalyzeProgress current={progress.step} message={progress.message} />
         ) : null}
       </motion.form>
       ) : (
@@ -359,5 +347,110 @@ export function AddWatchForm() {
     </motion.form>
       )}
     </AnimatePresence>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Progress bar — 3 phases shown during URL analysis
+// ---------------------------------------------------------------------------
+
+type PhaseKey = "http" | "playwright" | "extracting";
+
+const PHASES: { key: PhaseKey; label: string }[] = [
+  { key: "http", label: "Connexion" },
+  { key: "playwright", label: "Navigateur" },
+  { key: "extracting", label: "Extraction" },
+];
+
+const STEP_ORDER: string[] = ["http", "playwright", "playwright_retry", "extracting"];
+
+function AnalyzeProgress({ current, message }: { current: string; message: string }) {
+  const currentIdx = STEP_ORDER.indexOf(current);
+  // Map "playwright_retry" to the "playwright" phase for display
+  const activeKey: PhaseKey = current === "playwright_retry" ? "playwright" : current as PhaseKey;
+
+  return (
+    <Card className="mt-4 rounded-2xl border-2 border-ink/20 bg-cream/50">
+      <CardContent className="p-5">
+        {/* Dots + connectors */}
+        <div className="flex items-center justify-center">
+          {PHASES.map((phase, i) => {
+            const phaseIdx = STEP_ORDER.indexOf(phase.key);
+            const isDone = phase.key !== activeKey && currentIdx > phaseIdx;
+            const isActive = phase.key === activeKey;
+
+            return (
+              <div key={phase.key} className="flex items-center">
+                <div className="flex flex-col items-center gap-1.5">
+                  <motion.div
+                    initial={false}
+                    animate={{
+                      scale: isActive ? 1.1 : 1,
+                      borderColor: isDone
+                        ? "rgb(16 185 129)" // emerald-500
+                        : isActive
+                          ? "var(--brand-orange)"
+                          : "rgb(212 212 216)", // zinc-300
+                      backgroundColor: isDone
+                        ? "rgb(16 185 129)"
+                        : isActive
+                          ? "var(--brand-orange)"
+                          : "transparent",
+                    }}
+                    className="flex h-7 w-7 items-center justify-center rounded-full border-2"
+                  >
+                    {isDone ? (
+                      <Check className="h-3.5 w-3.5 text-white" />
+                    ) : isActive ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin text-ink" />
+                    ) : (
+                      <span className="text-[10px] font-bold text-ink/25">
+                        {i + 1}
+                      </span>
+                    )}
+                  </motion.div>
+                  <span
+                    className={`text-[10px] font-medium uppercase tracking-wider transition-colors ${
+                      isDone
+                        ? "text-emerald-600"
+                        : isActive
+                          ? "text-ink font-bold"
+                          : "text-ink/25"
+                    }`}
+                  >
+                    {phase.label}
+                  </span>
+                </div>
+
+                {/* Connector line */}
+                {i < PHASES.length - 1 && (
+                  <div className="mx-2 mb-5 h-0.5 w-8 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={false}
+                      animate={{
+                        width: isDone ? "100%" : "0%",
+                        backgroundColor: isDone ? "rgb(16 185 129)" : "rgb(212 212 216)",
+                      }}
+                      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                      className="h-full rounded-full"
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Current action text */}
+        <motion.p
+          key={current}
+          initial={{ opacity: 0, y: 3 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-3 text-center text-xs text-ink/50"
+        >
+          {message}
+        </motion.p>
+      </CardContent>
+    </Card>
   );
 }
