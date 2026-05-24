@@ -71,6 +71,7 @@ export async function signupAction(
     email,
     password,
     options: {
+      data: { locale },
       emailRedirectTo: `${getSiteUrl()}/auth/confirm`,
     },
   });
