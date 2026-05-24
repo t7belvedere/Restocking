@@ -128,6 +128,19 @@ def _extract_variants(html: str) -> list[str]:
         if re.search(rf'"(?:size|color|name)"\s*:\s*"{re.escape(token)}"', html):
             found.add(token)
 
+    # 2c. Shopify productVariants JSON (APC, other Shopify stores)
+    m = re.search(r'"productVariants"\s*:\s*\[(.*?)\]', html)
+    if m:
+        try:
+            variants_data = json.loads("[" + m.group(1) + "]")
+            for v in variants_data:
+                if isinstance(v, dict):
+                    title = v.get("title", "").strip()
+                    if title:
+                        found.add(title)
+        except Exception:
+            pass
+
     # 3. data-color attributes
     for m in re.finditer(r'data-color=["\']([^"\']{1,32})["\']', html, re.IGNORECASE):
         found.add(m.group(1).strip())
