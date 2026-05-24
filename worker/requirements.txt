@@ -1,5 +1,5 @@
 # Scraping
-scrapling==0.2.9
+scrapling==0.2.99
 playwright==1.49.0
 
 # Supabase
