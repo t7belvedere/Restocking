@@ -1,11 +1,12 @@
 import { cookies } from "next/headers";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { NextRequest, NextResponse } from "next/server";
 import {
   isSupabaseConfigured,
   SUPABASE_URL,
   SUPABASE_ANON_KEY,
+  SUPABASE_SERVICE_ROLE_KEY,
 } from "./env";
 
 /**
@@ -62,6 +63,20 @@ export function createRouteHandlerClient(
           response.cookies.set(name, value, options as CookieOptions);
         });
       },
+    },
+  });
+}
+
+/**
+ * Admin client utilizing the service role key to bypass RLS.
+ * STRICTLY for server-side usage (e.g. Server Actions) for admin tasks.
+ */
+export function createAdminClient(): SupabaseClient | null {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return null;
+  return createSupabaseClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
     },
   });
 }
