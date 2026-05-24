@@ -1,6 +1,8 @@
 [build]
 builder = "nixpacks"
-watch = ["worker/**"]
+
+[build.nixpacksPlan]
+providers = ["python"]
 
 [build.nixpacksPlan.phases.setup]
 cmds = [
