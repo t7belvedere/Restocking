@@ -147,9 +147,8 @@ def _find_size_status(sizes: list, variant_label: str) -> str | None:
 
 
 def _any_size_available(sizes: list) -> str | None:
-    """Return ``IN_STOCK`` if any size is available, ``OUT_OF_STOCK`` if none are,
-    or ``None`` if no usable availability data was found."""
-    found_any = False
+    """Return IN_STOCK if any size is available, OUT_OF_STOCK if none are, None if no valid data."""
+    found_valid_entry = False
     for entry in sizes:
         if not isinstance(entry, dict):
             continue
@@ -157,7 +156,5 @@ def _any_size_available(sizes: list) -> str | None:
         if available is True:
             return "IN_STOCK"
         if available is False:
-            found_any = True
-    if found_any:
-        return "OUT_OF_STOCK"
-    return None
+            found_valid_entry = True
+    return "OUT_OF_STOCK" if found_valid_entry else None
