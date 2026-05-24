@@ -9,3 +9,9 @@ node_modules/
 .next/
 .DS_Store
 .superpowers/
+__pycache__/
+*.pyc
+.temp/
+log.txt
+ruvector.db
+worker/PLAN.md
