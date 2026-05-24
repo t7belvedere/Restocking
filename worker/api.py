@@ -374,7 +374,44 @@ async def _llm_extract(html: str, page, url: str) -> dict | None:
         return None
 
 
-def _universal_extract(page, html: str, url: str) -> dict:
+async def _download_image_base64(image_url: str, page_url: str) -> str | None:
+    """Download an image and return it as a base64-encoded string.
+
+    Uses browser-like headers including a Referer from the product page.
+    Many CDNs (Inditex brands, Stüssy) block image requests that lack
+    proper browser context, but will serve images when the request looks
+    like it comes from a real page load.
+    """
+    import base64
+    from urllib.parse import urlparse as _urlparse
+
+    try:
+        parsed = _urlparse(page_url)
+        referer = f"{parsed.scheme}://{parsed.hostname}/"
+    except Exception:
+        referer = None
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+        "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
+    }
+    if referer:
+        headers["Referer"] = referer
+
+    try:
+        async with httpx.AsyncClient(timeout=12) as client:
+            resp = await client.get(image_url, headers=headers)
+            if resp.status_code == 200 and len(resp.content) > 100:
+                b64 = base64.b64encode(resp.content).decode("ascii")
+                logger.debug("Downloaded image: %d bytes → %d chars base64", len(resp.content), len(b64))
+                return b64
+    except Exception:
+        logger.debug("Image download failed", exc_info=True)
+    return None
+
+
+async def _universal_extract(page, html: str, url: str) -> dict:
     """Extract product metadata from a rendered page + raw HTML.
 
     Uses rendered DOM (Playwright) when available, falls back to
@@ -383,6 +420,7 @@ def _universal_extract(page, html: str, url: str) -> dict:
     result: dict = {
         "name": None,
         "image_url": None,
+        "image_base64": None,
         "price": None,
         "variants": [],
         "sizes": [],
@@ -415,6 +453,12 @@ def _universal_extract(page, html: str, url: str) -> dict:
     if image_url and image_url.startswith("http://"):
         image_url = image_url.replace("http://", "https://", 1)
     result["image_url"] = image_url
+
+    # Download the product image as base64 via httpx with browser headers.
+    # Many CDNs (Pull&Bear/Inditex, Stüssy) block direct <img> tags from
+    # other origins. Base64 inline avoids the block entirely.
+    if image_url:
+        result["image_base64"] = await _download_image_base64(image_url, url)
 
     # --- VARIANTS (sizes + colors unified) ---
     variants = _extract_variants(html)
@@ -889,6 +933,48 @@ async def my_ip():
         return {"ip": "unknown"}
 
 
+@app.get("/image-proxy")
+async def image_proxy(img_url: str = Query(min_length=1, alias="url")):
+    """Proxy an image through the worker to bypass CDN hotlink protection.
+
+    Uses browser-like headers so CDNs (Pull&Bear, Inditex, etc.) serve the image.
+    """
+    try:
+        parsed = urlparse(img_url)
+        if parsed.scheme not in ("http", "https"):
+            raise HTTPException(status_code=400, detail="Invalid URL scheme")
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid URL")
+
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.get(
+                img_url,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+                    "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+                    "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
+                    "Referer": f"{parsed.scheme}://{parsed.hostname}/",
+                    "Sec-Fetch-Dest": "image",
+                    "Sec-Fetch-Mode": "no-cors",
+                    "Sec-Fetch-Site": "same-origin",
+                },
+            )
+            if resp.status_code != 200:
+                raise HTTPException(status_code=502, detail=f"Upstream returned {resp.status_code}")
+
+            content_type = resp.headers.get("content-type", "image/jpeg")
+            return StreamingResponse(
+                content=iter([resp.content]),
+                media_type=content_type,
+                headers={"Cache-Control": "public, max-age=86400"},
+            )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=str(exc)[:200])
+
+
 # ---------------------------------------------------------------------------
 # OTP phone verification
 # ---------------------------------------------------------------------------
@@ -1083,7 +1169,7 @@ async def _analyze_scrape(url: str, proxy_url: str | None, pw_proxy: dict | None
 
     # --- Universal extraction ---
     yield _sse_event("progress", {"step": "extracting", "message": "Lecture du produit..."})
-    result = _universal_extract(page, html, url)
+    result = await _universal_extract(page, html, url)
 
     # --- LLM enrichment (DeepSeek) — fills gaps in traditional extraction ---
     if _DEEPSEEK_KEY:
@@ -1132,7 +1218,7 @@ async def _analyze_scrape(url: str, proxy_url: str | None, pw_proxy: dict | None
             )
             pw_html = getattr(pw_page, "html_content", "")
             if pw_html:
-                pw_result = _universal_extract(pw_page, pw_html, url)
+                pw_result = await _universal_extract(pw_page, pw_html, url)
                 if pw_result["sizes"]:
                     result["sizes"] = pw_result["sizes"]
                 if pw_result["colors"]:

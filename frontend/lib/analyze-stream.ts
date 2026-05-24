@@ -105,6 +105,7 @@ function mapResult(data: Record<string, unknown>): AnalyzeResult {
     url: (data.url as string) ?? "",
     name: (data.name as string) ?? null,
     image_url: (data.image_url as string) ?? null,
+    image_base64: (data.image_base64 as string) ?? null,
     price: (data.price as number) ?? null,
     variants: Array.isArray(data.variants) ? (data.variants as string[]) : [],
     sizes: Array.isArray(data.sizes) ? (data.sizes as string[]) : [],

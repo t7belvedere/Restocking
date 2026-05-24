@@ -183,12 +183,20 @@ export function AddWatchForm() {
       <Card>
         <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-start">
           <div className="h-28 w-28 shrink-0 overflow-hidden rounded-xl bg-muted">
-            {analysis.image_url ? (
+            {analysis.image_url || analysis.image_base64 ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
-                src={analysis.image_url}
+                src={analysis.image_base64 ? `data:image/jpeg;base64,${analysis.image_base64}` : (analysis.image_url ?? "")}
                 alt={analysis.name ?? "Produit"}
                 className="h-full w-full object-cover"
+                onError={(e) => {
+                  // If image URL fails (CDN block), try base64, then hide
+                  if (analysis.image_base64 && !e.currentTarget.src.startsWith("data:")) {
+                    e.currentTarget.src = `data:image/jpeg;base64,${analysis.image_base64}`;
+                  } else {
+                    e.currentTarget.style.display = "none";
+                  }
+                }}
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">

@@ -13,6 +13,7 @@ export type AnalyzeResult = {
   url: string;
   name: string | null;
   image_url: string | null;
+  image_base64?: string | null;
   price: number | null;
   variants: string[];
   sizes: string[];
