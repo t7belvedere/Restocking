@@ -1,0 +1,26 @@
+# restocking.app
+
+> Size-specific restock alerts for European fashion. Monitors Zara, COS, Aritzia,
+> Sézane, Uniqlo and 120+ stores. Alerts in under 5 minutes.
+
+## Core Pages
+
+- [Home](https://www.restocking.app): Landing page — value proposition, stats, testimonials, waitlist signup
+- [How It Works](https://www.restocking.app/how-it-works): Three-step process, technical details (4-layer detection, double confirmation), comparison vs native alerts
+- [Pricing](https://www.restocking.app/pricing): Free (3 products, 30min checks, email) and Pro (€59/year, 20 products, 5min checks, email+SMS)
+- [FAQ](https://www.restocking.app/faq): Scraping legality, alert speed, brand support, cancellation, data privacy (12 questions)
+- [Retailers](https://www.restocking.app/retailers): 60+ supported European fashion brands with status (optimized/beta) and descriptions
+- [Manifesto](https://www.restocking.app/manifesto): Founding story, team, mission statement
+
+## Legal
+
+- [Privacy Policy](https://www.restocking.app/privacy)
+- [Terms of Service](https://www.restocking.app/terms)
+- [Cookie Policy](https://www.restocking.app/cookies)
+
+## Technical
+
+- Built with Next.js, Supabase (Frankfurt EU), Resend (email), Twilio (SMS)
+- Stock detection: 4-layer strategy (dataLayer, button state, variant attributes, text analysis)
+- Double confirmation: requires two consecutive IN_STOCK detections before alerting
+- GDPR compliant, no data resale, no third-party tracking

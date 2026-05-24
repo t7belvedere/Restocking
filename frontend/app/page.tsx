@@ -1,8 +1,7 @@
-"use client";
-
 import Link from "next/link";
 import { ArrowRight, Quote, Sparkles } from "lucide-react";
-import { useLocale } from "@/components/site/locale-provider";
+import { cookies } from "next/headers";
+import { messages, DEFAULT_LOCALE, type Locale } from "@/lib/i18n/messages";
 import { WaitlistForm } from "@/components/site/waitlist-form";
 import { LiveCounter } from "@/components/site/live-counter";
 import { RestockTicker } from "@/components/site/ticker";
@@ -16,8 +15,10 @@ import {
   StaggerItem,
 } from "@/components/ui/scroll-reveal";
 
-export default function HomePage() {
-  const { t } = useLocale();
+export default async function HomePage() {
+  const cookieStore = await cookies();
+  const locale = (cookieStore.get("restocking.locale")?.value ?? DEFAULT_LOCALE) as Locale;
+  const t = messages[locale];
 
   return (
     <main data-testid="home-page" className="overflow-hidden">
