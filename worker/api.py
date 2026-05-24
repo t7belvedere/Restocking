@@ -799,6 +799,7 @@ async def analyze(url: str = Query(min_length=1)):
             }
             if pw_proxy:
                 pw_kwargs["proxy"] = pw_proxy
+            logger.info("Level 2 Playwright attempt — url=%s proxy=%s", url[:60], bool(pw_proxy))
             page = await _asyncio.to_thread(
                 PlayWrightFetcher.fetch,
                 url,
@@ -806,7 +807,7 @@ async def analyze(url: str = Query(min_length=1)):
             )
             html = getattr(page, "html_content", "")
         except Exception:
-            logger.debug("Level 2 (PlayWrightFetcher) failed", exc_info=True)
+            logger.exception("Level 2 (PlayWrightFetcher) failed")
 
     # Level 3 — Playwright best effort
     if html is None:
