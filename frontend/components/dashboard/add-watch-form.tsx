@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "motion/react";
 import { cn, formatPrice, shortHost } from "@/lib/utils";
+import { useLocale } from "@/components/site/locale-provider";
 import { createWatch, type AnalyzeResult } from "@/app/actions/watches";
 import { analyzeUrlStream, type ProgressEvent } from "@/lib/analyze-stream";
 
@@ -53,6 +54,8 @@ function getDomainWarning(url: string): DomainStatus {
 
 export function AddWatchForm() {
   const router = useRouter();
+  const { t } = useLocale();
+  const aw = t.addWatch;
   const [step, setStep] = useState<Step>("url");
   const [analyzing, setAnalyzing] = useState(false);
   const [submitting, startSubmit] = useTransition();
@@ -88,7 +91,7 @@ export function AddWatchForm() {
     event.preventDefault();
     if (!url.trim()) return;
     setAnalyzing(true);
-    setProgress({ step: "http", message: "Connexion au site..." });
+    setProgress({ step: "http", message: aw.progressHttp });
     try {
       const res = await analyzeUrlStream(url.trim(), (evt) => setProgress(evt));
       setAnalysis(res);
@@ -100,17 +103,13 @@ export function AddWatchForm() {
       setStep("confirm");
       if (!res.ok || res.enrichment_pending) {
         if (res.error === "TIMEOUT") {
-          toast.warning(
-            "Analyse partielle — la page a mis trop de temps à répondre.",
-          );
+          toast.warning(aw.partialAnalysis);
         } else {
-          toast.warning(
-            "On n'a pas pu lire la fiche produit, vous pouvez compléter manuellement.",
-          );
+          toast.warning(aw.couldNotRead);
         }
       }
     } catch {
-      toast.error("Erreur réseau. Réessayez dans un instant.");
+      toast.error(aw.networkError);
     } finally {
       setAnalyzing(false);
       setProgress(null);
@@ -122,9 +121,9 @@ export function AddWatchForm() {
     if (!analysis) return;
     if (!variantLabel) {
       if (hasMultiSelect) {
-        toast.error("Sélectionnez une taille et une couleur avant d'activer.");
+        toast.error(aw.selectSizeColor);
       } else {
-        toast.error("Choisissez une taille / couleur avant d'activer.");
+        toast.error(aw.chooseVariant);
       }
       return;
     }
@@ -141,21 +140,19 @@ export function AddWatchForm() {
 
       if (!res.ok) {
         if (res.error === "LIMIT_REACHED") {
-          toast.error(
-            "Limite de votre plan atteinte. Passez à Pro pour en suivre plus.",
-          );
+          toast.error(aw.limitReached);
           router.push("/upgrade");
           return;
         }
         if (res.error === "INVALID_URL") {
-          toast.error("URL invalide.");
+          toast.error(aw.invalidUrl);
           return;
         }
-        toast.error("Impossible de créer l'alerte.");
+        toast.error(aw.createFailed);
         return;
       }
 
-      toast.success("Alerte activée ✓");
+      toast.success(aw.activated);
       router.push("/dashboard");
       router.refresh();
     });
@@ -172,35 +169,28 @@ export function AddWatchForm() {
       {step === "url" || !analysis ? (
         <motion.form key="url" onSubmit={handleAnalyze} className="space-y-4" {...slideAnim} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}>
         <div className="space-y-2">
-          <Label htmlFor="product-url">URL du produit</Label>
+          <Label htmlFor="product-url">{aw.urlLabel}</Label>
           <Input
             id="product-url"
             type="url"
             inputMode="url"
             required
-            placeholder="https://www.cos.com/..."
+            placeholder={aw.urlPlaceholder}
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             disabled={analyzing}
           />
-          <p className="text-xs text-muted-foreground">
-            Collez le lien direct de la fiche produit. On lit les balises
-            publiques pour pré-remplir le formulaire.
-          </p>
+          <p className="text-xs text-muted-foreground">{aw.urlHelp}</p>
 
           {domainWarning?.level === "blocked" ? (
             <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
               <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <span>
-                <strong>{domainWarning.label}</strong> n&apos;est pas compatible avec notre analyse automatique. Tu peux créer l&apos;alerte manuellement, mais la détection des informations produit ne fonctionnera pas sur ce site.
-              </span>
+              <span>{aw.blockedWarning(domainWarning.label)}</span>
             </div>
           ) : domainWarning?.level === "limited" ? (
             <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
               <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <span>
-                <strong>{domainWarning.label}</strong> utilise des protections qui peuvent limiter la détection. L&apos;analyse reste fonctionnelle mais les variantes ou les images pourraient être incomplètes.
-              </span>
+              <span>{aw.limitedWarning(domainWarning.label)}</span>
             </div>
           ) : null}
         </div>
@@ -209,12 +199,12 @@ export function AddWatchForm() {
           {analyzing ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Analyse en cours…
+              {aw.analyzing}
             </>
           ) : (
             <>
               <Search className="h-4 w-4" />
-              Analyser le produit
+              {aw.analyze}
             </>
           )}
         </Button>
@@ -231,7 +221,7 @@ export function AddWatchForm() {
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
-        Modifier l&apos;URL
+        {aw.modifyUrl}
       </button>
 
       <Card>
@@ -241,7 +231,7 @@ export function AddWatchForm() {
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 src={analysis.image_base64 ? `data:image/jpeg;base64,${analysis.image_base64}` : (analysis.image_url ?? "")}
-                alt={analysis.name ?? "Produit"}
+                alt={analysis.name ?? aw.productName}
                 className="h-full w-full object-cover"
                 onError={(e) => {
                   // If image URL fails (CDN block), try base64, then hide
@@ -254,7 +244,7 @@ export function AddWatchForm() {
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                Sans visuel
+                {aw.noImage}
               </div>
             )}
           </div>
@@ -265,11 +255,11 @@ export function AddWatchForm() {
               </p>
             ) : (
               <div className="space-y-2">
-                <Label htmlFor="product-name">Nom du produit</Label>
+                <Label htmlFor="product-name">{aw.productName}</Label>
                 <Input
                   id="product-name"
                   required
-                  placeholder="ex: Manteau oversize en laine"
+                  placeholder={aw.productNamePlaceholder}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
@@ -285,9 +275,7 @@ export function AddWatchForm() {
 
       {analysis?.enrichment_pending ? (
         <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
-          Le site bloque notre lecture automatique. Vous pouvez créer
-          l&apos;alerte et notre worker enrichira la fiche dans quelques
-          minutes.
+          {aw.enrichmentPending}
         </p>
       ) : null}
 
@@ -295,7 +283,7 @@ export function AddWatchForm() {
         <>
           {/* Size selection */}
           <div className="space-y-3">
-            <Label>Taille</Label>
+            <Label>{aw.size}</Label>
             <div className="flex flex-wrap gap-2">
               {sizes.map((s) => {
                 const active = selectedSize === s;
@@ -314,7 +302,7 @@ export function AddWatchForm() {
                       inStock && !active && "border-border bg-background hover:border-foreground/40 hover:bg-muted",
                     )}
                   >
-                    {s}{!inStock ? <span className="ml-1 text-[9px] opacity-60">épuisé</span> : null}
+                    {s}{!inStock ? <span className="ml-1 text-[9px] opacity-60">{aw.oosBadge}</span> : null}
                   </button>
                 );
               })}
@@ -323,7 +311,7 @@ export function AddWatchForm() {
 
           {/* Color selection */}
           <div className="space-y-3">
-            <Label>Couleur</Label>
+            <Label>{aw.color}</Label>
             <div className="flex flex-wrap gap-2">
               {colors.map((c) => {
                 const active = selectedColor === c;
@@ -342,7 +330,7 @@ export function AddWatchForm() {
                       inStock && !active && "border-border bg-background hover:border-foreground/40 hover:bg-muted",
                     )}
                   >
-                    {c}{!inStock ? <span className="ml-1 text-[9px] opacity-60">épuisé</span> : null}
+                    {c}{!inStock ? <span className="ml-1 text-[9px] opacity-60">{aw.oosBadge}</span> : null}
                   </button>
                 );
               })}
@@ -351,7 +339,7 @@ export function AddWatchForm() {
         </>
       ) : hasLegacyVariants ? (
         <div className="space-y-3">
-          <Label>Sélectionne ta taille / couleur</Label>
+          <Label>{aw.selectVariant}</Label>
           <div className="flex flex-wrap gap-2">
             {variants.map((v) => {
               const active = selectedVariant === v;
@@ -373,21 +361,17 @@ export function AddWatchForm() {
               );
             })}
           </div>
-          <p className="text-xs text-muted-foreground">
-            Sélectionnez la variante exacte que vous souhaitez surveiller.
-          </p>
+          <p className="text-xs text-muted-foreground">{aw.selectVariantHelp}</p>
         </div>
       ) : (
         <div className="space-y-3">
-          <Label>Sélectionne ta taille / couleur</Label>
+          <Label>{aw.selectVariant}</Label>
           <Input
-            placeholder="ex: Taille S / Bleu marine"
+            placeholder={aw.manualVariantPlaceholder}
             value={manualVariant}
             onChange={(e) => setManualVariant(e.target.value)}
           />
-          <p className="text-xs text-muted-foreground">
-            Aucune variante détectée — saisissez la taille / couleur manuellement.
-          </p>
+          <p className="text-xs text-muted-foreground">{aw.noVariantsHelp}</p>
         </div>
       )}
 
@@ -397,16 +381,16 @@ export function AddWatchForm() {
           variant="ghost"
           onClick={() => router.push("/dashboard")}
         >
-          Annuler
+          {aw.cancel}
         </Button>
         <Button type="submit" size="lg" disabled={submitting}>
           {submitting ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Activation…
+              {aw.activating}
             </>
           ) : (
-            "Activer l'alerte"
+            aw.activate
           )}
         </Button>
       </div>
