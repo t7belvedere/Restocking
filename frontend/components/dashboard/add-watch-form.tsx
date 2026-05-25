@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Check, Loader2, Search } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Check, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,6 +14,43 @@ import { createWatch, type AnalyzeResult } from "@/app/actions/watches";
 import { analyzeUrlStream, type ProgressEvent } from "@/lib/analyze-stream";
 
 type Step = "url" | "confirm";
+
+// Domaines où l'analyse fonctionne mais avec des limitations (variantes, images...)
+const LIMITED_DOMAINS: Record<string, string> = {
+  "pullandbear.com": "Pull&Bear",
+  "weekday.com": "Weekday",
+  "stradivarius.com": "Stradivarius",
+  "arket.com": "ARKET",
+  "monki.com": "Monki",
+  "stories.com": "& Other Stories",
+  "ginatricot.com": "Gina Tricot",
+  "massimodutti.com": "Massimo Dutti",
+  "oysho.com": "Oysho",
+  "lefties.com": "Lefties",
+};
+
+// Domaines où l'analyse ne fonctionne pas du tout
+const BLOCKED_DOMAINS: Record<string, string> = {
+  "shein.com": "Shein",
+  "sephora.fr": "Sephora",
+  "sephora.com": "Sephora",
+  "louisvuitton.com": "Louis Vuitton",
+};
+
+type DomainStatus = { label: string; level: "limited" | "blocked" } | null;
+
+function getDomainWarning(url: string): DomainStatus {
+  try {
+    const hostname = new URL(url).hostname.replace("www.", "");
+    for (const [domain, label] of Object.entries(BLOCKED_DOMAINS)) {
+      if (hostname.includes(domain)) return { label, level: "blocked" };
+    }
+    for (const [domain, label] of Object.entries(LIMITED_DOMAINS)) {
+      if (hostname.includes(domain)) return { label, level: "limited" };
+    }
+  } catch {}
+  return null;
+}
 
 export function AddWatchForm() {
   const router = useRouter();
@@ -29,6 +66,8 @@ export function AddWatchForm() {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [manualVariant, setManualVariant] = useState("");
   const [progress, setProgress] = useState<ProgressEvent | null>(null);
+
+  const domainWarning = useMemo(() => getDomainWarning(url), [url]);
 
   const sizes = analysis?.sizes ?? [];
   const colors = analysis?.colors ?? [];
@@ -149,6 +188,22 @@ export function AddWatchForm() {
             Collez le lien direct de la fiche produit. On lit les balises
             publiques pour pré-remplir le formulaire.
           </p>
+
+          {domainWarning?.level === "blocked" ? (
+            <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <span>
+                <strong>{domainWarning.label}</strong> n&apos;est pas compatible avec notre analyse automatique. Tu peux créer l&apos;alerte manuellement, mais la détection des informations produit ne fonctionnera pas sur ce site.
+              </span>
+            </div>
+          ) : domainWarning?.level === "limited" ? (
+            <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <span>
+                <strong>{domainWarning.label}</strong> utilise des protections qui peuvent limiter la détection. L&apos;analyse reste fonctionnelle mais les variantes ou les images pourraient être incomplètes.
+              </span>
+            </div>
+          ) : null}
         </div>
 
         <Button type="submit" size="lg" disabled={analyzing} className="w-full">
