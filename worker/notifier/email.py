@@ -79,7 +79,8 @@ def send_restock_email(
         )
         brand_logo = (
             f'<img src="{brandfetch_url}" alt="{brand_name or brand_domain}" '
-            f'style="display:block;height:36px;width:auto;max-width:180px;'
+            f'height="24" '
+            f'style="display:block;height:24px;width:auto;max-width:140px;'
             f'filter:brightness(0)invert(1);" />'
             if brandfetch_url
             else ""
@@ -133,7 +134,7 @@ def send_restock_email(
         # ── Logo (inline SVG — target/ping icon) ─────────────────
         logo_svg = (
             f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" '
-            f'width="36" height="36" style="vertical-align:middle;margin-right:10px;">'
+            f'width="32" height="32" style="vertical-align:middle;margin-right:8px;">'
             f'<circle cx="50" cy="50" r="48" fill="{_CREAM}" stroke="{_INK}" stroke-width="4"/>'
             f'<circle cx="50" cy="50" r="36" fill="{_ORANGE}" opacity="0.15"/>'
             f'<circle cx="50" cy="50" r="12" fill="{_ORANGE}"/>'
@@ -167,7 +168,7 @@ def send_restock_email(
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="text-align:left;vertical-align:middle;">
-                    <p style="margin:0;font-size:22px;font-weight:800;color:{_CREAM};
+                    <p style="margin:0;font-size:20px;font-weight:800;color:{_CREAM};
                               letter-spacing:-0.02em;font-family:Georgia,serif;">
                       {logo_svg}restocking
                     </p>
