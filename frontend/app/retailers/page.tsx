@@ -170,7 +170,7 @@ export default function RetailersPage() {
       </section>
 
       {/* GRID */}
-      <section className="relative border-b-2 border-ink bg-paper">
+      <section className="border-b-2 border-ink bg-paper">
         <div
           className="container mx-auto max-w-7xl px-0"
           data-testid="retailer-grid"
@@ -227,20 +227,6 @@ export default function RetailersPage() {
             })}
           </div>
         </div>
-
-        {/* Blur overlay — progressively blurs the last two rows of cards */}
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-[340px] md:h-[380px]"
-          style={{
-            backdropFilter: "blur(3px)",
-            WebkitBackdropFilter: "blur(3px)",
-            maskImage:
-              "linear-gradient(to top, black 30%, transparent 100%)",
-            WebkitMaskImage:
-              "linear-gradient(to top, black 30%, transparent 100%)",
-          }}
-          aria-hidden="true"
-        />
       </section>
 
       {/* Many more hint */}
