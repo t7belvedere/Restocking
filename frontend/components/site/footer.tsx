@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { Logo } from "@/components/site/logo";
-import { useLocale } from "@/components/site/locale-provider";
+import { useMessages } from "next-intl";
 
 export function SiteFooter() {
-  const { t } = useLocale();
+  const t = useMessages();
   const year = new Date().getFullYear();
 
   return (
@@ -95,6 +95,15 @@ export function SiteFooter() {
                 className="hover:text-[var(--brand-lime)]"
               >
                 {t.footer.links.cookies}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/mentions-legales"
+                data-testid="footer-link-mentions-legales"
+                className="hover:text-[var(--brand-lime)]"
+              >
+                {t.footer.links.mentionsLegales}
               </Link>
             </li>
           </ul>

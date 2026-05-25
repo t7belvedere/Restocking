@@ -346,6 +346,7 @@ export const messages = {
         privacy: "Confidentialité",
         terms: "CGU",
         cookies: "Cookies",
+        mentionsLegales: "Mentions légales",
         contact: "hello@restocking.app",
       },
       madeIn: "Fait avec ❤️ entre Paris, Lyon et Berlin.",
@@ -354,54 +355,197 @@ export const messages = {
     legal: {
       privacy: {
         title: "Politique de Confidentialité",
-        lastUpdated: "Mis à jour le 24 mai 2026",
-        intro: "On déteste le spam autant que toi. Tes infos servent uniquement à te prévenir quand ton vêtement préféré revient.",
+        lastUpdated: "Dernière mise à jour : 25 mai 2026",
+        intro: "La confidentialité est au cœur de Restocking. Cette politique détaille comment nous collectons, utilisons et protégeons tes données personnelles, conformément au Règlement Général sur la Protection des Données (RGPD) et à la loi Informatique et Libertés.",
         sections: [
           {
+            title: "Responsable de traitement",
+            content: "Le responsable de traitement est Oscar Albert, joignable à hello@restocking.app. Restocking est une entreprise individuelle immatriculée en France. Pour toute question relative à tes données, tu peux nous écrire à tout moment.",
+          },
+          {
             title: "Données collectées",
-            content: "On garde ton email, ta langue, et les liens des produits que tu suis. C'est tout.",
+            content: "Nous collectons uniquement les données strictement nécessaires au fonctionnement du service : ton adresse email (pour l'authentification et les notifications), ta préférence de langue (français ou anglais), les URLs des produits que tu surveilles, la taille et la couleur que tu suis pour chaque produit, ton plan d'abonnement (Free ou Pro), et l'historique des notifications envoyées. Nous ne collectons ni ton nom complet, ni ton adresse postale, ni tes données bancaires (le paiement est délégué à Stripe).",
           },
           {
-            title: "Usage des données",
-            content: "Ton e-mail sert uniquement à t'envoyer les alertes et des nouvelles importantes sur le service. On ne vendra JAMAIS ta data à des tiers.",
+            title: "Finalités et bases légales",
+            content: "Nous traitons tes données pour : (1) créer et gérer ton compte utilisateur (base légale : exécution du contrat), (2) surveiller le stock des produits que tu suis et t'envoyer des alertes (base légale : exécution du contrat), (3) t'envoyer des informations essentielles sur le service (base légale : intérêt légitime), (4) améliorer le service via des analyses anonymisées (base légale : intérêt légitime). Nous ne faisons aucun profilage, aucune décision automatisée, et aucun ciblage publicitaire.",
           },
           {
-            title: "Hébergement",
-            content: "Tes données sont stockées en Europe (région Frankfurt) sur les serveurs sécurisés de Supabase.",
+            title: "Destinataires des données",
+            content: "Tes données sont partagées uniquement avec les sous-traitants strictement nécessaires : Supabase (base de données et authentification, serveurs à Francfort), Resend (envoi d'emails transactionnels), et Stripe (traitement des paiements, uniquement si tu passes en Pro). Chacun de ces sous-traitants est conforme au RGPD. Nous ne vendons, ne louons, ni ne partageons tes données avec aucun autre tiers, à des fins commerciales ou autres.",
+          },
+          {
+            title: "Transferts hors Union Européenne",
+            content: "Tes données sont hébergées en Europe (Supabase, région Frankfurt). Certains sous-traitants opèrent depuis les États-Unis (Resend, Stripe). Ils adhèrent au Data Privacy Framework (DPF) ou ont signé des clauses contractuelles types approuvées par la Commission Européenne, garantissant un niveau de protection équivalent au RGPD.",
+          },
+          {
+            title: "Durée de conservation",
+            content: "Les données de ton compte sont conservées tant que ton compte est actif. Si tu supprimes ton compte, toutes tes données personnelles sont effacées sous 30 jours. Les logs techniques (horodatages de vérification de stock, statuts) sont anonymisés après 90 jours. Les données de paiement sont conservées par Stripe selon leur propre politique de rétention (obligation légale de 10 ans pour les factures).",
+          },
+          {
+            title: "Sécurité",
+            content: "Nous mettons en œuvre des mesures techniques et organisationnelles appropriées : chiffrement des données en transit (TLS 1.3) et au repos (AES-256), authentification forte via Supabase Auth, accès aux serveurs restreint par clés SSH et VPN, monitoring continu des accès et des anomalies, et mises à jour de sécurité automatisées. En cas de violation de données, nous te notifierons dans les 72 heures, conformément au RGPD.",
+          },
+          {
+            title: "Tes droits RGPD",
+            content: "Tu disposes des droits suivants sur tes données, exerçables à tout moment en écrivant à hello@restocking.app : droit d'accès (savoir quelles données nous détenons et en obtenir une copie), droit de rectification (corriger des données inexactes), droit à l'effacement (supprimer ton compte et toutes tes données), droit à la limitation (geler temporairement le traitement), droit à la portabilité (recevoir tes données dans un format lisible), et droit d'opposition (refuser un traitement basé sur l'intérêt légitime). Nous répondons à toute demande sous 30 jours maximum.",
+          },
+          {
+            title: "Cookies et traceurs",
+            content: "Nous utilisons uniquement des cookies strictement nécessaires au fonctionnement du site : un cookie de session pour te garder connecté(e), et un cookie de préférence de langue. Aucun cookie publicitaire, aucun cookie de tracking tiers. Notre politique complète des cookies est détaillée sur la page dédiée.",
+          },
+          {
+            title: "Mineurs",
+            content: "Le service n'est pas destiné aux mineurs de moins de 16 ans. Nous ne collectons pas sciemment de données personnelles de mineurs. Si tu es parent et que tu découvres que ton enfant utilise le service, contacte-nous pour que nous supprimions ses données.",
+          },
+          {
+            title: "Droit de réclamation",
+            content: "Si tu estimes que le traitement de tes données n'est pas conforme au RGPD, tu peux déposer une réclamation auprès de la CNIL (Commission Nationale de l'Informatique et des Libertés) sur cnil.fr. Nous t'encourageons à nous contacter d'abord pour que nous puissions résoudre le problème directement.",
+          },
+          {
+            title: "Modifications de cette politique",
+            content: "Nous pouvons mettre à jour cette politique pour refléter des changements légaux ou techniques. En cas de modification substantielle, nous t'en informerons par email au moins 14 jours avant son entrée en vigueur. La date de dernière mise à jour est indiquée en haut de cette page.",
           },
         ],
       },
       terms: {
         title: "Conditions Générales d'Utilisation",
-        lastUpdated: "Mis à jour le 24 mai 2026",
-        intro: "En utilisant Restocking, tu acceptes ces quelques règles simples.",
+        lastUpdated: "Dernière mise à jour : 25 mai 2026",
+        intro: "Les présentes Conditions Générales d'Utilisation (CGU) régissent ta relation avec Restocking. En utilisant le service, tu acceptes ces conditions dans leur intégralité. Si tu n'es pas d'accord avec l'une d'entre elles, tu ne dois pas utiliser le service.",
         sections: [
           {
-            title: "Le Service",
-            content: "Restocking est un outil de veille. On fait de notre mieux pour être les plus rapides, mais on ne peut pas garantir que tu réussiras à acheter le produit avant les autres.",
+            title: "Définitions",
+            content: "\"Restocking\" désigne le service édité par Oscar Albert, accessible sur restocking.app. \"Utilisateur\" ou \"tu\" désigne toute personne qui crée un compte et utilise le service. \"Alerte\" désigne la surveillance d'un produit spécifique (taille + couleur). \"Plan Free\" désigne l'abonnement gratuit avec 3 alertes et vérification toutes les 30 minutes. \"Plan Pro\" désigne l'abonnement payant avec jusqu'à 20 alertes et vérification toutes les 5 minutes.",
+          },
+          {
+            title: "Objet du service",
+            content: "Restocking est un outil de surveillance de stock pour boutiques de mode en ligne. Le service vérifie automatiquement les pages produits que tu lui confies et t'envoie une notification (email, et SMS en plan Pro) dès que la taille et la couleur que tu suis sont de nouveau disponibles à l'achat. Restocking est un service d'information : nous ne vendons rien, nous ne sommes affiliés à aucune marque, et nous ne garantissons pas que tu pourras acheter le produit.",
+          },
+          {
+            title: "Création de compte",
+            content: "Pour utiliser le service, tu dois créer un compte avec une adresse email valide. Tu t'engages à fournir des informations exactes et à les maintenir à jour. Tu es responsable de la confidentialité de ton mot de passe et de toute activité sur ton compte. Un compte ne peut être utilisé que par une seule personne physique.",
+          },
+          {
+            title: "Plans d'abonnement",
+            content: "Le plan Free est gratuit et permet de suivre jusqu'à 3 alertes simultanément, avec une vérification toutes les 30 minutes. Le plan Pro est payant et permet de suivre jusqu'à 20 alertes simultanément, avec une vérification toutes les 5 minutes, et inclut les notifications par SMS. Les prix sont affichés en euros TTC sur la page des tarifs et peuvent être révisés avec un préavis de 30 jours.",
+          },
+          {
+            title: "Paiement et facturation",
+            content: "Le paiement du plan Pro est traité par Stripe, notre prestataire de paiement certifié PCI-DSS. Restocking ne stocke jamais tes données de carte bancaire. La facturation est effectuée d'avance, mensuellement ou annuellement selon la formule choisie. Le renouvellement est automatique. Tu recevras une facture par email après chaque paiement.",
+          },
+          {
+            title: "Droit de rétractation",
+            content: "Conformément à l'article L.221-18 du Code de la consommation, tu disposes d'un délai de rétractation de 14 jours à compter de la souscription au plan Pro. Pour exercer ce droit, écris à hello@restocking.app. Le remboursement sera effectué sous 14 jours via le même moyen de paiement. Si tu as utilisé le service pendant ces 14 jours, le remboursement pourra être calculé au prorata.",
+          },
+          {
+            title: "Obligations de l'utilisateur",
+            content: "Tu t'engages à : utiliser le service uniquement pour un usage personnel et non commercial, ne pas contourner les limites techniques du service (création de comptes multiples, automatisation), ne pas revendre ou redistribuer les alertes ou informations obtenues via le service, ne pas utiliser le service pour surveiller des produits illicites ou contrefaits, et respecter les droits de propriété intellectuelle des marques surveillées.",
           },
           {
             title: "Usage loyal",
-            content: "Le service est destiné à un usage personnel. Toute tentative d'automatisation massive ou de dégradation du service pourra entraîner un bannissement.",
+            content: "Nous nous réservons le droit de suspendre ou résilier un compte en cas d'usage abusif, notamment : création massive de comptes, tentatives de contournement des limites d'alertes, utilisation d'automates ou de scripts, toute action visant à dégrader la qualité du service pour les autres utilisateurs, ou utilisation du service à des fins de revente ou de concurrence déloyale. En cas de suspicion d'abus, nous t'en informerons et te donnerons la possibilité de t'expliquer avant toute sanction.",
           },
           {
-            title: "Abonnement Pro",
-            content: "Le plan Pro est sans engagement. Tu peux annuler à tout moment depuis ton dashboard.",
+            title: "Propriété intellectuelle",
+            content: "Restocking est une marque déposée. Le code source, le design, les textes et les éléments graphiques originaux du site sont la propriété exclusive de Restocking. Les logos, marques et noms de produits des boutiques surveillées (Zara, COS, Sézane, etc.) restent la propriété de leurs titulaires respectifs. Leur affichage sur Restocking est strictement informatif et ne constitue en aucun cas une affiliation, un endorsement ou une licence. Si tu es titulaire d'une marque et souhaites que nous cessions d'afficher ton logo, contacte-nous à hello@restocking.app.",
+          },
+          {
+            title: "Données personnelles",
+            content: "Le traitement de tes données personnelles est régi par notre Politique de Confidentialité, accessible sur restocking.app/privacy, qui fait partie intégrante des présentes CGU. En acceptant ces CGU, tu reconnais avoir pris connaissance de notre politique de confidentialité.",
+          },
+          {
+            title: "Responsabilité et limitations",
+            content: "Restocking fait ses meilleurs efforts pour fournir un service fiable et rapide. Cependant, nous ne pouvons pas garantir : que le service sera ininterrompu ou exempt d'erreurs, que les notifications arriveront toujours avant que le produit ne soit de nouveau en rupture, que tu pourras acheter le produit après avoir reçu une alerte, et que les informations de stock affichées par les boutiques sont exactes (nous reflétons ce qui est visible publiquement, sans altération). En aucun cas Restocking ne pourra être tenu responsable des préjudices indirects, pertes de chance ou manques à gagner liés à l'utilisation du service. Notre responsabilité est limitée au montant de l'abonnement payé sur les 12 derniers mois.",
+          },
+          {
+            title: "Disponibilité du service",
+            content: "Nous visons une disponibilité de 99,5%. Les interruptions planifiées (maintenance) sont annoncées par email aux utilisateurs Pro au moins 24h à l'avance. En cas d'interruption non planifiée, nous mettons tout en œuvre pour rétablir le service dans les plus brefs délais. Les vérifications ratées pendant une interruption sont reprises automatiquement dès le retour du service.",
+          },
+          {
+            title: "Sites tiers et liens externes",
+            content: "Les alertes contiennent des liens vers les pages produits des boutiques surveillées. Restocking n'exerce aucun contrôle sur ces sites tiers et décline toute responsabilité quant à leur contenu, leurs pratiques commerciales ou leur disponibilité. Les conditions générales des boutiques concernées s'appliquent à tout achat effectué via ces liens.",
+          },
+          {
+            title: "Résiliation",
+            content: "Tu peux fermer ton compte à tout moment depuis ton tableau de bord, sans préavis ni justification. Toutes tes données seront supprimées sous 30 jours. Nous pouvons résilier ton compte en cas de violation grave des présentes CGU, avec un préavis de 7 jours par email t'invitant à régulariser la situation. La résiliation prend effet immédiatement en cas d'activité frauduleuse ou illégale.",
+          },
+          {
+            title: "Modification des CGU",
+            content: "Nous pouvons modifier ces CGU pour refléter des évolutions du service ou des obligations légales. En cas de modification substantielle, nous t'en informerons par email au moins 14 jours avant l'entrée en vigueur. Si tu refuses les modifications, tu peux résilier ton compte avant cette date. L'utilisation continue du service après l'entrée en vigueur vaut acceptation des nouvelles CGU.",
+          },
+          {
+            title: "Droit applicable et juridiction",
+            content: "Les présentes CGU sont soumises au droit français. En cas de litige, les tribunaux français seront compétents. Conformément à l'article L.612-1 du Code de la consommation, tu peux recourir gratuitement au service de médiation suivant : Centre de Médiation et d'Arbitrage de Paris (CMAP), accessible sur cmap.fr. La Commission Européenne met également à disposition une plateforme de règlement en ligne des litiges sur ec.europa.eu/consumers/odr.",
+          },
+          {
+            title: "Contact",
+            content: "Pour toute question relative aux présentes CGU ou au service, tu peux nous contacter à tout moment par email à hello@restocking.app. Nous nous engageons à répondre sous 48 heures ouvrées.",
           },
         ],
       },
       cookies: {
         title: "Politique des Cookies",
-        lastUpdated: "Mis à jour le 24 mai 2026",
-        intro: "On utilise le strict minimum pour que le site fonctionne.",
+        lastUpdated: "Dernière mise à jour : 25 mai 2026",
+        intro: "Cette politique explique comment et pourquoi nous utilisons des cookies sur restocking.app. Nous faisons le strict minimum — pas de traqueurs publicitaires, pas de mouchards.",
         sections: [
           {
-            title: "Cookies essentiels",
-            content: "Ces cookies servent à mémoriser ta session d'authentification et ta préférence de langue. Sans eux, le site ne marche pas.",
+            title: "Qu'est-ce qu'un cookie ?",
+            content: "Un cookie est un petit fichier texte déposé sur ton appareil (ordinateur, téléphone) par le site que tu visites. Il permet de mémoriser des informations entre deux visites, comme ta session de connexion ou tes préférences. Les cookies peuvent être \"de session\" (supprimés quand tu fermes ton navigateur) ou \"persistants\" (conservés quelques jours ou mois).",
           },
           {
-            title: "Analytique",
-            content: "On utilise des outils respectueux de la vie privée pour comprendre comment le site est utilisé, sans te tracker personnellement.",
+            title: "Cookies strictement nécessaires",
+            content: "Ces cookies sont indispensables au fonctionnement du site. Ils ne peuvent pas être désactivés. Ils incluent : le cookie de session Supabase (sb-access-token / sb-refresh-token) qui te garde connecté(e) pendant ta visite, et le cookie de préférence de langue (NEXT_LOCALE) qui mémorise si tu préfères le français ou l'anglais. Ces cookies ne collectent aucune information personnelle identifiable et ne sont jamais partagés avec des tiers.",
+          },
+          {
+            title: "Cookies de mesure d'audience",
+            content: "Nous pourrions utiliser à l'avenir un outil d'analyse respectueux de la vie privée (type Plausible ou Matomo, sans cookies tiers et sans tracking inter-sites) pour comprendre combien de personnes visitent le site et quelles pages sont consultées. Ces données sont entièrement anonymisées. Aucun cookie de mesure d'audience n'est actuellement déposé.",
+          },
+          {
+            title: "Cookies tiers",
+            content: "Le traitement des paiements Pro est délégué à Stripe, qui peut déposer ses propres cookies strictement nécessaires à la transaction. Ces cookies sont régis par la politique de confidentialité de Stripe. Nous n'intégrons aucun widget de réseaux sociaux, aucune régie publicitaire, et aucun pixel de tracking tiers.",
+          },
+          {
+            title: "Durée de vie des cookies",
+            content: "Les cookies de session expirent quand tu fermes ton navigateur. Le cookie de langue persiste 1 an. Les cookies Stripe liés au paiement ont une durée définie par Stripe (généralement 30 minutes pour la session de paiement).",
+          },
+          {
+            title: "Gestion des cookies",
+            content: "Tu peux à tout moment supprimer les cookies déposés par restocking.app via les paramètres de ton navigateur (Paramètres > Vie privée et sécurité > Cookies et données de site). La plupart des navigateurs te permettent aussi de bloquer les cookies par défaut. Attention : bloquer les cookies essentiels empêchera le site de fonctionner correctement (tu ne pourras pas rester connecté).",
+          },
+        ],
+      },
+      mentionsLegales: {
+        title: "Mentions Légales",
+        lastUpdated: "Dernière mise à jour : 25 mai 2026",
+        intro: "Conformément à la loi n°2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (LCEN), nous publions les informations légales relatives à l'édition et à l'hébergement du site restocking.app.",
+        sections: [
+          {
+            title: "Éditeur du site",
+            content: "Le site restocking.app est édité par Oscar Albert, entrepreneur individuel immatriculé en France. Adresse email : hello@restocking.app. Numéro de TVA intracommunautaire : communiqué sur demande. Le site est exploité sous le nom commercial \"Restocking\".",
+          },
+          {
+            title: "Directeur de la publication",
+            content: "Le directeur de la publication est Oscar Albert, en sa qualité de fondateur et éditeur du site. Contact : hello@restocking.app.",
+          },
+          {
+            title: "Hébergeur du site",
+            content: "Le site restocking.app est hébergé par Vercel Inc., société immatriculée au Delaware (États-Unis), dont le siège social est situé au 440 N Barranca Ave #4133, Covina, CA 91723, USA. Site web : vercel.com. L'infrastructure européenne (compute) est située à Francfort (Allemagne). Les données des utilisateurs sont stockées sur Supabase (Friedrichstraße 114, 10117 Berlin, Allemagne), région Frankfurt, certifié ISO 27001 et SOC 2.",
+          },
+          {
+            title: "Propriété intellectuelle",
+            content: "L'ensemble du site restocking.app (structure, code source, design, textes originaux, éléments graphiques) est la propriété exclusive de son éditeur et protégé par le droit d'auteur et le droit des marques. Toute reproduction, représentation ou adaptation totale ou partielle du site sans autorisation écrite préalable est interdite. Les marques, logos et noms commerciaux des boutiques de mode affichés sur le site (Zara, COS, Sézane, Gucci, Prada, etc.) sont la propriété exclusive de leurs titulaires respectifs. Leur présence sur restocking.app est strictement informative et ne constitue aucunement une affiliation, un partenariat ou une licence.",
+          },
+          {
+            title: "Protection des données personnelles",
+            content: "Restocking s'engage à respecter la confidentialité de tes données, conformément au RGPD et à la loi Informatique et Libertés. Notre politique de confidentialité détaillée est accessible sur restocking.app/privacy. Pour exercer tes droits (accès, rectification, effacement, portabilité), écris à hello@restocking.app. Le site a fait l'objet d'une déclaration simplifiée auprès de la CNIL (dispense n°7 - traitements de gestion de fichiers de clients et prospects).",
+          },
+          {
+            title: "Limitation de responsabilité",
+            content: "L'éditeur s'efforce de fournir des informations aussi précises que possible sur le site. Toutefois, il ne peut garantir l'exactitude, la complétude ou l'actualité des informations de stock relayées depuis les sites tiers. Les liens hypertextes présents sur le site renvoient vers des sites tiers sur lesquels l'éditeur n'exerce aucun contrôle. L'éditeur décline toute responsabilité quant au contenu de ces sites et aux éventuels préjudices résultant de leur consultation.",
+          },
+          {
+            title: "Droit applicable",
+            content: "Les présentes mentions légales sont régies par le droit français. Tout litige relatif au site restocking.app sera soumis à la compétence des tribunaux français. Médiation : conformément aux articles L.611-1 et suivants du Code de la consommation, tu peux recourir gratuitement au service de médiation CMAP (cmap.fr) après avoir tenté de résoudre le litige directement avec nous.",
           },
         ],
       },
@@ -954,6 +1098,7 @@ export const messages = {
         privacy: "Privacy",
         terms: "Terms",
         cookies: "Cookies",
+        mentionsLegales: "Legal Notice",
         contact: "hello@restocking.app",
       },
       madeIn: "Made with ❤️ between Paris, Lyon & Berlin.",
@@ -962,54 +1107,197 @@ export const messages = {
     legal: {
       privacy: {
         title: "Privacy Policy",
-        lastUpdated: "Updated May 24, 2026",
-        intro: "At Restocking, we hate spam as much as you do. Your data is used only to notify you when your favorite item comes back in stock.",
+        lastUpdated: "Last updated: May 25, 2026",
+        intro: "Privacy is at the core of Restocking. This policy details how we collect, use, and protect your personal data, in compliance with the General Data Protection Regulation (GDPR) and applicable data protection laws.",
         sections: [
           {
-            title: "Data Collected",
-            content: "We keep your email, your language preference, and the product URLs you watch. That's all.",
+            title: "Data controller",
+            content: "The data controller is Oscar Albert, reachable at hello@restocking.app. Restocking is a sole proprietorship registered in France. For any questions about your data, you can write to us at any time.",
           },
           {
-            title: "Data Usage",
-            content: "Your email is only used to send alerts and important service updates. We will NEVER sell your data to third parties.",
+            title: "Data we collect",
+            content: "We only collect data strictly necessary for the service: your email address (for authentication and notifications), your language preference (English or French), the product URLs you monitor, the size and color you're tracking for each product, your subscription plan (Free or Pro), and notification history. We do not collect your full name, postal address, or payment details (payments are handled by Stripe).",
           },
           {
-            title: "Hosting",
-            content: "Your data is stored in Europe (Frankfurt region) on Supabase's secure servers.",
+            title: "Purposes and legal bases",
+            content: "We process your data to: (1) create and manage your account (legal basis: contract performance), (2) monitor stock for products you follow and send alerts (legal basis: contract performance), (3) send essential service information (legal basis: legitimate interest), (4) improve the service through anonymized analytics (legal basis: legitimate interest). We do not engage in profiling, automated decision-making, or ad targeting.",
+          },
+          {
+            title: "Data recipients",
+            content: "Your data is shared only with strictly necessary processors: Supabase (database and authentication, Frankfurt servers), Resend (transactional email delivery), and Stripe (payment processing, only if you upgrade to Pro). Each processor is GDPR-compliant. We do not sell, rent, or share your data with any other third party for commercial or any other purposes.",
+          },
+          {
+            title: "Transfers outside the European Union",
+            content: "Your data is hosted in Europe (Supabase, Frankfurt region). Some processors operate from the United States (Resend, Stripe). They adhere to the EU-U.S. Data Privacy Framework (DPF) or have signed Standard Contractual Clauses approved by the European Commission, ensuring an equivalent level of protection.",
+          },
+          {
+            title: "Data retention",
+            content: "Account data is retained as long as your account is active. If you delete your account, all personal data is erased within 30 days. Technical logs (stock check timestamps, statuses) are anonymized after 90 days. Payment data is retained by Stripe according to their retention policy (legal requirement of 10 years for invoices).",
+          },
+          {
+            title: "Security",
+            content: "We implement appropriate technical and organizational measures: encryption in transit (TLS 1.3) and at rest (AES-256), strong authentication via Supabase Auth, server access restricted by SSH keys and VPN, continuous monitoring of access and anomalies, and automated security updates. In the event of a data breach, we will notify you within 72 hours, in accordance with the GDPR.",
+          },
+          {
+            title: "Your GDPR rights",
+            content: "You have the following rights over your data, exercisable at any time by writing to hello@restocking.app: right of access (know what data we hold and obtain a copy), right of rectification (correct inaccurate data), right to erasure (delete your account and all data), right to restriction (temporarily freeze processing), right to portability (receive your data in a readable format), and right to object (refuse processing based on legitimate interest). We respond to all requests within 30 days.",
+          },
+          {
+            title: "Cookies and trackers",
+            content: "We only use cookies strictly necessary for the site to function: an authentication session cookie, and a language preference cookie. No advertising cookies, no third-party tracking cookies. Our full cookie policy is detailed on the dedicated page.",
+          },
+          {
+            title: "Minors",
+            content: "The service is not intended for individuals under 16. We do not knowingly collect personal data from minors. If you are a parent and discover your child is using the service, contact us so we can delete their data.",
+          },
+          {
+            title: "Right to complain",
+            content: "If you believe your data processing is not GDPR-compliant, you have the right to lodge a complaint with your national data protection authority (in France: CNIL, cnil.fr; in Germany: BfDI; in the UK: ICO). We encourage you to contact us first so we can resolve the issue directly.",
+          },
+          {
+            title: "Policy changes",
+            content: "We may update this policy to reflect legal or technical changes. For substantial modifications, we will notify you by email at least 14 days before they take effect. The last updated date is shown at the top of this page.",
           },
         ],
       },
       terms: {
         title: "Terms of Service",
-        lastUpdated: "Updated May 24, 2026",
-        intro: "By using Restocking, you agree to these simple rules.",
+        lastUpdated: "Last updated: May 25, 2026",
+        intro: "These Terms of Service (ToS) govern your relationship with Restocking. By using the service, you accept these terms in full. If you disagree with any part, you must not use the service.",
         sections: [
           {
-            title: "The Service",
-            content: "Restocking is a monitoring tool. We do our best to be the fastest, but we cannot guarantee that you will succeed in buying the product before others.",
+            title: "Definitions",
+            content: "\"Restocking\" means the service operated by Oscar Albert, accessible at restocking.app. \"User\" or \"you\" means any person who creates an account and uses the service. \"Alert\" means the monitoring of a specific product (size + color). \"Free Plan\" means the free subscription with 3 alerts and 30-minute checks. \"Pro Plan\" means the paid subscription with up to 20 alerts and 5-minute checks.",
           },
           {
-            title: "Fair Use",
-            content: "The service is intended for personal use. Any attempt at massive automation or degradation of the service may result in a ban.",
+            title: "Service purpose",
+            content: "Restocking is a stock monitoring tool for online fashion stores. The service automatically checks the product pages you entrust to it and sends you a notification (email, and SMS on Pro plan) as soon as the size and color you're tracking become available for purchase again. Restocking is an information service: we do not sell anything, we are not affiliated with any brand, and we do not guarantee you will be able to purchase the product.",
           },
           {
-            title: "Pro Subscription",
-            content: "The Pro plan is no-commitment. You can cancel at any time from your dashboard.",
+            title: "Account creation",
+            content: "To use the service, you must create an account with a valid email address. You agree to provide accurate information and keep it up to date. You are responsible for maintaining the confidentiality of your password and for all activity on your account. An account may only be used by one individual.",
+          },
+          {
+            title: "Subscription plans",
+            content: "The Free plan is free of charge and allows up to 3 simultaneous alerts, with checks every 30 minutes. The Pro plan is paid and allows up to 20 simultaneous alerts, with checks every 5 minutes, and includes SMS notifications. Prices are displayed in euros including VAT on the pricing page and may be revised with 30 days' notice.",
+          },
+          {
+            title: "Payment and billing",
+            content: "Pro plan payments are processed by Stripe, our PCI-DSS certified payment provider. Restocking never stores your card details. Billing is charged upfront, monthly or annually depending on your chosen plan. Renewal is automatic. You will receive an invoice by email after each payment.",
+          },
+          {
+            title: "Right of withdrawal",
+            content: "In accordance with EU consumer protection law, you have a 14-day withdrawal period from the date of Pro plan subscription. To exercise this right, write to hello@restocking.app. Refunds will be issued within 14 days via the same payment method. If you have used the service during these 14 days, the refund may be calculated on a pro-rata basis.",
+          },
+          {
+            title: "User obligations",
+            content: "You agree to: use the service solely for personal, non-commercial purposes, not bypass the service's technical limits (multiple accounts, automation), not resell or redistribute alerts or information obtained through the service, not use the service to monitor illegal or counterfeit products, and respect the intellectual property rights of the monitored brands.",
+          },
+          {
+            title: "Fair use",
+            content: "We reserve the right to suspend or terminate an account in case of abusive use, including: mass account creation, attempts to bypass alert limits, use of bots or scripts, any action aimed at degrading service quality for other users, or use of the service for resale or unfair competition. In case of suspected abuse, we will inform you and give you an opportunity to explain before any sanction.",
+          },
+          {
+            title: "Intellectual property",
+            content: "Restocking is a registered trademark. The source code, design, original texts, and graphic elements of the site are the exclusive property of Restocking. The logos, trademarks, and product names of monitored stores (Zara, COS, Sézane, Gucci, Prada, etc.) remain the property of their respective owners. Their display on Restocking is strictly informational and does not constitute affiliation, endorsement, or license. If you are a trademark holder and wish us to stop displaying your logo, contact us at hello@restocking.app.",
+          },
+          {
+            title: "Personal data",
+            content: "The processing of your personal data is governed by our Privacy Policy, available at restocking.app/privacy, which forms an integral part of these ToS. By accepting these ToS, you acknowledge having read our Privacy Policy.",
+          },
+          {
+            title: "Liability and limitations",
+            content: "Restocking makes its best efforts to provide a reliable and fast service. However, we cannot guarantee: that the service will be uninterrupted or error-free, that notifications will always arrive before the product sells out again, that you will be able to purchase the product after receiving an alert, or that the stock information displayed by stores is accurate (we reflect what is publicly visible, without alteration). Under no circumstances shall Restocking be liable for indirect damages, loss of opportunity, or loss of earnings related to the use of the service. Our liability is limited to the subscription amount paid over the last 12 months.",
+          },
+          {
+            title: "Service availability",
+            content: "We target 99.5% availability. Planned maintenance is announced to Pro users by email at least 24 hours in advance. In case of unplanned interruption, we make every effort to restore service as quickly as possible. Missed checks during an interruption are automatically retried upon service restoration.",
+          },
+          {
+            title: "Third-party sites and external links",
+            content: "Alerts contain links to the product pages of monitored stores. Restocking exercises no control over these third-party sites and disclaims all responsibility for their content, business practices, or availability. The relevant store's own terms and conditions apply to any purchase made via these links.",
+          },
+          {
+            title: "Termination",
+            content: "You may close your account at any time from your dashboard, without notice or justification. All your data will be deleted within 30 days. We may terminate your account in case of serious breach of these ToS, with 7 days' notice by email inviting you to rectify the situation. Termination takes effect immediately in case of fraudulent or illegal activity.",
+          },
+          {
+            title: "Changes to the ToS",
+            content: "We may modify these ToS to reflect service evolutions or legal obligations. For substantial modifications, we will notify you by email at least 14 days before they take effect. If you disagree with the changes, you may close your account before that date. Continued use of the service after the effective date constitutes acceptance of the new ToS.",
+          },
+          {
+            title: "Governing law and jurisdiction",
+            content: "These ToS are governed by French law. In case of dispute, French courts shall have jurisdiction. In accordance with EU consumer protection regulations, you may use the European Commission's online dispute resolution platform at ec.europa.eu/consumers/odr. You may also refer the matter to a consumer mediation body such as CMAP (cmap.fr).",
+          },
+          {
+            title: "Contact",
+            content: "For any questions regarding these ToS or the service, you can contact us at any time by email at hello@restocking.app. We aim to respond within 48 business hours.",
           },
         ],
       },
       cookies: {
         title: "Cookie Policy",
-        lastUpdated: "Updated May 24, 2026",
-        intro: "We use the strict minimum to keep the site running.",
+        lastUpdated: "Last updated: May 25, 2026",
+        intro: "This policy explains how and why we use cookies on restocking.app. We do the bare minimum — no ad trackers, no spy pixels.",
         sections: [
           {
-            title: "Essential Cookies",
-            content: "These cookies are used to remember your authentication session and language preference. Without them, the site won't work.",
+            title: "What is a cookie?",
+            content: "A cookie is a small text file placed on your device (computer, phone) by the website you visit. It allows information to be remembered between visits, such as your login session or preferences. Cookies can be \"session\" cookies (deleted when you close your browser) or \"persistent\" cookies (kept for days or months).",
           },
           {
-            title: "Analytics",
-            content: "We use privacy-friendly tools to understand how the site is used, without tracking you personally.",
+            title: "Strictly necessary cookies",
+            content: "These cookies are essential for the site to function. They cannot be disabled. They include: the Supabase session cookie (sb-access-token / sb-refresh-token) that keeps you logged in during your visit, and the language preference cookie (NEXT_LOCALE) that remembers your choice of English or French. These cookies collect no personally identifiable information and are never shared with third parties.",
+          },
+          {
+            title: "Analytics cookies",
+            content: "We may in the future use a privacy-friendly analytics tool (such as Plausible or Matomo, without third-party cookies or cross-site tracking) to understand how many people visit the site and which pages are viewed. This data is fully anonymized. No analytics cookies are currently deposited.",
+          },
+          {
+            title: "Third-party cookies",
+            content: "Pro plan payments are handled by Stripe, which may place its own cookies strictly necessary for the transaction. These cookies are governed by Stripe's privacy policy. We do not embed any social media widgets, ad networks, or third-party tracking pixels.",
+          },
+          {
+            title: "Cookie lifespan",
+            content: "Session cookies expire when you close your browser. The language cookie persists for 1 year. Stripe payment-related cookies have a lifespan defined by Stripe (typically 30 minutes for the payment session).",
+          },
+          {
+            title: "Managing cookies",
+            content: "You can delete cookies placed by restocking.app at any time via your browser settings (Settings > Privacy & Security > Cookies and site data). Most browsers also allow you to block cookies by default. Note: blocking essential cookies will prevent the site from working properly (you won't be able to stay logged in).",
+          },
+        ],
+      },
+      mentionsLegales: {
+        title: "Legal Notice",
+        lastUpdated: "Last updated: May 25, 2026",
+        intro: "In accordance with French Law No. 2004-575 of June 21, 2004 on confidence in the digital economy (LCEN), we publish the legal information relating to the publication and hosting of the restocking.app website.",
+        sections: [
+          {
+            title: "Site publisher",
+            content: "The restocking.app website is published by Oscar Albert, sole proprietor registered in France. Email address: hello@restocking.app. EU VAT number: available upon request. The site operates under the trade name \"Restocking\".",
+          },
+          {
+            title: "Publication director",
+            content: "The publication director is Oscar Albert, as founder and publisher of the site. Contact: hello@restocking.app.",
+          },
+          {
+            title: "Site host",
+            content: "The restocking.app website is hosted by Vercel Inc., a company registered in Delaware (United States), with its registered office at 440 N Barranca Ave #4133, Covina, CA 91723, USA. Website: vercel.com. European infrastructure (compute) is located in Frankfurt (Germany). User data is stored on Supabase (Friedrichstraße 114, 10117 Berlin, Germany), Frankfurt region, ISO 27001 and SOC 2 certified.",
+          },
+          {
+            title: "Intellectual property",
+            content: "The entire restocking.app website (structure, source code, design, original texts, graphic elements) is the exclusive property of its publisher and protected by copyright and trademark law. Any total or partial reproduction, representation, or adaptation of the site without prior written authorization is prohibited. The trademarks, logos, and trade names of fashion stores displayed on the site (Zara, COS, Sézane, Gucci, Prada, etc.) are the exclusive property of their respective owners. Their presence on restocking.app is strictly informational and does not constitute affiliation, partnership, or license.",
+          },
+          {
+            title: "Personal data protection",
+            content: "Restocking is committed to respecting your data privacy, in compliance with the GDPR and applicable data protection laws. Our detailed privacy policy is available at restocking.app/privacy. To exercise your rights (access, rectification, erasure, portability), write to hello@restocking.app.",
+          },
+          {
+            title: "Limitation of liability",
+            content: "The publisher strives to provide information as accurate as possible on the site. However, we cannot guarantee the accuracy, completeness, or timeliness of stock information relayed from third-party sites. Hyperlinks on the site direct to third-party sites over which the publisher exercises no control. The publisher disclaims all liability for the content of these sites and any damages resulting from their consultation.",
+          },
+          {
+            title: "Governing law",
+            content: "This legal notice is governed by French law. Any dispute relating to the restocking.app website shall be subject to the jurisdiction of French courts. Mediation: in accordance with applicable consumer protection regulations, you may refer the matter to a consumer mediation body such as CMAP (cmap.fr) after attempting to resolve the dispute directly with us.",
           },
         ],
       },

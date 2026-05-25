@@ -4,7 +4,7 @@ import { useLocale } from "@/components/site/locale-provider";
 import { Sparkles } from "lucide-react";
 
 type LegalPageProps = {
-  type: "privacy" | "terms" | "cookies";
+  type: "privacy" | "terms" | "cookies" | "mentionsLegales";
 };
 
 export function LegalPage({ type }: LegalPageProps) {

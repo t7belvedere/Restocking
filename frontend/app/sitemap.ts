@@ -12,6 +12,7 @@ const PAGES = [
   { path: "/privacy", priority: 0.3, changeFrequency: "yearly" as const },
   { path: "/terms", priority: 0.3, changeFrequency: "yearly" as const },
   { path: "/cookies", priority: 0.3, changeFrequency: "yearly" as const },
+  { path: "/mentions-legales", priority: 0.3, changeFrequency: "yearly" as const },
 ];
 
 function getBlogSlugs(): string[] {
