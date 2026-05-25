@@ -170,7 +170,7 @@ export default function RetailersPage() {
       </section>
 
       {/* GRID */}
-      <section className="border-b-2 border-ink bg-paper">
+      <section className="relative border-b-2 border-ink bg-paper">
         <div
           className="container mx-auto max-w-7xl px-0"
           data-testid="retailer-grid"
@@ -227,37 +227,20 @@ export default function RetailersPage() {
             })}
           </div>
         </div>
-      </section>
 
-      {/* FADE HINT — ghost cards extending the grid */}
-      <section className="border-b-2 border-ink bg-paper" aria-hidden="true">
-        <div className="container mx-auto max-w-7xl px-0">
-          <div className="grid grid-cols-2 border-l-2 border-ink sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 blur-[3px] opacity-25 select-none pointer-events-none">
-            {[...Array(10)].map((_, i) => (
-              <div
-                key={i}
-                className="flex h-[140px] flex-col justify-between border-b-2 border-r-2 border-ink p-5 md:h-[160px]"
-              >
-                <div className="flex items-start justify-between">
-                  <span className="font-mono text-[10px] uppercase tracking-widest text-ink">
-                    EU · Brand
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full border-2 border-ink px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest">
-                    live
-                  </span>
-                </div>
-                <div className="flex flex-1 items-center pt-3">
-                  <div className="h-6 w-24 rounded bg-ink/20" />
-                </div>
-                <div className="flex items-end justify-between gap-2">
-                  <p className="max-w-[24ch] text-[11px] leading-snug text-ink">
-                    Description placeholder
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Blur overlay — progressively blurs the last row of cards */}
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-44"
+          style={{
+            backdropFilter: "blur(3px)",
+            WebkitBackdropFilter: "blur(3px)",
+            maskImage:
+              "linear-gradient(to top, black 15%, transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to top, black 15%, transparent 100%)",
+          }}
+          aria-hidden="true"
+        />
       </section>
 
       {/* REQUEST */}
