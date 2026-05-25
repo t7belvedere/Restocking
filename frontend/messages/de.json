@@ -1,0 +1,598 @@
+{
+  "nav": {
+    "home": "Home",
+    "how": "How it works",
+    "retailers": "Stores",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "manifesto": "Manifesto",
+    "cta": "Join the list"
+  },
+  "common": {
+    "backHome": "Back to home",
+    "waitlist": "Waitlist",
+    "joinWaitlist": "Join the waitlist",
+    "joining": "Adding you…",
+    "yourEmail": "Your email",
+    "placeholder": "alex@example.com",
+    "success": "Welcome to the list 🎉",
+    "already": "You are already on the list — your spot is saved 💌",
+    "invalid": "Invalid email address.",
+    "error": "Oops, please try again in a moment.",
+    "counterPre": "already",
+    "counterPost": "fashion victims™ waiting",
+    "counterFallback": "Be one of the first to break the sold-out curse.",
+    "privacy": "No spam. We only write to announce the launch.",
+    "free": "Free",
+    "pro": "Pro",
+    "mostPopular": "Most loved 🔥",
+    "perMonth": "/ month",
+    "perYear": "/ year",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "saveBadge": "Save 30%",
+    "restocked": "RESTOCKED",
+    "soldOut": "SOLD OUT",
+    "notFoundTitle": "Lost in the wardrobe.",
+    "notFoundBody": "This page does not exist (anymore). Want us to take you home?"
+  },
+  "home": {
+    "eyebrow": "Size-specific restock alerts · Europe",
+    "h1Top": "Your size,",
+    "h1Mid": "the moment",
+    "h1Bot": "it comes back.",
+    "sub": "We watch Zara, COS, Aritzia, Sézane, Uniqlo and 100+ other stores for you. We’ll let you know in under 5 minutes when your size is back. No more 12 tabs open, no more checking at 3am.",
+    "ctaPrimary": "Keep me posted",
+    "ctaSecondary": "How it works",
+    "proofTitle": "From shoppers who were tired of missing out",
+    "proofItems": [
+      {
+        "quote": "I used to check Aritzia 30 times a day. The one time it restocked, I missed my size by 4 minutes.",
+        "author": "u/sara_lovesoutfits",
+        "source": "r/Aritzia"
+      },
+      {
+        "quote": "Zara’s alert reached me 3 days later. I’d already moved on.",
+        "author": "Camille, 28",
+        "source": "Paris"
+      },
+      {
+        "quote": "I used to set alarms at night for COS. Restocking let me sleep again.",
+        "author": "Tom, 26",
+        "source": "Berlin"
+      },
+      {
+        "quote": "Honestly the other tools are a nightmare. None of them tell you about your exact size.",
+        "author": "u/dropwatcher",
+        "source": "r/femalefashionadvice"
+      }
+    ],
+    "stats": [
+      {
+        "value": "<5 min",
+        "label": "Average time to alert you"
+      },
+      {
+        "value": "120+",
+        "label": "Stores watched"
+      },
+      {
+        "value": "EU 34–50",
+        "label": "Every size covered"
+      },
+      {
+        "value": "0",
+        "label": "False alerts — we check twice before messaging you"
+      }
+    ],
+    "bigCtaTitle": "The second your size comes back, we’ll let you know.",
+    "bigCtaSub": "Join the waitlist. Get access on launch day, plus 3 months of Pro free for the first 100."
+  },
+  "how": {
+    "eyebrow": "How it works",
+    "title": "Three steps. As simple as that.",
+    "sub": "No tech skills needed. You copy a link, pick your size, and we handle everything else.",
+    "steps": [
+      {
+        "n": "01",
+        "title": "Copy the product link",
+        "body": "Grab the link of the piece you want from the brand’s website (Zara, COS, Sézane…). We automatically pull the name, photo, price and all available sizes.",
+        "pill": "1 link = 1 alert active"
+      },
+      {
+        "n": "02",
+        "title": "Pick your size (and colour)",
+        "body": "Select YOUR size and YOUR colour. We’ll only let you know about that one — not some random size that isn’t yours.",
+        "pill": "Tailored to you"
+      },
+      {
+        "n": "03",
+        "title": "Get your alert in under 5 min",
+        "body": "Email straight to your inbox (and SMS on Pro) the moment it’s back. With a link that takes you right to the product page, in your size.",
+        "pill": "Faster than the brand’s own alert"
+      }
+    ],
+    "detailsTitle": "Behind the scenes",
+    "details": [
+      {
+        "title": "We check non-stop",
+        "body": "We look at the product page every 5 minutes (Pro) or 30 minutes (Free). We check the buy button and the stock info directly on the site — just like you would, but without you having to think about it."
+      },
+      {
+        "title": "Two checks before we tell you",
+        "body": "We make sure it’s really back before we send anything. If an item reappears for 30 seconds because someone abandoned their cart, we don’t wake you up. No false hope."
+      },
+      {
+        "title": "We respect the stores",
+        "body": "We only look at what’s publicly visible. No hacking, no auto-buying. We browse the same page you see, at human speed."
+      },
+      {
+        "title": "Data stored in Europe",
+        "body": "Everything is hosted in Frankfurt, encrypted and GDPR compliant. Your email and alerts belong to you. Export or delete them in one click. We never sell anything to anyone."
+      },
+      {
+        "title": "Email and SMS alerts",
+        "body": "As soon as your size is back, you get an email with a direct link to the product page, in your size. On Pro, we also text you for items that sell out fast. No hidden newsletter."
+      }
+    ],
+    "whyTitle": "Why is this better than the brand’s own alerts?",
+    "whyItems": [
+      {
+        "title": "Faster",
+        "body": "Brands send their alerts in batches — sometimes 2 to 24 hours late. We check each product live, no queue. On average, you’ll know in under 3 minutes."
+      },
+      {
+        "title": "Your exact size",
+        "body": "Brands send a generic alert for the product. If size S comes back and you wear M, you get a notification for nothing. We only let you know about the size you’re watching."
+      },
+      {
+        "title": "All your brands, one place",
+        "body": "No need to create accounts at Zara, COS, Sézane and cross your fingers that each one’s alerts work. One place, every brand, every size."
+      }
+    ]
+  },
+  "retailers": {
+    "eyebrow": "All stores",
+    "title": "Any store. We’ve got it.",
+    "sub": "We watch every fashion store in Europe. The ones below are just the ones we know best — the rest work too.",
+    "legendInStock": "Ultra-fast",
+    "legendBeta": "Also works",
+    "filterAll": "All stores",
+    "filterLive": "Ultra-fast",
+    "filterBeta": "Universal",
+    "tileCta": "Watch",
+    "requestTitle": "A store we missed?",
+    "requestBody": "We add stores all the time. Tell us which one you need and we’ll get on it.",
+    "requestCta": "Suggest a store",
+    "noResultsTitle": "No match.",
+    "noResultsBody": "But remember: every store works!",
+    "universalCardTitle": "All stores",
+    "universalCardBody": "Paste any link. We’ll find your size automatically.",
+    "fadeMore": "And hundreds of other brands..."
+  },
+  "pricing": {
+    "eyebrow": "Pricing",
+    "title": "Simple. Start free.",
+    "sub": "Stay on Free to test it out. Upgrade when you want faster alerts.",
+    "toggleMonthly": "Monthly",
+    "toggleAnnual": "Annual · -30%",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "tagline": "To try it out.",
+        "price": "€0",
+        "unit": "/ forever",
+        "features": [
+          "3 items watched",
+          "Checked every 30 min",
+          "Email alerts",
+          "All stores supported",
+          "Live tracking"
+        ],
+        "cta": "Start free"
+      },
+      "pro": {
+        "name": "Pro",
+        "tagline": "For never missing out.",
+        "priceMonthly": "€7.99",
+        "priceAnnual": "€59",
+        "unitMonthly": "/ month",
+        "unitAnnual": "/ year · that’s €4.90/mo",
+        "features": [
+          "20 items watched",
+          "Checked every 5 min",
+          "Email + SMS alerts",
+          "Works on every site, even tricky ones",
+          "Price history",
+          "Priority support"
+        ],
+        "cta": "Go Pro"
+      }
+    },
+    "faqLink": "Questions about payment?",
+    "faqLinkCta": "Read the FAQ →"
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Everything you’re wondering.",
+    "sub": "Something missing? Email us at hello@restocking.app — there are three real humans here.",
+    "items": [
+      {
+        "q": "Is this data theft?",
+        "a": "No. We just look at the product page, like you do. No hacking, no auto-buying. We only watch what’s publicly visible to everyone."
+      },
+      {
+        "q": "Is it legal in Europe?",
+        "a": "Yes. We only look at prices and stock that are already public. Your data is stored in Germany (Frankfurt), and you can delete everything in one click."
+      },
+      {
+        "q": "How fast will I know?",
+        "a": "Free: within 30 minutes. Pro: under 5 minutes. And we always check twice before sending you anything — just to be sure it’s really back."
+      },
+      {
+        "q": "Is my favourite store covered?",
+        "a": "We’re launching with Zara, COS, Aritzia, Uniqlo, Sézane, Mango, Arket and ASOS. Missing yours? Tell us on the Stores page and we’ll add it within 2 weeks."
+      },
+      {
+        "q": "Can I change my size later?",
+        "a": "Anytime. You can also track several sizes of the same item — each size counts as one alert."
+      },
+      {
+        "q": "How do I cancel Pro?",
+        "a": "Two clicks from your account. No commitment, no email needed, no hidden buttons."
+      },
+      {
+        "q": "Do you sell my data?",
+        "a": "Never. We make money from the Pro plan, not from your info. Your email stays with us."
+      },
+      {
+        "q": "Which stores do you watch?",
+        "a": "Zara, COS, Aritzia, Uniqlo, Sézane, Mango, Arket, ASOS, Ganni, Massimo Dutti, & Other Stories and 50+ more. The full list is on the Stores page."
+      },
+      {
+        "q": "How does it work behind the scenes?",
+        "a": "We check the product page every 5 minutes (Pro) or 30 minutes (Free). We look at the buy button, we read the stock info. If the page is tricky, we open it like a normal browser and look. Nothing magical."
+      },
+      {
+        "q": "Why are you faster than the brands?",
+        "a": "Brands send their alerts in batches — sometimes 24 hours late. We check your product live, all the time. Simple: we don’t wait in their email queue."
+      },
+      {
+        "q": "How many items can I track?",
+        "a": "3 on Free, 20 on Pro. Each size+colour counts as 1. If you want a t-shirt in S and M, that’s 2 alerts. Swap anytime."
+      },
+      {
+        "q": "What about non-European stores?",
+        "a": "Our focus is Europe, but we already cover Aritzia, Reformation, Khaite. If the site is in English or French, it should work. Tell us which one you need."
+      }
+    ]
+  },
+  "manifesto": {
+    "eyebrow": "Manifesto",
+    "title": "Because there are enough sold-out signs already.",
+    "paragraphs": [
+      "We’re tired of checking. Tired of alerts arriving after it’s already gone. Tired of tools that make no sense.",
+      "Restocking is what we always wanted. One link, one size, one alert. That’s it.",
+      "Three people between Paris, Lyon and Berlin. No fundraising, no AI bullshit, no selling data. Just a service that makes fashion a little less frustrating.",
+      "We started this after missing a COS coat for the third time. Size S, navy blue. Restocked at 4am, gone by 4:07. Not a single alert. That’s when we knew.",
+      "Today we watch 120+ brands every 5 minutes. We check product pages like you would — just without you having to think about it. Nothing magical, just good work.",
+      "We don’t spam you. We don’t sell you. We let you know when it’s really back, in your size, for the item you want. Full stop.",
+      "We do this so you wear what you love — not what’s left."
+    ],
+    "signature": "— the restocking team"
+  },
+  "footer": {
+    "tagline": "Size-specific restock alerts for European fashion.",
+    "product": "Product",
+    "legal": "Legal",
+    "links": {
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "cookies": "Cookies",
+      "contact": "hello@restocking.app"
+    },
+    "madeIn": "Made with ❤️ between Paris, Lyon & Berlin.",
+    "rights": "All rights reserved."
+  },
+  "legal": {
+    "privacy": {
+      "title": "Privacy Policy",
+      "lastUpdated": "Updated May 24, 2026",
+      "intro": "At Restocking, we hate spam as much as you do. Your data is used only to notify you when your favorite item comes back in stock.",
+      "sections": [
+        {
+          "title": "Data Collected",
+          "content": "We keep your email, your language preference, and the product URLs you watch. That's all."
+        },
+        {
+          "title": "Data Usage",
+          "content": "Your email is only used to send alerts and important service updates. We will NEVER sell your data to third parties."
+        },
+        {
+          "title": "Hosting",
+          "content": "Your data is stored in Europe (Frankfurt region) on Supabase's secure servers."
+        }
+      ]
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "lastUpdated": "Updated May 24, 2026",
+      "intro": "By using Restocking, you agree to these simple rules.",
+      "sections": [
+        {
+          "title": "The Service",
+          "content": "Restocking is a monitoring tool. We do our best to be the fastest, but we cannot guarantee that you will succeed in buying the product before others."
+        },
+        {
+          "title": "Fair Use",
+          "content": "The service is intended for personal use. Any attempt at massive automation or degradation of the service may result in a ban."
+        },
+        {
+          "title": "Pro Subscription",
+          "content": "The Pro plan is no-commitment. You can cancel at any time from your dashboard."
+        }
+      ]
+    },
+    "cookies": {
+      "title": "Cookie Policy",
+      "lastUpdated": "Updated May 24, 2026",
+      "intro": "We use the strict minimum to keep the site running.",
+      "sections": [
+        {
+          "title": "Essential Cookies",
+          "content": "These cookies are used to remember your authentication session and language preference. Without them, the site won't work."
+        },
+        {
+          "title": "Analytics",
+          "content": "We use privacy-friendly tools to understand how the site is used, without tracking you personally."
+        }
+      ]
+    }
+  },
+  "profile": {
+    "settingsTitle": "Account settings",
+    "settingsSub": "Email, password and notifications.",
+    "preferencesTitle": "Preferences",
+    "preferencesSub": "Your favourite brands and size so we can help you better.",
+    "changeEmailTitle": "Change email",
+    "changeEmailDesc": "We'll send a confirmation link to your new address.",
+    "newEmailLabel": "New email",
+    "changeEmailButton": "Change",
+    "changeEmailPending": "Sending…",
+    "changeEmailSuccess": "Link sent. Check your new inbox.",
+    "changePasswordTitle": "Change password",
+    "changePasswordDesc": "At least 8 characters.",
+    "currentPasswordLabel": "Current password",
+    "newPasswordLabel": "New password",
+    "confirmPasswordLabel": "Confirm new password",
+    "changePasswordButton": "Change",
+    "changePasswordPending": "Changing…",
+    "changePasswordSuccess": "Password updated.",
+    "passwordMismatch": "Passwords don't match.",
+    "passwordTooShort": "At least 8 characters.",
+    "saveButton": "Save",
+    "saving": "Saving…",
+    "saved": "Saved!",
+    "saveError": "Couldn't save."
+  },
+  "addWatch": {
+    "pageTitle": "New alert",
+    "pageSub": "Paste a product URL, pick your size — we'll handle the rest.",
+    "urlLabel": "Product URL",
+    "urlHelp": "Paste the direct link to the product page. We read the public tags to pre-fill the form.",
+    "urlPlaceholder": "https://www.cos.com/...",
+    "analyze": "Analyze product",
+    "analyzing": "Analyzing…",
+    "blockedWarning": "{brand} is not compatible with our automatic analysis. You can create the alert manually, but product info detection won't work on this site.",
+    "limitedWarning": "{brand} uses anti-bot protection that may limit detection. Analysis still works but variants or images may be incomplete.",
+    "modifyUrl": "Edit URL",
+    "noImage": "No image",
+    "productName": "Product name",
+    "productNamePlaceholder": "e.g. Oversized wool coat",
+    "size": "Size",
+    "color": "Color",
+    "oosBadge": "sold out",
+    "selectVariant": "Select your size / color",
+    "selectVariantHelp": "Select the exact variant you want to track.",
+    "manualVariantPlaceholder": "e.g. Size S / Navy blue",
+    "noVariantsHelp": "No variants detected — enter the size / color manually.",
+    "cancel": "Cancel",
+    "activate": "Activate alert",
+    "activating": "Activating…",
+    "enrichmentPending": "The site is blocking our automatic reading. You can create the alert and our worker will enrich the listing in a few minutes.",
+    "partialAnalysis": "Partial analysis — the page took too long to respond.",
+    "couldNotRead": "We couldn't read the product page. You can fill in the details manually.",
+    "networkError": "Network error. Please try again shortly.",
+    "selectSizeColor": "Select a size and color before activating.",
+    "chooseVariant": "Choose a size / color before activating.",
+    "limitReached": "Plan limit reached. Upgrade to Pro to track more.",
+    "invalidUrl": "Invalid URL.",
+    "createFailed": "Couldn't create alert.",
+    "activated": "Alert activated ✓",
+    "progressHttp": "Connecting to site..."
+  },
+  "dashboard": {
+    "greeting": {
+      "withParam": "Hey {name}",
+      "fallback": "My alerts"
+    },
+    "addAlert": "Add an alert",
+    "upgradeToPro": "Go Pro",
+    "upgradeCta": "Unlock everything",
+    "myPlan": "Your plan",
+    "upgradeTitle": "Go Pro, never miss your size again",
+    "managePlan": "Manage your subscription",
+    "upgradeSub": "More products, faster checks, SMS alerts. Cancel anytime in two clicks.",
+    "manageSub": "Modify, pause or cancel your Pro plan from the Stripe portal.",
+    "securePayment": "Secure payment via Stripe. Cancel anytime, no commitment.",
+    "upgradeCards": {
+      "freeTitle": "To get started.",
+      "freePrice": "€0",
+      "freeUnit": "/ forever",
+      "freeFeatures": [
+        "3 items tracked",
+        "Checked every 30 min",
+        "Email notifications",
+        "Live dashboard"
+      ],
+      "currentPlan": "Current plan",
+      "downgrade": "Downgrade",
+      "proTitle": "To never miss out.",
+      "proPrice": "€7.99",
+      "proUnit": "/ month",
+      "proAnnual": "or €59/year (two months free)",
+      "recommended": "Recommended",
+      "proFeatures": [
+        "20 items tracked instead of 3",
+        "Checks every 5 minutes",
+        "Instant email + SMS notifications",
+        "Playwright fallback for tricky sites",
+        "Unlimited check history",
+        "Priority support"
+      ],
+      "manageStripe": "Manage subscription (Stripe)",
+      "monthlyCta": "Pro monthly — €7.99/mo",
+      "annualCta": "Pro annual — €59/yr (2 months free)",
+      "redirectingStripe": "Redirecting to Stripe…",
+      "redirecting": "Redirecting…"
+    },
+    "stats": {
+      "activeAlerts": "Active alerts",
+      "paused": "{n} paused",
+      "inStock": "In stock",
+      "inStockSub": "Available now",
+      "lastCheck": "Last check",
+      "workerActive": "Watching now",
+      "plan": "My plan",
+      "manage": "Manage →"
+    },
+    "limitReached": "Limit reached",
+    "limitBody": "You have {active} alerts on your {plan} plan (max {max}). Upgrade to Pro for 20 alerts and checks every 5 minutes.",
+    "emptyTitle": {
+      "withParam": "Ready to hunt, {name}?",
+      "fallback": "Ready to start?"
+    },
+    "emptyBody": "Paste the link of an item you missed, pick your size, and we'll take care of the rest.",
+    "emptyCta": "Add my first alert",
+    "emptyFooter": "Zara, COS, Aritzia, Sézane, Uniqlo and 120+ other brands",
+    "relativeTime": {
+      "now": "just now",
+      "sec": "{n}s ago",
+      "min": "{n} min ago",
+      "hour": "{n}h ago",
+      "day": "{n}d ago"
+    }
+  },
+  "watchDetail": {
+    "backToAlerts": "My alerts",
+    "noImage": "No photo",
+    "untitled": "Untitled product",
+    "variant": "Variant",
+    "price": "Price",
+    "createdAt": "Added",
+    "checkHistory": "Check history",
+    "checkHistoryDesc": "Last 20 checks — updates automatically.",
+    "live": "Live",
+    "neverChecked": "not checked yet",
+    "relativeTime": {
+      "now": "just now",
+      "sec": "{n}s ago",
+      "min": "{n} min ago",
+      "hour": "{n}h ago",
+      "day": "{n}d ago"
+    },
+    "tableDate": "When",
+    "tableStatus": "Status",
+    "tableSource": "Method",
+    "tablePrice": "Price",
+    "sourceDataLayer": "Site info",
+    "sourceAddToCart": "Buy button",
+    "sourceVariant": "Size detail",
+    "sourcePlaywright": "Full analysis",
+    "emptyCheckTitle": "Waiting for first check…",
+    "emptyCheckBody": "We'll check this product soon. Results will show up here.",
+    "lastCheck": "Checked",
+    "paused": "Paused",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
+    "pending": "Pending",
+    "reactivated": "Alert back on",
+    "pausedToast": "Alert paused",
+    "actionFailed": "Couldn't do that",
+    "pause": "Pause",
+    "reactivate": "Resume",
+    "delete": "Delete",
+    "deleteTitle": "Delete this alert?",
+    "deleteDesc": "This is permanent. Your check history will be deleted too.",
+    "cancel": "Cancel",
+    "deleteForever": "Delete forever"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "logout": "Sign out",
+    "orContinue": "or continue with",
+    "continueGoogle": "Continue with Google",
+    "continueApple": "Continue with Apple",
+    "email": "Email",
+    "password": "Password",
+    "passwordHint": "8 characters minimum.",
+    "emailPlaceholder": "alex@example.com",
+    "noAccount": "Don’t have an account yet?",
+    "haveAccount": "Already have an account?",
+    "forgotPassword": "Forgot your password?",
+    "forgotPasswordTitle": "Forgot your password",
+    "forgotPasswordSub": "Enter your email and we'll send you a reset link.",
+    "forgotPasswordSubmit": "Send reset link",
+    "forgotPasswordPending": "Sending…",
+    "forgotPasswordSuccessTitle": "Link sent",
+    "forgotPasswordSuccessBody": "If an account exists for this email, you'll receive a password reset link. Check your spam folder if you don't see it.",
+    "forgotPasswordBackToLogin": "Back to sign in",
+    "resetPasswordTitle": "New password",
+    "resetPasswordSub": "Choose a new password for your account.",
+    "resetPasswordNewPassword": "New password",
+    "resetPasswordSubmit": "Update password",
+    "resetPasswordPending": "Updating…",
+    "resetPasswordSuccess": "Password updated. Redirecting to sign in…",
+    "resetPasswordError": "This link is expired or already used. Request a new one.",
+    "signInTitle": "Welcome back.",
+    "signInSub": "Pick up the stock hunt where you left off.",
+    "signInSubmit": "Sign in",
+    "signInPending": "Signing in…",
+    "signUpTitle": "Create your account.",
+    "signUpSub": "Three minutes to never miss your size again.",
+    "signUpSubmit": "Create my account",
+    "signUpPending": "Creating…",
+    "checkEmailTitle": "Check your inbox",
+    "checkEmailBody": "We just sent a confirmation link to",
+    "checkEmailHint": "The link expires in 24h. Don’t forget to check spam.",
+    "notConfiguredTitle": "Opening soon",
+    "notConfiguredBody": "We’re putting on the finishing touches. Join the waitlist — we’ll let you know the moment we launch.",
+    "notConfiguredCta": "Join the waitlist",
+    "legalBlurb": "By continuing, you accept our terms and privacy policy.",
+    "onboarding": {
+      "stepLabel": "Step {current}/{total}",
+      "brandsTitle": "Which brands do you love?",
+      "brandsSub": "We'll watch their restocks for you",
+      "brandsContinue": "Continue",
+      "sizeTitle": "Your usual size?",
+      "sizeSub": "We'll pre-fill your alerts with it",
+      "sizeContinue": "Continue",
+      "nameTitle": "What should we call you?",
+      "nameSub": "To personalise your alerts",
+      "namePlaceholder": "Your first name",
+      "nameContinue": "Almost there",
+      "productTitle": "Got an item in mind?",
+      "productSub": "Paste the link of the one you missed — we'll set up your first alert",
+      "productPlaceholder": "https://www.zara.com/...",
+      "productSkip": "Skip for now",
+      "productInvalidUrl": "That link doesn't look right.",
+      "productCta": "Create alert",
+      "signupTitle": "Let's save this",
+      "signupSub": "So you don't lose your picks",
+      "successTitle": "All set!",
+      "successBody": "Check your inbox to confirm. Your first alert is waiting.",
+      "successCta": "Add my first alert"
+    }
+  }
+}

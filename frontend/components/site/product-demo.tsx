@@ -1,14 +1,15 @@
 "use client";
 
 import { Bell, Sparkles, Timer } from "lucide-react";
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations, useLocale } from "next-intl";
 
 export function ProductDemoCard({
   status = "in_stock",
 }: {
   status?: "in_stock" | "out_of_stock";
 }) {
-  const { t, locale } = useLocale();
+  const t = useTranslations();
+  const locale = useLocale();
   const inStock = status === "in_stock";
 
   return (
@@ -32,7 +33,7 @@ export function ProductDemoCard({
               inStock ? "bg-ink pulse-dot" : "bg-ink/40"
             }`}
           />
-          {inStock ? t.common.restocked : t.common.soldOut}
+          {inStock ? t("common.restocked") : t("common.soldOut")}
         </span>
       </div>
 
@@ -89,7 +90,7 @@ export function ProductDemoCard({
 }
 
 export function NotificationMockup() {
-  const { locale } = useLocale();
+  const locale = useLocale();
   return (
     <div
       data-testid="notification-mockup"

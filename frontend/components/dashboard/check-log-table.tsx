@@ -1,35 +1,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations } from "next-intl";
 import { type WatchStatus } from "@/lib/supabase/types";
 import type { CheckLog } from "@/lib/supabase/types";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
-type RT = { sec: (n: number) => string; min: (n: number) => string; hour: (n: number) => string; day: (n: number) => string; now: string };
+type TFunc = (key: string, values?: Record<string, string | number | Date>) => string;
 
-function relativeTimeStr(iso: string, rt: RT): string {
+function relativeTimeStr(iso: string, t: TFunc): string {
   const diff = Date.now() - new Date(iso).getTime();
   const sec = Math.floor(diff / 1000);
-  if (sec < 10) return rt.now;
-  if (sec < 60) return rt.sec(sec);
+  if (sec < 10) return t("watchDetail.relativeTime.now");
+  if (sec < 60) return t("watchDetail.relativeTime.sec", { n: sec });
   const min = Math.floor(sec / 60);
-  if (min < 60) return rt.min(min);
+  if (min < 60) return t("watchDetail.relativeTime.min", { n: min });
   const hours = Math.floor(min / 60);
-  if (hours < 24) return rt.hour(hours);
-  return rt.day(Math.floor(hours / 24));
+  if (hours < 24) return t("watchDetail.relativeTime.hour", { n: hours });
+  return t("watchDetail.relativeTime.day", { n: Math.floor(hours / 24) });
 }
 
 function RelativeTimeCell({ iso }: { iso: string }) {
-  const { t } = useLocale();
-  const rt = t.watchDetail.relativeTime;
-  const [label, setLabel] = useState(() => relativeTimeStr(iso, rt));
+  const t = useTranslations();
+  const [label, setLabel] = useState(() => relativeTimeStr(iso, t));
 
   useEffect(() => {
-    const id = setInterval(() => setLabel(relativeTimeStr(iso, rt)), 15_000);
+    const id = setInterval(() => setLabel(relativeTimeStr(iso, t)), 15_000);
     return () => clearInterval(id);
-  }, [iso, rt]);
+  }, [iso, t]);
 
   return (
     <time dateTime={iso} className="font-mono text-[11px] text-ink/40 tabular-nums">
@@ -59,8 +58,7 @@ function sourceIcon(source: string | null): string {
 }
 
 export function CheckLogTable({ logs, watchPrice }: { logs: CheckLog[]; watchPrice?: number | null }) {
-  const { t } = useLocale();
-  const td = t.watchDetail;
+  const t = useTranslations();
 
   if (logs.length === 0) {
     return (
@@ -69,23 +67,23 @@ export function CheckLogTable({ logs, watchPrice }: { logs: CheckLog[]; watchPri
           <span className="absolute inset-0 animate-ping rounded-full bg-[var(--brand-orange)]/40" />
           <span className="relative inline-flex h-4 w-4 rounded-full bg-[var(--brand-orange)]" />
         </span>
-        <p className="text-sm font-medium text-ink/60">{td.emptyCheckTitle}</p>
-        <p className="max-w-xs text-xs text-ink/40">{td.emptyCheckBody}</p>
+        <p className="text-sm font-medium text-ink/60">{t("watchDetail.emptyCheckTitle")}</p>
+        <p className="max-w-xs text-xs text-ink/40">{t("watchDetail.emptyCheckBody")}</p>
       </div>
     );
   }
 
   const STATUS_LABEL: Record<WatchStatus, string> = {
-    IN_STOCK: td.inStock,
-    OUT_OF_STOCK: td.outOfStock,
-    UNKNOWN: td.pending,
+    IN_STOCK: t("watchDetail.inStock"),
+    OUT_OF_STOCK: t("watchDetail.outOfStock"),
+    UNKNOWN: t("watchDetail.pending"),
   };
 
   const SOURCE_LABEL: Record<string, string> = {
-    dataLayer: td.sourceDataLayer,
-    add_to_cart_btn: td.sourceAddToCart,
-    variant_attr: td.sourceVariant,
-    playwright: td.sourcePlaywright,
+    dataLayer: t("watchDetail.sourceDataLayer"),
+    add_to_cart_btn: t("watchDetail.sourceAddToCart"),
+    variant_attr: t("watchDetail.sourceVariant"),
+    playwright: t("watchDetail.sourcePlaywright"),
   };
 
   return (

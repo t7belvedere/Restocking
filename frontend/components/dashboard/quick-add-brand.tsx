@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Plus, Search, X } from "lucide-react";
 import { toast } from "sonner";
-import { useLocale } from "@/components/site/locale-provider";
+import { useLocale } from "next-intl";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
 import { RETAILERS, type WordmarkStyle } from "@/lib/data/retailers";
@@ -45,7 +45,7 @@ type TileState =
 
 export function QuickAddBrand({ brands }: QuickAddBrandProps) {
   const router = useRouter();
-  const { locale } = useLocale();
+  const locale = useLocale();
 
   const [activeBrand, setActiveBrand] = useState<string | null>(null);
   const [tile, setTile] = useState<TileState>({ kind: "idle" });

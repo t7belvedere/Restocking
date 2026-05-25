@@ -17,11 +17,16 @@ def send_restock_sms(
     product_name: str,
     variant_label: str | None,
     product_url: str,
+    brand_name: str | None = None,
+    price: float | None = None,
 ) -> bool:
     """Send restock SMS via Twilio. Pro plan only.
 
-    Message format: [Restocking] Taille {variant_label} — {product_name} est de retour ! → {product_url}
-    Or without variant: [Restocking] {product_name} est de retour ! → {product_url}
+    Message format:
+      {brand} — {product_name}
+      Taille {variant}
+      {price} € — De retour !
+      {product_url}
 
     Returns True on success, False on failure.
     """
@@ -41,15 +46,26 @@ def send_restock_sms(
             return False
 
         # Build message body
-        if variant_label:
-            message_body = f"[Restocking] Taille {variant_label} — {product_name} est de retour ! → {product_url}"
+        lines = []
+        if brand_name:
+            lines.append(f"{brand_name} — {product_name}")
         else:
-            message_body = f"[Restocking] {product_name} est de retour ! → {product_url}"
+            lines.append(product_name)
 
-        # Create Twilio client
+        if variant_label:
+            lines.append(f"Taille {variant_label}")
+
+        if price is not None and price > 0:
+            price_str = f"{price:.2f} €".replace(".", ",")
+            lines.append(price_str)
+
+        lines.append("De retour !")
+        lines.append(product_url)
+
+        message_body = "\n".join(lines)
+
+        # Send via Twilio
         client = Client(account_sid, auth_token)
-
-        # Send SMS
         message = client.messages.create(
             body=message_body,
             from_=twilio_phone,

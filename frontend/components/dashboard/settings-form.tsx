@@ -16,7 +16,7 @@ import {
   User,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,7 +45,8 @@ type Props = {
 
 export function SettingsForm({ email, phone: initialPhone, phoneVerified: initialPhoneVerified, plan }: Props) {
   const router = useRouter();
-  const { t, locale } = useLocale();
+  const t = useTranslations();
+  const locale = useLocale();
   const [deleting, setDeleting] = useState(false);
 
   const [phone, setPhone] = useState(initialPhone ?? "");
@@ -116,7 +117,7 @@ export function SettingsForm({ email, phone: initialPhone, phoneVerified: initia
     setChangingEmail(false);
     if (res.ok) {
       setNewEmail("");
-      toast.success(t.profile.changeEmailSuccess);
+      toast.success(t("profile.changeEmailSuccess"));
       router.push("/dashboard");
     } else {
       toast.error(res.error ?? "Erreur");
@@ -125,11 +126,11 @@ export function SettingsForm({ email, phone: initialPhone, phoneVerified: initia
 
   async function handleChangePassword() {
     if (newPassword.length < 8) {
-      toast.error(t.profile.passwordTooShort);
+      toast.error(t("profile.passwordTooShort"));
       return;
     }
     if (newPassword !== confirmPassword) {
-      toast.error(t.profile.passwordMismatch);
+      toast.error(t("profile.passwordMismatch"));
       return;
     }
     setChangingPassword(true);
@@ -139,7 +140,7 @@ export function SettingsForm({ email, phone: initialPhone, phoneVerified: initia
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      toast.success(t.profile.changePasswordSuccess);
+      toast.success(t("profile.changePasswordSuccess"));
       router.push("/dashboard");
     } else {
       toast.error(res.error ?? "Erreur");
@@ -177,10 +178,10 @@ export function SettingsForm({ email, phone: initialPhone, phoneVerified: initia
           {locale === "fr" ? "Compte" : "Account"}
         </p>
         <h2 className="font-display text-3xl font-semibold tracking-tight">
-          {t.profile.settingsTitle}
+          {t("profile.settingsTitle")}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {t.profile.settingsSub}
+          {t("profile.settingsSub")}
         </p>
       </div>
 
@@ -238,10 +239,10 @@ export function SettingsForm({ email, phone: initialPhone, phoneVerified: initia
           <div>
             <h2 className="font-display text-lg font-semibold tracking-tight flex items-center gap-2">
               <Mail className="h-4 w-4 text-muted-foreground" />
-              {t.profile.changeEmailTitle}
+              {t("profile.changeEmailTitle")}
             </h2>
             <p className="text-xs text-muted-foreground mt-1">
-              {t.profile.changeEmailDesc}
+              {t("profile.changeEmailDesc")}
             </p>
           </div>
 
@@ -263,7 +264,7 @@ export function SettingsForm({ email, phone: initialPhone, phoneVerified: initia
               {changingEmail ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
               ) : null}
-              {changingEmail ? t.profile.changeEmailPending : t.profile.changeEmailButton}
+              {changingEmail ? t("profile.changeEmailPending") : t("profile.changeEmailButton")}
             </Button>
           </div>
         </div>
@@ -273,16 +274,16 @@ export function SettingsForm({ email, phone: initialPhone, phoneVerified: initia
           <div>
             <h2 className="font-display text-lg font-semibold tracking-tight flex items-center gap-2">
               <Key className="h-4 w-4 text-muted-foreground" />
-              {t.profile.changePasswordTitle}
+              {t("profile.changePasswordTitle")}
             </h2>
             <p className="text-xs text-muted-foreground mt-1">
-              {t.profile.changePasswordDesc}
+              {t("profile.changePasswordDesc")}
             </p>
           </div>
 
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <Label htmlFor="current-password">{t.profile.currentPasswordLabel}</Label>
+              <Label htmlFor="current-password">{t("profile.currentPasswordLabel")}</Label>
               <div className="relative">
                 <Input
                   id="current-password"
@@ -303,7 +304,7 @@ export function SettingsForm({ email, phone: initialPhone, phoneVerified: initia
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="new-password">{t.profile.newPasswordLabel}</Label>
+                <Label htmlFor="new-password">{t("profile.newPasswordLabel")}</Label>
                 <div className="relative">
                   <Input
                     id="new-password"
@@ -322,7 +323,7 @@ export function SettingsForm({ email, phone: initialPhone, phoneVerified: initia
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="confirm-password">{t.profile.confirmPasswordLabel}</Label>
+                <Label htmlFor="confirm-password">{t("profile.confirmPasswordLabel")}</Label>
                 <Input
                   id="confirm-password"
                   type="password"
@@ -343,7 +344,7 @@ export function SettingsForm({ email, phone: initialPhone, phoneVerified: initia
             {changingPassword ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : null}
-            {changingPassword ? t.profile.changePasswordPending : t.profile.changePasswordButton}
+            {changingPassword ? t("profile.changePasswordPending") : t("profile.changePasswordButton")}
           </Button>
         </div>
 

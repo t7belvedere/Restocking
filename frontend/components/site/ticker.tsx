@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations, useLocale } from "next-intl";
 
 const FR_ITEMS = [
   { brand: "ZARA", item: "Manteau oversize · Taille S", time: "il y a 2 min" },
@@ -29,7 +29,8 @@ export function RestockTicker({
   variant?: "lime" | "blue" | "orange" | "ink";
   speed?: "default" | "fast";
 }) {
-  const { locale, t } = useLocale();
+  const t = useTranslations();
+  const locale = useLocale();
   const items = locale === "fr" ? FR_ITEMS : EN_ITEMS;
 
   const bgClass =
@@ -53,7 +54,7 @@ export function RestockTicker({
             className="flex shrink-0 items-center gap-3 px-6"
           >
             <span className="rounded-full border-2 border-ink bg-paper px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.2em] text-ink">
-              {t.common.restocked}
+              {t("common.restocked")}
             </span>
             <span className="font-display text-base font-bold uppercase tracking-tight">
               {it.brand}

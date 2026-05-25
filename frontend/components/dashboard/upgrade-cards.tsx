@@ -2,7 +2,7 @@
 
 import { Check, ExternalLink, Sparkles, Zap } from "lucide-react";
 import { useTransition } from "react";
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations, useMessages } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,8 +15,9 @@ interface UpgradeCardsProps {
 
 export function UpgradeCards({ currentPlan }: UpgradeCardsProps) {
   const [pending, startTransition] = useTransition();
-  const { t } = useLocale();
-  const uc = t.dashboard.upgradeCards;
+  const t = useTranslations();
+  const messages = useMessages() as Record<string, any>;
+  const uc = messages.dashboard?.upgradeCards as Record<string, any> ?? {};
 
   function checkout(interval: "monthly" | "annual") {
     startTransition(() => createCheckoutSession(interval));
@@ -37,29 +38,29 @@ export function UpgradeCards({ currentPlan }: UpgradeCardsProps) {
       >
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="font-display text-2xl">{t.common.free}</CardTitle>
+            <CardTitle className="font-display text-2xl">{t("common.free")}</CardTitle>
             {currentPlan === "free" ? (
               <Badge variant="muted" className="border-ink/30 font-bold">
-                {uc.currentPlan}
+                {t("dashboard.upgradeCards.currentPlan")}
               </Badge>
             ) : null}
           </div>
-          <p className="text-sm text-muted-foreground">{uc.freeTitle}</p>
+          <p className="text-sm text-muted-foreground">{t("dashboard.upgradeCards.freeTitle")}</p>
         </CardHeader>
         <CardContent className="flex flex-1 flex-col justify-between space-y-6">
           <div>
             <div className="flex items-baseline gap-1">
-              <p className="font-display text-5xl font-extrabold tracking-tighter">{uc.freePrice}</p>
-              <span className="text-sm text-muted-foreground">{uc.freeUnit}</span>
+              <p className="font-display text-5xl font-extrabold tracking-tighter">{t("dashboard.upgradeCards.freePrice")}</p>
+              <span className="text-sm text-muted-foreground">{t("dashboard.upgradeCards.freeUnit")}</span>
             </div>
           </div>
           <ul className="space-y-2.5 text-sm">
-            {uc.freeFeatures.map((f) => (
+            {(uc.freeFeatures as string[])?.map((f) => (
               <Feature key={f}>{f}</Feature>
             ))}
           </ul>
           <Button type="button" variant="outline" className="w-full rounded-xl border-2" disabled>
-            {currentPlan === "free" ? uc.currentPlan : uc.downgrade}
+            {currentPlan === "free" ? t("dashboard.upgradeCards.currentPlan") : t("dashboard.upgradeCards.downgrade")}
           </Button>
         </CardContent>
       </Card>
@@ -78,34 +79,34 @@ export function UpgradeCards({ currentPlan }: UpgradeCardsProps) {
             <CardTitle className="font-display text-2xl">
               <span className="inline-flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-[var(--brand-orange)]" />
-                {t.common.pro}
+                {t("common.pro")}
               </span>
             </CardTitle>
             {currentPlan === "pro" ? (
               <Badge variant="success" className="font-bold">
-                {uc.currentPlan}
+                {t("dashboard.upgradeCards.currentPlan")}
               </Badge>
             ) : (
               <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-[var(--brand-lime)] px-3 py-1 font-display text-xs font-bold uppercase tracking-widest shadow-brutal-sm">
                 <Zap className="h-3 w-3 fill-ink" />
-                {uc.recommended}
+                {t("dashboard.upgradeCards.recommended")}
               </span>
             )}
           </div>
-          <p className="text-sm text-muted-foreground">{uc.proTitle}</p>
+          <p className="text-sm text-muted-foreground">{t("dashboard.upgradeCards.proTitle")}</p>
         </CardHeader>
 
         <CardContent className="relative flex flex-1 flex-col justify-between space-y-6">
           <div>
             <div className="flex items-baseline gap-2">
-              <p className="font-display text-5xl font-extrabold tracking-tighter">{uc.proPrice}</p>
-              <span className="text-sm text-muted-foreground">{uc.proUnit}</span>
+              <p className="font-display text-5xl font-extrabold tracking-tighter">{t("dashboard.upgradeCards.proPrice")}</p>
+              <span className="text-sm text-muted-foreground">{t("dashboard.upgradeCards.proUnit")}</span>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">{uc.proAnnual}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t("dashboard.upgradeCards.proAnnual")}</p>
           </div>
 
           <ul className="space-y-2.5 text-sm">
-            {uc.proFeatures.map((f) => (
+            {(uc.proFeatures as string[])?.map((f) => (
               <Feature key={f}>{f}</Feature>
             ))}
           </ul>
@@ -120,7 +121,7 @@ export function UpgradeCards({ currentPlan }: UpgradeCardsProps) {
               disabled={pending}
             >
               <ExternalLink className="mr-2 h-4 w-4" />
-              {uc.manageStripe}
+              {t("dashboard.upgradeCards.manageStripe")}
             </Button>
           ) : (
             <div className="flex flex-col gap-2.5">
@@ -132,11 +133,11 @@ export function UpgradeCards({ currentPlan }: UpgradeCardsProps) {
                 disabled={pending}
               >
                 {pending ? (
-                  uc.redirectingStripe
+                  t("dashboard.upgradeCards.redirectingStripe")
                 ) : (
                   <>
                     <Sparkles className="mr-2 h-4 w-4" />
-                    {uc.monthlyCta}
+                    {t("dashboard.upgradeCards.monthlyCta")}
                   </>
                 )}
               </Button>
@@ -149,9 +150,9 @@ export function UpgradeCards({ currentPlan }: UpgradeCardsProps) {
                 disabled={pending}
               >
                 {pending ? (
-                  uc.redirecting
+                  t("dashboard.upgradeCards.redirecting")
                 ) : (
-                  uc.annualCta
+                  t("dashboard.upgradeCards.annualCta")
                 )}
               </Button>
             </div>

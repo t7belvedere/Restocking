@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Loader2, Plus, X } from "lucide-react";
 import { toast } from "sonner";
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +18,8 @@ type Props = {
 
 export function PreferencesForm({ initial }: Props) {
   const router = useRouter();
-  const { t, locale } = useLocale();
+  const t = useTranslations();
+  const locale = useLocale();
   const [isPending, startTransition] = useTransition();
 
   const [name, setName] = useState(initial.first_name ?? "");
@@ -68,10 +69,10 @@ export function PreferencesForm({ initial }: Props) {
           {locale === "fr" ? "Personnalisation" : "Personalization"}
         </p>
         <h2 className="font-display text-3xl font-semibold tracking-tight">
-          {t.profile.preferencesTitle}
+          {t("profile.preferencesTitle")}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {t.profile.preferencesSub}
+          {t("profile.preferencesSub")}
         </p>
       </div>
 
@@ -182,7 +183,7 @@ export function PreferencesForm({ initial }: Props) {
             ) : (
               <ArrowRight className="h-4 w-4" />
             )}
-            {isPending ? t.profile.saving : t.profile.saveButton}
+            {isPending ? t("profile.saving") : t("profile.saveButton")}
           </Button>
         </div>
       </div>

@@ -8,7 +8,8 @@ import {
   Anton,
 } from "next/font/google";
 import { Toaster } from "@/components/ui/toaster";
-import { LocaleProvider } from "@/components/site/locale-provider";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import { SiteHeader } from "@/components/site/header";
 import { SiteFooter } from "@/components/site/footer";
 import { OrganizationJsonLd } from "@/components/site/json-ld";
@@ -69,6 +70,9 @@ export const metadata: Metadata = {
     languages: {
       fr: "https://www.restocking.app",
       en: "https://www.restocking.app/en",
+      es: "https://www.restocking.app/es",
+      de: "https://www.restocking.app/de",
+      it: "https://www.restocking.app/it",
     },
   },
   openGraph: {
@@ -112,20 +116,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
   const isAuthenticated = await getAuthState();
-
-  // Read locale from middleware cookie (server-side)
-  let locale = "fr";
-  try {
-    const { cookies } = await import("next/headers");
-    const cookieStore = await cookies();
-    const cookieLocale = cookieStore.get("restocking.locale")?.value;
-    if (cookieLocale && ["fr", "en"].includes(cookieLocale)) {
-      locale = cookieLocale;
-    }
-  } catch {
-    // cookies() not available (e.g. static generation)
-  }
 
   return (
     <html
@@ -135,12 +128,12 @@ export default async function RootLayout({
     >
       <body className="min-h-dvh bg-cream text-ink antialiased">
         <OrganizationJsonLd />
-        <LocaleProvider initialLocale={locale as "fr" | "en"}>
+        <NextIntlClientProvider messages={messages} locale={locale}>
           <SiteHeader isAuthenticated={isAuthenticated} />
           {children}
           <SiteFooter />
           <Toaster />
-        </LocaleProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

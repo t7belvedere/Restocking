@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 
 const BASE_OFFSET = 137; // small visible base so it never reads "0"
@@ -13,7 +13,7 @@ export function LiveCounter({
   className?: string;
   variant?: "default" | "lime" | "blue";
 }) {
-  const { t } = useLocale();
+  const t = useTranslations();
   const [count, setCount] = useState<number | null>(null);
   const supabase = createClient();
 
@@ -25,7 +25,7 @@ export function LiveCounter({
         const { count: total, error } = await supabase
           .from("waitlist")
           .select("*", { count: "exact", head: true });
-          
+
         if (error || total === null) return;
         if (active) setCount(total + BASE_OFFSET);
       } catch {
@@ -65,7 +65,7 @@ export function LiveCounter({
               {count.toLocaleString()}
             </span>{" "}
             <span className="font-medium text-ink/70">
-              {t.common.counterPre} {t.common.counterPost}
+              {t("common.counterPre")} {t("common.counterPost")}
             </span>
           </span>
         )}

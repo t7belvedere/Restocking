@@ -243,6 +243,8 @@ def _send_notifications(watch: dict, status: str) -> None:
                 product_name=name,
                 variant_label=variant_label,
                 product_url=url,
+                brand_name=brand_name,
+                price=watch.get("price"),
             )
             insert_notification(watch_id, channel="sms", success=sms_success)
             if sms_success:

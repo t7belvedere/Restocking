@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight, BellOff, Clipboard, Bell, Sparkles, ShieldCheck, MapPin, RefreshCcw, Zap, Sliders } from "lucide-react";
-import { useLocale } from "@/components/site/locale-provider";
+import { useMessages } from "next-intl";
 import { WaitlistForm } from "@/components/site/waitlist-form";
 import {
   ScrollReveal,
@@ -28,7 +28,9 @@ const DETAIL_ICONS = [RefreshCcw, ShieldCheck, MapPin, ShieldCheck, Bell];
 const WHY_ICONS = [Zap, Sliders, BellOff];
 
 export default function HowItWorksPage() {
-  const { t } = useLocale();
+  const t = useMessages();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const messages = t as any;
   return (
     <main data-testid="how-it-works-page" className="overflow-hidden">
       <section className="relative border-b-2 border-ink">
@@ -37,16 +39,16 @@ export default function HowItWorksPage() {
           <ScrollReveal>
             <span className="inline-flex items-center gap-2 rounded-full border-2 border-ink bg-paper px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.18em] shadow-brutal-sm">
               <Sparkles className="h-3.5 w-3.5 text-[var(--brand-orange)]" />
-              {t.how.eyebrow}
+              {messages.how.eyebrow}
             </span>
           </ScrollReveal>
           <ScrollReveal delay={0.1}>
             <h1 className="mt-6 max-w-4xl font-display text-5xl font-extrabold leading-none tracking-tighter md:text-7xl">
-              {t.how.title}
+              {messages.how.title}
             </h1>
           </ScrollReveal>
           <ScrollReveal delay={0.2}>
-            <p className="mt-6 max-w-2xl text-lg text-ink/70">{t.how.sub}</p>
+            <p className="mt-6 max-w-2xl text-lg text-ink/70">{messages.how.sub}</p>
           </ScrollReveal>
         </div>
       </section>
@@ -55,7 +57,7 @@ export default function HowItWorksPage() {
       <section className="border-b-2 border-ink bg-cream">
         <div className="container mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
           <StaggerContainer className="grid gap-6 lg:grid-cols-3">
-            {t.how.steps.map((step, i) => {
+            {messages.how.steps.map((step: { n: string; title: string; body: string; pill: string }, i: number) => {
               const Icon = STEP_ICONS[i];
               return (
                 <StaggerItem
@@ -102,11 +104,11 @@ export default function HowItWorksPage() {
         <div className="container mx-auto max-w-6xl px-5 py-20 lg:px-8 lg:py-24">
           <ScrollReveal>
             <h2 className="font-display text-4xl font-extrabold leading-tight tracking-tighter md:text-5xl">
-              {t.how.detailsTitle}
+              {messages.how.detailsTitle}
             </h2>
           </ScrollReveal>
           <StaggerContainer className="mt-12 grid gap-5 md:grid-cols-2">
-            {t.how.details.map((d, i) => {
+            {messages.how.details.map((d: { title: string; body: string }, i: number) => {
               const Icon = DETAIL_ICONS[i % DETAIL_ICONS.length];
               return (
                 <StaggerItem
@@ -138,11 +140,11 @@ export default function HowItWorksPage() {
         <div className="container mx-auto max-w-6xl px-5 py-20 lg:px-8 lg:py-24">
           <ScrollReveal>
             <h2 className="font-display text-4xl font-extrabold leading-tight tracking-tighter md:text-5xl">
-              {t.how.whyTitle}
+              {messages.how.whyTitle}
             </h2>
           </ScrollReveal>
           <StaggerContainer className="mt-12 grid gap-6 md:grid-cols-3">
-            {t.how.whyItems.map((item, i) => {
+            {messages.how.whyItems.map((item: { title: string; body: string }, i: number) => {
               const Icon = WHY_ICONS[i];
               return (
                 <StaggerItem key={item.title} data-testid={`why-${i}`}>
@@ -170,14 +172,14 @@ export default function HowItWorksPage() {
           <ScrollReveal>
             <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
               <h2 className="font-display text-3xl font-extrabold leading-tight tracking-tighter text-ink md:text-5xl">
-                {t.home.bigCtaTitle}
+                {messages.home.bigCtaTitle}
               </h2>
               <Link
                 href="/#waitlist"
                 data-testid="how-to-waitlist-cta"
                 className="inline-flex h-14 items-center gap-2 rounded-full border-2 border-ink bg-ink px-6 font-display text-base font-bold uppercase tracking-wide text-cream shadow-brutal hover-press"
               >
-                {t.nav.cta}
+                {messages.nav.cta}
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>

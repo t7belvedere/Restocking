@@ -1,46 +1,42 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import { useState, useCallback } from "react";
 import { LayoutDashboard, LogIn, Menu, X } from "lucide-react";
 import { Logo } from "@/components/site/logo";
-import { useLocale } from "@/components/site/locale-provider";
+import { useMessages, useLocale } from "next-intl";
+import { useRouter, usePathname } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
-import type { Locale } from "@/lib/i18n/messages";
-
-function getNavItems(t: ReturnType<typeof useLocale>["t"]) {
-  return [
-    { href: "/", label: t.nav.home, testId: "nav-home" },
-    { href: "/how-it-works", label: t.nav.how, testId: "nav-how-it-works" },
-    { href: "/retailers", label: t.nav.retailers, testId: "nav-retailers" },
-    { href: "/pricing", label: t.nav.pricing, testId: "nav-pricing" },
-    { href: "/faq", label: t.nav.faq, testId: "nav-faq" },
-    { href: "/manifesto", label: t.nav.manifesto, testId: "nav-manifesto" },
-  ];
-}
 
 type Props = {
   isAuthenticated?: boolean;
 };
 
 export function SiteHeader({ isAuthenticated = false }: Props) {
-  const { t, locale, setLocale } = useLocale();
+  const t = useMessages();
+  const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const messages = t as any;
+
   const handleLocaleChange = useCallback(
-    (l: Locale) => {
-      setLocale(l);
-      // Set cookie so server re-renders with correct locale on next navigation
-      document.cookie = `restocking.locale=${l};path=/;max-age=31536000;SameSite=Lax`;
-      router.refresh();
+    (nextLocale: string) => {
+      router.replace(pathname, { locale: nextLocale });
     },
-    [router, setLocale],
+    [router, pathname],
   );
 
-  const items = getNavItems(t);
+  const navItems = [
+    { href: "/", label: messages.nav.home, testId: "nav-home" },
+    { href: "/how-it-works", label: messages.nav.how, testId: "nav-how-it-works" },
+    { href: "/retailers", label: messages.nav.retailers, testId: "nav-retailers" },
+    { href: "/pricing", label: messages.nav.pricing, testId: "nav-pricing" },
+    { href: "/faq", label: messages.nav.faq, testId: "nav-faq" },
+    { href: "/manifesto", label: messages.nav.manifesto, testId: "nav-manifesto" },
+  ];
 
   return (
     <header
@@ -55,7 +51,7 @@ export function SiteHeader({ isAuthenticated = false }: Props) {
           className="hidden items-center gap-1 lg:flex"
           data-testid="primary-nav"
         >
-          {items.map((item) => {
+          {navItems.map((item) => {
             const active = pathname === item.href;
             return (
               <Link
@@ -94,14 +90,14 @@ export function SiteHeader({ isAuthenticated = false }: Props) {
                 className="hidden h-10 items-center justify-center gap-1.5 rounded-full border-2 border-transparent px-3 font-display text-sm font-bold uppercase tracking-wide text-ink hover:border-ink hover:bg-paper md:inline-flex"
               >
                 <LogIn className="h-3.5 w-3.5" />
-                {t.auth.signIn}
+                {messages.auth.signIn}
               </Link>
               <Link
                 href="/signup"
                 data-testid="header-cta-signup"
                 className="hidden h-10 items-center justify-center rounded-full border-2 border-ink bg-ink px-4 font-display text-sm font-bold uppercase tracking-wide text-cream shadow-brutal hover-press md:inline-flex"
               >
-                {t.auth.signUp}
+                {messages.auth.signUp}
               </Link>
             </>
           )}
@@ -124,7 +120,7 @@ export function SiteHeader({ isAuthenticated = false }: Props) {
           className="border-t-2 border-ink bg-paper lg:hidden"
         >
           <nav className="container mx-auto flex max-w-7xl flex-col px-5 py-4">
-            {items.map((item) => (
+            {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -159,7 +155,7 @@ export function SiteHeader({ isAuthenticated = false }: Props) {
                   data-testid="mobile-header-cta-signin"
                   className="inline-flex h-12 items-center justify-center rounded-full border-2 border-ink bg-paper font-display font-bold uppercase tracking-wide text-ink shadow-brutal-sm"
                 >
-                  {t.auth.signIn}
+                  {messages.auth.signIn}
                 </Link>
                 <Link
                   href="/signup"
@@ -167,7 +163,7 @@ export function SiteHeader({ isAuthenticated = false }: Props) {
                   data-testid="mobile-header-cta-signup"
                   className="inline-flex h-12 items-center justify-center rounded-full border-2 border-ink bg-ink font-display font-bold uppercase tracking-wide text-cream shadow-brutal"
                 >
-                  {t.auth.signUp}
+                  {messages.auth.signUp}
                 </Link>
               </div>
             )}
@@ -178,12 +174,14 @@ export function SiteHeader({ isAuthenticated = false }: Props) {
   );
 }
 
+const ALL_LOCALES = ["fr", "en", "es", "de", "it"] as const;
+
 function LocaleSwitch({
   locale,
   onChange,
 }: {
-  locale: Locale;
-  onChange: (l: Locale) => void;
+  locale: string;
+  onChange: (l: string) => void;
 }) {
   return (
     <div
@@ -192,7 +190,7 @@ function LocaleSwitch({
       data-testid="locale-switcher"
       className="inline-flex h-10 items-center rounded-full border-2 border-ink bg-paper p-0.5 text-xs font-bold uppercase tracking-widest shadow-brutal-sm"
     >
-      {(["fr", "en"] as const).map((l) => {
+      {ALL_LOCALES.map((l) => {
         const active = locale === l;
         return (
           <button

@@ -20,3 +20,4 @@ mobile/.expo/
 mobile/android/
 mobile/ios/
 *.tsbuildinfo
+.vercel

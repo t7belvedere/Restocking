@@ -2,13 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations } from "next-intl";
 import { Zap } from "lucide-react";
 import type { WatchStatus } from "@/lib/supabase/types";
 
-type RT = { now?: string; sec: (n: number) => string; min: (n: number) => string; hour: (n: number) => string; day: (n: number) => string };
-
-function useRelativeTime(iso: string | null, rt: RT, never: string): string {
+function useRelativeTime(iso: string | null, t: (key: string, values?: Record<string, string | number | Date>) => string, never: string): string {
   const [, setTick] = useState(0);
 
   useEffect(() => {
@@ -20,13 +18,13 @@ function useRelativeTime(iso: string | null, rt: RT, never: string): string {
 
   const diff = Date.now() - new Date(iso).getTime();
   const sec = Math.floor(diff / 1000);
-  if (sec < 60) return rt.sec(sec);
+  if (sec < 60) return t("watchDetail.relativeTime.sec", { n: sec });
   const min = Math.floor(sec / 60);
-  if (min < 60) return rt.min(min);
+  if (min < 60) return t("watchDetail.relativeTime.min", { n: min });
   const hours = Math.floor(min / 60);
-  if (hours < 24) return rt.hour(hours);
+  if (hours < 24) return t("watchDetail.relativeTime.hour", { n: hours });
   const days = Math.floor(hours / 24);
-  return rt.day(days);
+  return t("watchDetail.relativeTime.day", { n: days });
 }
 
 function freshness(iso: string | null): "live" | "warm" | "cold" {
@@ -47,23 +45,22 @@ export function LiveStatus({
   status: WatchStatus;
   isActive: boolean;
 }) {
-  const { t } = useLocale();
-  const td = t.watchDetail;
-  const relative = useRelativeTime(lastCheck, td.relativeTime, td.neverChecked);
+  const t = useTranslations();
+  const relative = useRelativeTime(lastCheck, t, t("watchDetail.neverChecked"));
   const fresh = freshness(lastCheck);
   const isInStock = status === "IN_STOCK";
 
   const STATUS_LABEL: Record<WatchStatus, string> = {
-    IN_STOCK: td.inStock,
-    OUT_OF_STOCK: td.outOfStock,
-    UNKNOWN: td.pending,
+    IN_STOCK: t("watchDetail.inStock"),
+    OUT_OF_STOCK: t("watchDetail.outOfStock"),
+    UNKNOWN: t("watchDetail.pending"),
   };
 
   if (!isActive) {
     return (
       <div className="flex items-center gap-2.5 rounded-full border-2 border-ink/15 bg-muted/40 px-4 py-1.5">
         <span className="flex h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />
-        <span className="text-sm font-medium text-muted-foreground">{td.paused}</span>
+        <span className="text-sm font-medium text-muted-foreground">{t("watchDetail.paused")}</span>
       </div>
     );
   }
@@ -134,7 +131,7 @@ export function LiveStatus({
               : "text-ink/40",
         )}
       >
-        {td.lastCheck} {relative}
+        {t("watchDetail.lastCheck")} {relative}
       </span>
     </div>
   );

@@ -10,11 +10,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AddWatchForm } from "@/components/dashboard/add-watch-form";
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations } from "next-intl";
 
 export function AddWatchCard() {
-  const { t } = useLocale();
-  const aw = t.addWatch;
+  const t = useTranslations();
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -23,15 +22,15 @@ export function AddWatchCard() {
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
-        {t.watchDetail.backToAlerts}
+        {t("watchDetail.backToAlerts")}
       </Link>
 
       <Card>
         <CardHeader>
           <CardTitle className="font-display text-2xl">
-            {aw.pageTitle}
+            {t("addWatch.pageTitle")}
           </CardTitle>
-          <CardDescription>{aw.pageSub}</CardDescription>
+          <CardDescription>{t("addWatch.pageSub")}</CardDescription>
         </CardHeader>
         <CardContent>
           <AddWatchForm />

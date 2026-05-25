@@ -1,0 +1,785 @@
+{
+  "nav": {
+    "home": "Home",
+    "how": "How it works",
+    "retailers": "Stores",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "manifesto": "Manifesto",
+    "cta": "Join the list"
+  },
+  "common": {
+    "backHome": "Back to home",
+    "waitlist": "Waitlist",
+    "joinWaitlist": "Join the waitlist",
+    "joining": "Adding you…",
+    "yourEmail": "Your email",
+    "placeholder": "alex@example.com",
+    "success": "Welcome to the list 🎉",
+    "already": "You are already on the list — your spot is saved 💌",
+    "invalid": "Invalid email address.",
+    "error": "Oops, please try again in a moment.",
+    "counterPre": "already",
+    "counterPost": "fashion victims™ waiting",
+    "counterFallback": "Be one of the first to break the sold-out curse.",
+    "privacy": "No spam. We only write to announce the launch.",
+    "free": "Free",
+    "pro": "Pro",
+    "mostPopular": "Most loved 🔥",
+    "perMonth": "/ month",
+    "perYear": "/ year",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "saveBadge": "Save 30%",
+    "restocked": "RESTOCKED",
+    "soldOut": "SOLD OUT",
+    "notFoundTitle": "Lost in the wardrobe.",
+    "notFoundBody": "This page does not exist (anymore). Want us to take you home?"
+  },
+  "home": {
+    "eyebrow": "Size-specific restock alerts · Europe",
+    "h1Top": "Your size,",
+    "h1Mid": "the moment",
+    "h1Bot": "it comes back.",
+    "sub": "We watch Zara, COS, Aritzia, Sézane, Uniqlo and 100+ other stores for you. We’ll let you know in under 5 minutes when your size is back. No more 12 tabs open, no more checking at 3am.",
+    "ctaPrimary": "Keep me posted",
+    "ctaSecondary": "How it works",
+    "proofTitle": "From shoppers who were tired of missing out",
+    "proofItems": [
+      {
+        "quote": "I used to check Aritzia 30 times a day. The one time it restocked, I missed my size by 4 minutes.",
+        "author": "u/sara_lovesoutfits",
+        "source": "r/Aritzia"
+      },
+      {
+        "quote": "Zara’s alert reached me 3 days later. I’d already moved on.",
+        "author": "Camille, 28",
+        "source": "Paris"
+      },
+      {
+        "quote": "I used to set alarms at night for COS. Restocking let me sleep again.",
+        "author": "Tom, 26",
+        "source": "Berlin"
+      },
+      {
+        "quote": "Honestly the other tools are a nightmare. None of them tell you about your exact size.",
+        "author": "u/dropwatcher",
+        "source": "r/femalefashionadvice"
+      }
+    ],
+    "stats": [
+      {
+        "value": "<5 min",
+        "label": "Average time to alert you"
+      },
+      {
+        "value": "120+",
+        "label": "Stores watched"
+      },
+      {
+        "value": "EU 34–50",
+        "label": "Every size covered"
+      },
+      {
+        "value": "0",
+        "label": "False alerts — we check twice before messaging you"
+      }
+    ],
+    "bigCtaTitle": "The second your size comes back, we’ll let you know.",
+    "bigCtaSub": "Join the waitlist. Get access on launch day, plus 3 months of Pro free for the first 100."
+  },
+  "how": {
+    "eyebrow": "How it works",
+    "title": "Three steps. As simple as that.",
+    "sub": "No tech skills needed. You copy a link, pick your size, and we handle everything else.",
+    "steps": [
+      {
+        "n": "01",
+        "title": "Copy the product link",
+        "body": "Grab the link of the piece you want from the brand’s website (Zara, COS, Sézane…). We automatically pull the name, photo, price and all available sizes.",
+        "pill": "1 link = 1 alert active"
+      },
+      {
+        "n": "02",
+        "title": "Pick your size (and colour)",
+        "body": "Select YOUR size and YOUR colour. We’ll only let you know about that one — not some random size that isn’t yours.",
+        "pill": "Tailored to you"
+      },
+      {
+        "n": "03",
+        "title": "Get your alert in under 5 min",
+        "body": "Email straight to your inbox (and SMS on Pro) the moment it’s back. With a link that takes you right to the product page, in your size.",
+        "pill": "Faster than the brand’s own alert"
+      }
+    ],
+    "detailsTitle": "Behind the scenes",
+    "details": [
+      {
+        "title": "We check non-stop",
+        "body": "We look at the product page every 5 minutes (Pro) or 30 minutes (Free). We check the buy button and the stock info directly on the site — just like you would, but without you having to think about it."
+      },
+      {
+        "title": "Two checks before we tell you",
+        "body": "We make sure it’s really back before we send anything. If an item reappears for 30 seconds because someone abandoned their cart, we don’t wake you up. No false hope."
+      },
+      {
+        "title": "We respect the stores",
+        "body": "We only look at what’s publicly visible. No hacking, no auto-buying. We browse the same page you see, at human speed."
+      },
+      {
+        "title": "Data stored in Europe",
+        "body": "Everything is hosted in Frankfurt, encrypted and GDPR compliant. Your email and alerts belong to you. Export or delete them in one click. We never sell anything to anyone."
+      },
+      {
+        "title": "Email and SMS alerts",
+        "body": "As soon as your size is back, you get an email with a direct link to the product page, in your size. On Pro, we also text you for items that sell out fast. No hidden newsletter."
+      }
+    ],
+    "whyTitle": "Why is this better than the brand’s own alerts?",
+    "whyItems": [
+      {
+        "title": "Faster",
+        "body": "Brands send their alerts in batches — sometimes 2 to 24 hours late. We check each product live, no queue. On average, you’ll know in under 3 minutes."
+      },
+      {
+        "title": "Your exact size",
+        "body": "Brands send a generic alert for the product. If size S comes back and you wear M, you get a notification for nothing. We only let you know about the size you’re watching."
+      },
+      {
+        "title": "All your brands, one place",
+        "body": "No need to create accounts at Zara, COS, Sézane and cross your fingers that each one’s alerts work. One place, every brand, every size."
+      }
+    ]
+  },
+  "retailers": {
+    "eyebrow": "All stores",
+    "title": "Any store. We’ve got it.",
+    "sub": "We watch every fashion store in Europe. The ones below are just the ones we know best — the rest work too.",
+    "legendInStock": "Ultra-fast",
+    "legendBeta": "Also works",
+    "filterAll": "All stores",
+    "filterLive": "Ultra-fast",
+    "filterBeta": "Universal",
+    "tileCta": "Watch",
+    "requestTitle": "A store we missed?",
+    "requestBody": "We add stores all the time. Tell us which one you need and we’ll get on it.",
+    "requestCta": "Suggest a store",
+    "noResultsTitle": "No match.",
+    "noResultsBody": "But remember: every store works!",
+    "universalCardTitle": "All stores",
+    "universalCardBody": "Paste any link. We’ll find your size automatically.",
+    "fadeMore": "And hundreds of other brands..."
+  },
+  "pricing": {
+    "eyebrow": "Pricing",
+    "heroTitle": "Pick your plan.",
+    "heroSub": "Start free with 3 items. Upgrade to Pro the day you miss a drop that matters.",
+    "planLabel": "Plan",
+    "toggleMonthly": "Monthly",
+    "toggleAnnual": "Annual · -30%",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "tagline": "To try it out.",
+        "price": "€0",
+        "unit": "/ forever",
+        "cta": "Start free"
+      },
+      "pro": {
+        "name": "Pro",
+        "tagline": "For never missing out.",
+        "priceMonthly": "€7.99",
+        "priceAnnual": "€59",
+        "unitMonthlyShort": "/ month",
+        "unitAnnualShort": "/ year",
+        "subMonthly": "or €59/year (two months free)",
+        "subAnnual": "that’s €4.90/mo",
+        "cta": "Go Pro"
+      }
+    },
+    "features": {
+      "items": "Items tracked",
+      "freeItems": "3 max",
+      "proItems": "20 max",
+      "frequency": "Check frequency",
+      "freeFrequency": "Every 30 min",
+      "proFrequency": "Every 5 min",
+      "emailNotifs": "Email notifications",
+      "smsNotifs": "SMS notifications",
+      "optimizedStores": "Optimized stores",
+      "playwright": "Playwright fallback",
+      "liveDashboard": "Live dashboard",
+      "checkHistory": "Check history",
+      "freeHistory": "7 days",
+      "proHistory": "Unlimited",
+      "support": "Priority support"
+    },
+    "compareTitle": "Compare plans",
+    "compareSub": "Everything you need to decide in 30 seconds.",
+    "compareFeature": "Feature",
+    "testimonialsTitle": "Those who went Pro",
+    "testimonialsSub": "They’d never go back.",
+    "testimonials": {
+      "0": {
+        "quote": "I switched to Pro the day I missed a COS restock. Since then, I’ve scored 4 pieces I thought were gone forever.",
+        "author": "Léa, 29",
+        "source": "Paris"
+      },
+      "1": {
+        "quote": "The Free plan saved me on Sézane. I went Pro right after. The 5-minute checks change everything.",
+        "author": "Marine, 32",
+        "source": "Lyon"
+      },
+      "2": {
+        "quote": "Honestly €7.99 to stop checking 20 times a day is a gift. I dropped Distill.",
+        "author": "Thomas, 26",
+        "source": "Berlin"
+      }
+    },
+    "faqTitle": "Frequently asked questions",
+    "faqSub": "Everything you want to know before going Pro.",
+    "faq": {
+      "switchPlansQ": "Can I switch plans anytime?",
+      "switchPlansA": "Yes, no commitment. Upgrade to Pro whenever you want, downgrade back to Free just as easily from your dashboard.",
+      "cancelProQ": "How do I cancel Pro?",
+      "cancelProA": "Two clicks from your account (Stripe portal). No commitment, no email to send, no hidden buttons.",
+      "annualOfferQ": "Do you offer an annual plan?",
+      "annualOfferA": "Yes! The Pro annual plan is €59/year, that’s €4.90/month. Two months free compared to monthly.",
+      "tryBeforePayQ": "Can I try before paying?",
+      "tryBeforePayA": "Of course. The Free plan gives you 3 tracked items with checks every 30 minutes. Enough to see if you like the service."
+    },
+    "bottomCtaEyebrow": "Ready to never miss out?",
+    "bottomCtaTitle": "Go Pro. Your size won’t wait.",
+    "bottomCtaSub": "€7.99/month, no commitment. Cancel anytime in two clicks. And if you’re among the first 100, 3 months free.",
+    "redirecting": "Redirecting…",
+    "faqLink": "Questions about payment?",
+    "faqLinkCta": "Read the FAQ →"
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Everything you’re wondering.",
+    "sub": "Something missing? Email us at hello@restocking.app — there are three real humans here.",
+    "items": [
+      {
+        "q": "Is this data theft?",
+        "a": "No. We just look at the product page, like you do. No hacking, no auto-buying. We only watch what’s publicly visible to everyone."
+      },
+      {
+        "q": "Is it legal in Europe?",
+        "a": "Yes. We only look at prices and stock that are already public. Your data is stored in Germany (Frankfurt), and you can delete everything in one click."
+      },
+      {
+        "q": "How fast will I know?",
+        "a": "Free: within 30 minutes. Pro: under 5 minutes. And we always check twice before sending you anything — just to be sure it’s really back."
+      },
+      {
+        "q": "Is my favourite store covered?",
+        "a": "We’re launching with Zara, COS, Aritzia, Uniqlo, Sézane, Mango, Arket and ASOS. Missing yours? Tell us on the Stores page and we’ll add it within 2 weeks."
+      },
+      {
+        "q": "Can I change my size later?",
+        "a": "Anytime. You can also track several sizes of the same item — each size counts as one alert."
+      },
+      {
+        "q": "How do I cancel Pro?",
+        "a": "Two clicks from your account. No commitment, no email needed, no hidden buttons."
+      },
+      {
+        "q": "Do you sell my data?",
+        "a": "Never. We make money from the Pro plan, not from your info. Your email stays with us."
+      },
+      {
+        "q": "Which stores do you watch?",
+        "a": "Zara, COS, Aritzia, Uniqlo, Sézane, Mango, Arket, ASOS, Ganni, Massimo Dutti, & Other Stories and 50+ more. The full list is on the Stores page."
+      },
+      {
+        "q": "How does it work behind the scenes?",
+        "a": "We check the product page every 5 minutes (Pro) or 30 minutes (Free). We look at the buy button, we read the stock info. If the page is tricky, we open it like a normal browser and look. Nothing magical."
+      },
+      {
+        "q": "Why are you faster than the brands?",
+        "a": "Brands send their alerts in batches — sometimes 24 hours late. We check your product live, all the time. Simple: we don’t wait in their email queue."
+      },
+      {
+        "q": "How many items can I track?",
+        "a": "3 on Free, 20 on Pro. Each size+colour counts as 1. If you want a t-shirt in S and M, that’s 2 alerts. Swap anytime."
+      },
+      {
+        "q": "What about non-European stores?",
+        "a": "Our focus is Europe, but we already cover Aritzia, Reformation, Khaite. If the site is in English or French, it should work. Tell us which one you need."
+      }
+    ]
+  },
+  "manifesto": {
+    "eyebrow": "Manifesto",
+    "title": "Because there are enough sold-out signs already.",
+    "paragraphs": [
+      "We’re tired of checking. Tired of alerts arriving after it’s already gone. Tired of tools that make no sense.",
+      "Restocking is what we always wanted. One link, one size, one alert. That’s it.",
+      "Three people between Paris, Lyon and Berlin. No fundraising, no AI bullshit, no selling data. Just a service that makes fashion a little less frustrating.",
+      "We started this after missing a COS coat for the third time. Size S, navy blue. Restocked at 4am, gone by 4:07. Not a single alert. That’s when we knew.",
+      "Today we watch 120+ brands every 5 minutes. We check product pages like you would — just without you having to think about it. Nothing magical, just good work.",
+      "We don’t spam you. We don’t sell you. We let you know when it’s really back, in your size, for the item you want. Full stop.",
+      "We do this so you wear what you love — not what’s left."
+    ],
+    "signature": "— the restocking team"
+  },
+  "footer": {
+    "tagline": "Size-specific restock alerts for European fashion.",
+    "product": "Product",
+    "legal": "Legal",
+    "links": {
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "cookies": "Cookies",
+      "mentionsLegales": "Legal Notice",
+      "contact": "hello@restocking.app"
+    },
+    "madeIn": "Made with ❤️ between Paris, Lyon & Berlin.",
+    "rights": "All rights reserved."
+  },
+  "legal": {
+    "privacy": {
+      "title": "Privacy Policy",
+      "lastUpdated": "Last updated: May 25, 2026",
+      "intro": "Privacy is at the core of Restocking. This policy details how we collect, use, and protect your personal data, in compliance with the General Data Protection Regulation (GDPR) and applicable data protection laws.",
+      "sections": [
+        {
+          "title": "Data controller",
+          "content": "The data controller is Oscar Albert, reachable at hello@restocking.app. Restocking is a sole proprietorship registered in France. For any questions about your data, you can write to us at any time."
+        },
+        {
+          "title": "Data we collect",
+          "content": "We only collect data strictly necessary for the service: your email address (for authentication and notifications), your language preference (English or French), the product URLs you monitor, the size and color you're tracking for each product, your subscription plan (Free or Pro), and notification history. We do not collect your full name, postal address, or payment details (payments are handled by Stripe)."
+        },
+        {
+          "title": "Purposes and legal bases",
+          "content": "We process your data to: (1) create and manage your account (legal basis: contract performance), (2) monitor stock for products you follow and send alerts (legal basis: contract performance), (3) send essential service information (legal basis: legitimate interest), (4) improve the service through anonymized analytics (legal basis: legitimate interest). We do not engage in profiling, automated decision-making, or ad targeting."
+        },
+        {
+          "title": "Data recipients",
+          "content": "Your data is shared only with strictly necessary processors: Supabase (database and authentication, Frankfurt servers), Resend (transactional email delivery), and Stripe (payment processing, only if you upgrade to Pro). Each processor is GDPR-compliant. We do not sell, rent, or share your data with any other third party for commercial or any other purposes."
+        },
+        {
+          "title": "Transfers outside the European Union",
+          "content": "Your data is hosted in Europe (Supabase, Frankfurt region). Some processors operate from the United States (Resend, Stripe). They adhere to the EU-U.S. Data Privacy Framework (DPF) or have signed Standard Contractual Clauses approved by the European Commission, ensuring an equivalent level of protection."
+        },
+        {
+          "title": "Data retention",
+          "content": "Account data is retained as long as your account is active. If you delete your account, all personal data is erased within 30 days. Technical logs (stock check timestamps, statuses) are anonymized after 90 days. Payment data is retained by Stripe according to their retention policy (legal requirement of 10 years for invoices)."
+        },
+        {
+          "title": "Security",
+          "content": "We implement appropriate technical and organizational measures: encryption in transit (TLS 1.3) and at rest (AES-256), strong authentication via Supabase Auth, server access restricted by SSH keys and VPN, continuous monitoring of access and anomalies, and automated security updates. In the event of a data breach, we will notify you within 72 hours, in accordance with the GDPR."
+        },
+        {
+          "title": "Your GDPR rights",
+          "content": "You have the following rights over your data, exercisable at any time by writing to hello@restocking.app: right of access (know what data we hold and obtain a copy), right of rectification (correct inaccurate data), right to erasure (delete your account and all data), right to restriction (temporarily freeze processing), right to portability (receive your data in a readable format), and right to object (refuse processing based on legitimate interest). We respond to all requests within 30 days."
+        },
+        {
+          "title": "Cookies and trackers",
+          "content": "We only use cookies strictly necessary for the site to function: an authentication session cookie, and a language preference cookie. No advertising cookies, no third-party tracking cookies. Our full cookie policy is detailed on the dedicated page."
+        },
+        {
+          "title": "Minors",
+          "content": "The service is not intended for individuals under 16. We do not knowingly collect personal data from minors. If you are a parent and discover your child is using the service, contact us so we can delete their data."
+        },
+        {
+          "title": "Right to complain",
+          "content": "If you believe your data processing is not GDPR-compliant, you have the right to lodge a complaint with your national data protection authority (in France: CNIL, cnil.fr; in Germany: BfDI; in the UK: ICO). We encourage you to contact us first so we can resolve the issue directly."
+        },
+        {
+          "title": "Policy changes",
+          "content": "We may update this policy to reflect legal or technical changes. For substantial modifications, we will notify you by email at least 14 days before they take effect. The last updated date is shown at the top of this page."
+        }
+      ]
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "lastUpdated": "Last updated: May 25, 2026",
+      "intro": "These Terms of Service (ToS) govern your relationship with Restocking. By using the service, you accept these terms in full. If you disagree with any part, you must not use the service.",
+      "sections": [
+        {
+          "title": "Definitions",
+          "content": "\"Restocking\" means the service operated by Oscar Albert, accessible at restocking.app. \"User\" or \"you\" means any person who creates an account and uses the service. \"Alert\" means the monitoring of a specific product (size + color). \"Free Plan\" means the free subscription with 3 alerts and 30-minute checks. \"Pro Plan\" means the paid subscription with up to 20 alerts and 5-minute checks."
+        },
+        {
+          "title": "Service purpose",
+          "content": "Restocking is a stock monitoring tool for online fashion stores. The service automatically checks the product pages you entrust to it and sends you a notification (email, and SMS on Pro plan) as soon as the size and color you're tracking become available for purchase again. Restocking is an information service: we do not sell anything, we are not affiliated with any brand, and we do not guarantee you will be able to purchase the product."
+        },
+        {
+          "title": "Account creation",
+          "content": "To use the service, you must create an account with a valid email address. You agree to provide accurate information and keep it up to date. You are responsible for maintaining the confidentiality of your password and for all activity on your account. An account may only be used by one individual."
+        },
+        {
+          "title": "Subscription plans",
+          "content": "The Free plan is free of charge and allows up to 3 simultaneous alerts, with checks every 30 minutes. The Pro plan is paid and allows up to 20 simultaneous alerts, with checks every 5 minutes, and includes SMS notifications. Prices are displayed in euros including VAT on the pricing page and may be revised with 30 days' notice."
+        },
+        {
+          "title": "Payment and billing",
+          "content": "Pro plan payments are processed by Stripe, our PCI-DSS certified payment provider. Restocking never stores your card details. Billing is charged upfront, monthly or annually depending on your chosen plan. Renewal is automatic. You will receive an invoice by email after each payment."
+        },
+        {
+          "title": "Right of withdrawal",
+          "content": "In accordance with EU consumer protection law, you have a 14-day withdrawal period from the date of Pro plan subscription. To exercise this right, write to hello@restocking.app. Refunds will be issued within 14 days via the same payment method. If you have used the service during these 14 days, the refund may be calculated on a pro-rata basis."
+        },
+        {
+          "title": "User obligations",
+          "content": "You agree to: use the service solely for personal, non-commercial purposes, not bypass the service's technical limits (multiple accounts, automation), not resell or redistribute alerts or information obtained through the service, not use the service to monitor illegal or counterfeit products, and respect the intellectual property rights of the monitored brands."
+        },
+        {
+          "title": "Fair use",
+          "content": "We reserve the right to suspend or terminate an account in case of abusive use, including: mass account creation, attempts to bypass alert limits, use of bots or scripts, any action aimed at degrading service quality for other users, or use of the service for resale or unfair competition. In case of suspected abuse, we will inform you and give you an opportunity to explain before any sanction."
+        },
+        {
+          "title": "Intellectual property",
+          "content": "Restocking is a registered trademark. The source code, design, original texts, and graphic elements of the site are the exclusive property of Restocking. The logos, trademarks, and product names of monitored stores (Zara, COS, Sézane, Gucci, Prada, etc.) remain the property of their respective owners. Their display on Restocking is strictly informational and does not constitute affiliation, endorsement, or license. If you are a trademark holder and wish us to stop displaying your logo, contact us at hello@restocking.app."
+        },
+        {
+          "title": "Personal data",
+          "content": "The processing of your personal data is governed by our Privacy Policy, available at restocking.app/privacy, which forms an integral part of these ToS. By accepting these ToS, you acknowledge having read our Privacy Policy."
+        },
+        {
+          "title": "Liability and limitations",
+          "content": "Restocking makes its best efforts to provide a reliable and fast service. However, we cannot guarantee: that the service will be uninterrupted or error-free, that notifications will always arrive before the product sells out again, that you will be able to purchase the product after receiving an alert, or that the stock information displayed by stores is accurate (we reflect what is publicly visible, without alteration). Under no circumstances shall Restocking be liable for indirect damages, loss of opportunity, or loss of earnings related to the use of the service. Our liability is limited to the subscription amount paid over the last 12 months."
+        },
+        {
+          "title": "Service availability",
+          "content": "We target 99.5% availability. Planned maintenance is announced to Pro users by email at least 24 hours in advance. In case of unplanned interruption, we make every effort to restore service as quickly as possible. Missed checks during an interruption are automatically retried upon service restoration."
+        },
+        {
+          "title": "Third-party sites and external links",
+          "content": "Alerts contain links to the product pages of monitored stores. Restocking exercises no control over these third-party sites and disclaims all responsibility for their content, business practices, or availability. The relevant store's own terms and conditions apply to any purchase made via these links."
+        },
+        {
+          "title": "Termination",
+          "content": "You may close your account at any time from your dashboard, without notice or justification. All your data will be deleted within 30 days. We may terminate your account in case of serious breach of these ToS, with 7 days' notice by email inviting you to rectify the situation. Termination takes effect immediately in case of fraudulent or illegal activity."
+        },
+        {
+          "title": "Changes to the ToS",
+          "content": "We may modify these ToS to reflect service evolutions or legal obligations. For substantial modifications, we will notify you by email at least 14 days before they take effect. If you disagree with the changes, you may close your account before that date. Continued use of the service after the effective date constitutes acceptance of the new ToS."
+        },
+        {
+          "title": "Governing law and jurisdiction",
+          "content": "These ToS are governed by French law. In case of dispute, French courts shall have jurisdiction. In accordance with EU consumer protection regulations, you may use the European Commission's online dispute resolution platform at ec.europa.eu/consumers/odr. You may also refer the matter to a consumer mediation body such as CMAP (cmap.fr)."
+        },
+        {
+          "title": "Contact",
+          "content": "For any questions regarding these ToS or the service, you can contact us at any time by email at hello@restocking.app. We aim to respond within 48 business hours."
+        }
+      ]
+    },
+    "cookies": {
+      "title": "Cookie Policy",
+      "lastUpdated": "Last updated: May 25, 2026",
+      "intro": "This policy explains how and why we use cookies on restocking.app. We do the bare minimum — no ad trackers, no spy pixels.",
+      "sections": [
+        {
+          "title": "What is a cookie?",
+          "content": "A cookie is a small text file placed on your device (computer, phone) by the website you visit. It allows information to be remembered between visits, such as your login session or preferences. Cookies can be \"session\" cookies (deleted when you close your browser) or \"persistent\" cookies (kept for days or months)."
+        },
+        {
+          "title": "Strictly necessary cookies",
+          "content": "These cookies are essential for the site to function. They cannot be disabled. They include: the Supabase session cookie (sb-access-token / sb-refresh-token) that keeps you logged in during your visit, and the language preference cookie (NEXT_LOCALE) that remembers your choice of English or French. These cookies collect no personally identifiable information and are never shared with third parties."
+        },
+        {
+          "title": "Analytics cookies",
+          "content": "We may in the future use a privacy-friendly analytics tool (such as Plausible or Matomo, without third-party cookies or cross-site tracking) to understand how many people visit the site and which pages are viewed. This data is fully anonymized. No analytics cookies are currently deposited."
+        },
+        {
+          "title": "Third-party cookies",
+          "content": "Pro plan payments are handled by Stripe, which may place its own cookies strictly necessary for the transaction. These cookies are governed by Stripe's privacy policy. We do not embed any social media widgets, ad networks, or third-party tracking pixels."
+        },
+        {
+          "title": "Cookie lifespan",
+          "content": "Session cookies expire when you close your browser. The language cookie persists for 1 year. Stripe payment-related cookies have a lifespan defined by Stripe (typically 30 minutes for the payment session)."
+        },
+        {
+          "title": "Managing cookies",
+          "content": "You can delete cookies placed by restocking.app at any time via your browser settings (Settings > Privacy & Security > Cookies and site data). Most browsers also allow you to block cookies by default. Note: blocking essential cookies will prevent the site from working properly (you won't be able to stay logged in)."
+        }
+      ]
+    },
+    "mentionsLegales": {
+      "title": "Legal Notice",
+      "lastUpdated": "Last updated: May 25, 2026",
+      "intro": "In accordance with French Law No. 2004-575 of June 21, 2004 on confidence in the digital economy (LCEN), we publish the legal information relating to the publication and hosting of the restocking.app website.",
+      "sections": [
+        {
+          "title": "Site publisher",
+          "content": "The restocking.app website is published by Oscar Albert, sole proprietor (micro-enterprise) under the trade name Belvédère, registered with the French National Business Register (RNE) on March 2, 2026. SIREN: 101 279 628. SIRET: 101 279 628 00016. APE code: 6201Z (Computer programming). Address: 8 Rue des Acacias, 68870 Bartenheim, France. Phone: +33 6 22 73 96 62. Email: contact@belvedere-group.fr. VAT not applicable — VAT exemption scheme (article 293 B of the French Tax Code). The site operates under the trade name \"Restocking\"."
+        },
+        {
+          "title": "Publication director",
+          "content": "The publication director is Oscar Albert, as founder and publisher of the site. Contact: hello@restocking.app."
+        },
+        {
+          "title": "Site host",
+          "content": "The restocking.app website is hosted by Vercel Inc., a company registered in Delaware (United States), with its registered office at 440 N Barranca Ave #4133, Covina, CA 91723, USA. Website: vercel.com. European infrastructure (compute) is located in Frankfurt (Germany). User data is stored on Supabase (Friedrichstraße 114, 10117 Berlin, Germany), Frankfurt region, ISO 27001 and SOC 2 certified."
+        },
+        {
+          "title": "Intellectual property",
+          "content": "The entire restocking.app website (structure, source code, design, original texts, graphic elements) is the exclusive property of its publisher and protected by copyright and trademark law. Any total or partial reproduction, representation, or adaptation of the site without prior written authorization is prohibited. The trademarks, logos, and trade names of fashion stores displayed on the site (Zara, COS, Sézane, Gucci, Prada, etc.) are the exclusive property of their respective owners. Their presence on restocking.app is strictly informational and does not constitute affiliation, partnership, or license."
+        },
+        {
+          "title": "Personal data protection",
+          "content": "Restocking is committed to respecting your data privacy, in compliance with the GDPR and applicable data protection laws. Our detailed privacy policy is available at restocking.app/privacy. To exercise your rights (access, rectification, erasure, portability), write to hello@restocking.app."
+        },
+        {
+          "title": "Limitation of liability",
+          "content": "The publisher strives to provide information as accurate as possible on the site. However, we cannot guarantee the accuracy, completeness, or timeliness of stock information relayed from third-party sites. Hyperlinks on the site direct to third-party sites over which the publisher exercises no control. The publisher disclaims all liability for the content of these sites and any damages resulting from their consultation."
+        },
+        {
+          "title": "Governing law",
+          "content": "This legal notice is governed by French law. Any dispute relating to the restocking.app website shall be subject to the jurisdiction of French courts. Mediation: in accordance with applicable consumer protection regulations, you may refer the matter to a consumer mediation body such as CMAP (cmap.fr) after attempting to resolve the dispute directly with us."
+        }
+      ]
+    }
+  },
+  "profile": {
+    "settingsTitle": "Account settings",
+    "settingsSub": "Email, password and notifications.",
+    "preferencesTitle": "Preferences",
+    "preferencesSub": "Your favourite brands and size so we can help you better.",
+    "changeEmailTitle": "Change email",
+    "changeEmailDesc": "We'll send a confirmation link to your new address.",
+    "newEmailLabel": "New email",
+    "changeEmailButton": "Change",
+    "changeEmailPending": "Sending…",
+    "changeEmailSuccess": "Link sent. Check your new inbox.",
+    "changePasswordTitle": "Change password",
+    "changePasswordDesc": "At least 8 characters.",
+    "currentPasswordLabel": "Current password",
+    "newPasswordLabel": "New password",
+    "confirmPasswordLabel": "Confirm new password",
+    "changePasswordButton": "Change",
+    "changePasswordPending": "Changing…",
+    "changePasswordSuccess": "Password updated.",
+    "passwordMismatch": "Passwords don't match.",
+    "passwordTooShort": "At least 8 characters.",
+    "saveButton": "Save",
+    "saving": "Saving…",
+    "saved": "Saved!",
+    "saveError": "Couldn't save."
+  },
+  "addWatch": {
+    "pageTitle": "New alert",
+    "pageSub": "Paste a product URL, pick your size — we'll handle the rest.",
+    "urlLabel": "Product URL",
+    "urlHelp": "Paste the direct link to the product page. We read the public tags to pre-fill the form.",
+    "urlPlaceholder": "https://www.cos.com/...",
+    "analyze": "Analyze product",
+    "analyzing": "Analyzing…",
+    "blockedWarning": "{brand} is not compatible with our automatic analysis. You can create the alert manually, but product info detection won't work on this site.",
+    "limitedWarning": "{brand} uses anti-bot protection that may limit detection. Analysis still works but variants or images may be incomplete.",
+    "modifyUrl": "Edit URL",
+    "noImage": "No image",
+    "productName": "Product name",
+    "productNamePlaceholder": "e.g. Oversized wool coat",
+    "size": "Size",
+    "color": "Color",
+    "oosBadge": "sold out",
+    "selectVariant": "Select your size / color",
+    "selectVariantHelp": "Select the exact variant you want to track.",
+    "manualVariantPlaceholder": "e.g. Size S / Navy blue",
+    "noVariantsHelp": "No variants detected — enter the size / color manually.",
+    "cancel": "Cancel",
+    "activate": "Activate alert",
+    "activating": "Activating…",
+    "enrichmentPending": "The site is blocking our automatic reading. You can create the alert and our worker will enrich the listing in a few minutes.",
+    "partialAnalysis": "Partial analysis — the page took too long to respond.",
+    "couldNotRead": "We couldn't read the product page. You can fill in the details manually.",
+    "networkError": "Network error. Please try again shortly.",
+    "selectSizeColor": "Select a size and color before activating.",
+    "chooseVariant": "Choose a size / color before activating.",
+    "limitReached": "Plan limit reached. Upgrade to Pro to track more.",
+    "invalidUrl": "Invalid URL.",
+    "createFailed": "Couldn't create alert.",
+    "activated": "Alert activated ✓",
+    "progressHttp": "Connecting to site..."
+  },
+  "dashboard": {
+    "greeting": {
+      "withParam": "Hey {name}",
+      "fallback": "My alerts"
+    },
+    "addAlert": "Add an alert",
+    "upgradeToPro": "Go Pro",
+    "upgradeCta": "Unlock everything",
+    "myPlan": "Your plan",
+    "upgradeTitle": "Go Pro, never miss your size again",
+    "managePlan": "Manage your subscription",
+    "upgradeSub": "More products, faster checks, SMS alerts. Cancel anytime in two clicks.",
+    "manageSub": "Modify, pause or cancel your Pro plan from the Stripe portal.",
+    "securePayment": "Secure payment via Stripe. Cancel anytime, no commitment.",
+    "upgradeCards": {
+      "freeTitle": "To get started.",
+      "freePrice": "€0",
+      "freeUnit": "/ forever",
+      "freeFeatures": [
+        "3 items tracked",
+        "Checked every 30 min",
+        "Email notifications",
+        "Live dashboard"
+      ],
+      "currentPlan": "Current plan",
+      "downgrade": "Downgrade",
+      "proTitle": "To never miss out.",
+      "proPrice": "€7.99",
+      "proUnit": "/ month",
+      "proAnnual": "or €59/year (two months free)",
+      "recommended": "Recommended",
+      "proFeatures": [
+        "20 items tracked instead of 3",
+        "Checks every 5 minutes",
+        "Instant email + SMS notifications",
+        "Playwright fallback for tricky sites",
+        "Unlimited check history",
+        "Priority support"
+      ],
+      "manageStripe": "Manage subscription (Stripe)",
+      "monthlyCta": "Pro monthly — €7.99/mo",
+      "annualCta": "Pro annual — €59/yr (2 months free)",
+      "redirectingStripe": "Redirecting to Stripe…",
+      "redirecting": "Redirecting…"
+    },
+    "stats": {
+      "activeAlerts": "Active alerts",
+      "paused": "{n} paused",
+      "inStock": "In stock",
+      "inStockSub": "Available now",
+      "lastCheck": "Last check",
+      "workerActive": "Watching now",
+      "plan": "My plan",
+      "manage": "Manage →"
+    },
+    "limitReached": "Limit reached",
+    "limitBody": "You have {active} alerts on your {plan} plan (max {max}). Upgrade to Pro for 20 alerts and checks every 5 minutes.",
+    "emptyTitle": {
+      "withParam": "Ready to hunt, {name}?",
+      "fallback": "Ready to start?"
+    },
+    "emptyBody": "Paste the link of an item you missed, pick your size, and we'll take care of the rest.",
+    "emptyCta": "Add my first alert",
+    "emptyFooter": "Zara, COS, Aritzia, Sézane, Uniqlo and 120+ other brands",
+    "relativeTime": {
+      "now": "just now",
+      "sec": "{n}s ago",
+      "min": "{n} min ago",
+      "hour": "{n}h ago",
+      "day": "{n}d ago"
+    }
+  },
+  "watchDetail": {
+    "backToAlerts": "My alerts",
+    "noImage": "No photo",
+    "untitled": "Untitled product",
+    "variant": "Variant",
+    "price": "Price",
+    "createdAt": "Added",
+    "checkHistory": "Check history",
+    "checkHistoryDesc": "Last 20 checks — updates automatically.",
+    "live": "Live",
+    "neverChecked": "not checked yet",
+    "relativeTime": {
+      "now": "just now",
+      "sec": "{n}s ago",
+      "min": "{n} min ago",
+      "hour": "{n}h ago",
+      "day": "{n}d ago"
+    },
+    "tableDate": "When",
+    "tableStatus": "Status",
+    "tableSource": "Method",
+    "tablePrice": "Price",
+    "sourceDataLayer": "Site info",
+    "sourceAddToCart": "Buy button",
+    "sourceVariant": "Size detail",
+    "sourcePlaywright": "Full analysis",
+    "emptyCheckTitle": "Waiting for first check…",
+    "emptyCheckBody": "We'll check this product soon. Results will show up here.",
+    "lastCheck": "Checked",
+    "paused": "Paused",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
+    "pending": "Pending",
+    "reactivated": "Alert back on",
+    "pausedToast": "Alert paused",
+    "actionFailed": "Couldn't do that",
+    "pause": "Pause",
+    "reactivate": "Resume",
+    "delete": "Delete",
+    "deleteTitle": "Delete this alert?",
+    "deleteDesc": "This is permanent. Your check history will be deleted too.",
+    "cancel": "Cancel",
+    "deleteForever": "Delete forever"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "logout": "Sign out",
+    "orContinue": "or continue with",
+    "continueGoogle": "Continue with Google",
+    "continueApple": "Continue with Apple",
+    "email": "Email",
+    "password": "Password",
+    "passwordHint": "8 characters minimum.",
+    "emailPlaceholder": "alex@example.com",
+    "noAccount": "Don’t have an account yet?",
+    "haveAccount": "Already have an account?",
+    "forgotPassword": "Forgot your password?",
+    "forgotPasswordTitle": "Forgot your password",
+    "forgotPasswordSub": "Enter your email and we'll send you a reset link.",
+    "forgotPasswordSubmit": "Send reset link",
+    "forgotPasswordPending": "Sending…",
+    "forgotPasswordSuccessTitle": "Link sent",
+    "forgotPasswordSuccessBody": "If an account exists for this email, you'll receive a password reset link. Check your spam folder if you don't see it.",
+    "forgotPasswordBackToLogin": "Back to sign in",
+    "resetPasswordTitle": "New password",
+    "resetPasswordSub": "Choose a new password for your account.",
+    "resetPasswordNewPassword": "New password",
+    "resetPasswordSubmit": "Update password",
+    "resetPasswordPending": "Updating…",
+    "resetPasswordSuccess": "Password updated. Redirecting to sign in…",
+    "resetPasswordError": "This link is expired or already used. Request a new one.",
+    "signInTitle": "Welcome back.",
+    "signInSub": "Pick up the stock hunt where you left off.",
+    "signInSubmit": "Sign in",
+    "signInPending": "Signing in…",
+    "signUpTitle": "Create your account.",
+    "signUpSub": "Three minutes to never miss your size again.",
+    "signUpSubmit": "Create my account",
+    "signUpPending": "Creating…",
+    "checkEmailTitle": "Check your inbox",
+    "checkEmailBody": "We just sent a confirmation link to",
+    "checkEmailHint": "The link expires in 24h. Don’t forget to check spam.",
+    "notConfiguredTitle": "Opening soon",
+    "notConfiguredBody": "We’re putting on the finishing touches. Join the waitlist — we’ll let you know the moment we launch.",
+    "notConfiguredCta": "Join the waitlist",
+    "legalBlurb": "By continuing, you accept our terms and privacy policy.",
+    "onboarding": {
+      "stepLabel": "Step {current}/{total}",
+      "brandsTitle": "Which brands do you love?",
+      "brandsSub": "We'll watch their restocks for you",
+      "brandsContinue": "Continue",
+      "sizeTitle": "Your usual size?",
+      "sizeSub": "We'll pre-fill your alerts with it",
+      "sizeContinue": "Continue",
+      "nameTitle": "What should we call you?",
+      "nameSub": "To personalise your alerts",
+      "namePlaceholder": "Your first name",
+      "nameContinue": "Almost there",
+      "productTitle": "Got an item in mind?",
+      "productSub": "Paste the link of the one you missed — we'll set up your first alert",
+      "productPlaceholder": "https://www.zara.com/...",
+      "productSkip": "Skip for now",
+      "productInvalidUrl": "That link doesn't look right.",
+      "productCta": "Create alert",
+      "signupTitle": "Let's save this",
+      "signupSub": "So you don't lose your picks",
+      "successTitle": "All set!",
+      "successBody": "Check your inbox to confirm. Your first alert is waiting.",
+      "successCta": "Add my first alert"
+    }
+  }
+}

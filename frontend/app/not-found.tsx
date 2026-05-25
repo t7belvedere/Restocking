@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations } from "next-intl";
 
 export default function NotFound() {
-  const { t } = useLocale();
+  const t = useTranslations();
   return (
     <main className="flex min-h-[80dvh] items-center justify-center px-5 py-20 lg:px-8">
       <div className="max-w-xl space-y-6 text-center">
@@ -13,17 +13,17 @@ export default function NotFound() {
           404
         </p>
         <h1 className="font-display text-6xl font-extrabold leading-none tracking-tighter md:text-8xl">
-          {t.common.notFoundTitle}
+          {t("common.notFoundTitle")}
         </h1>
         <p className="text-base text-ink/70">
-          {t.common.notFoundBody}
+          {t("common.notFoundBody")}
         </p>
         <div className="flex items-center justify-center">
           <Link
             href="/"
             className="inline-flex h-12 items-center gap-2 rounded-full border-2 border-ink bg-ink px-5 font-display text-sm font-bold uppercase tracking-wide text-cream shadow-brutal hover-press"
           >
-            {t?.common?.backHome ?? "Back home"}
+            {t("common.backHome")}
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

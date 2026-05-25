@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations, useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 import { joinWaitlist } from "@/app/actions/waitlist";
 
@@ -25,7 +25,8 @@ export function WaitlistForm({
   variant = "default",
   className,
 }: Props) {
-  const { t, locale } = useLocale();
+  const t = useTranslations();
+  const locale = useLocale();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>({ kind: "idle" });
 
@@ -33,11 +34,11 @@ export function WaitlistForm({
     e.preventDefault();
     const trimmed = email.trim().toLowerCase();
     if (!EMAIL_RE.test(trimmed)) {
-      setStatus({ kind: "error", message: t.common.invalid });
+      setStatus({ kind: "error", message: t("common.invalid") });
       return;
     }
     setStatus({ kind: "loading" });
-    
+
     try {
       const result = await joinWaitlist(
         trimmed,
@@ -51,13 +52,13 @@ export function WaitlistForm({
 
       setStatus({
         kind: "success",
-        message: result.already ? t.common.already : t.common.success,
+        message: result.already ? t("common.already") : t("common.success"),
         already: !!result.already,
         position: result.position ?? null,
       });
       if (!result.already) setEmail("");
     } catch {
-      setStatus({ kind: "error", message: t.common.error });
+      setStatus({ kind: "error", message: t("common.error") });
     }
   }
 
@@ -85,13 +86,13 @@ export function WaitlistForm({
               <p className="text-sm text-ink/80">
                 {locale === "fr"
                   ? `Tu es le n°${status.position} sur la liste. On te garde ta place et 3 mois de Pro pour le lancement (top 100).`
-                  : `You are number ${status.position} on the list. We’re saving your spot and 3 free months of Pro at launch (top 100).`}
+                  : `You are number ${status.position} on the list. We're saving your spot and 3 free months of Pro at launch (top 100).`}
               </p>
             ) : (
               <p className="text-sm text-ink/80">
                 {locale === "fr"
-                  ? "On t’écrit dès qu’on ouvre les portes. Promis."
-                  : "We’ll write the moment we open the doors. Promise."}
+                  ? "On t'écrit dès qu'on ouvre les portes. Promis."
+                  : "We'll write the moment we open the doors. Promise."}
               </p>
             )}
           </div>
@@ -113,7 +114,7 @@ export function WaitlistForm({
         )}
       >
         <label className="sr-only" htmlFor={`${testIdPrefix}-email`}>
-          {t.common.yourEmail}
+          {t("common.yourEmail")}
         </label>
         <input
           id={`${testIdPrefix}-email`}
@@ -121,7 +122,7 @@ export function WaitlistForm({
           type="email"
           inputMode="email"
           autoComplete="email"
-          placeholder={t.common.placeholder}
+          placeholder={t("common.placeholder")}
           value={email}
           onChange={(e) => {
             setEmail(e.target.value);
@@ -149,7 +150,7 @@ export function WaitlistForm({
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <>
-              {t.common.joinWaitlist}
+              {t("common.joinWaitlist")}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </>
           )}
@@ -164,7 +165,7 @@ export function WaitlistForm({
         </p>
       ) : (
         <p className={cn("text-xs", isDark ? "text-cream/70" : "text-ink/60")}>
-          {t.common.privacy}
+          {t("common.privacy")}
         </p>
       )}
     </form>

@@ -3,28 +3,30 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Plus, Sparkles } from "lucide-react";
-import { useLocale } from "@/components/site/locale-provider";
+import { useMessages } from "next-intl";
 import { FaqJsonLd } from "@/components/site/json-ld";
 import { cn } from "@/lib/utils";
 
 export default function FaqPage() {
-  const { t } = useLocale();
+  const t = useMessages();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const messages = t as any;
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
   return (
     <main data-testid="faq-page" className="overflow-hidden">
-      <FaqJsonLd questions={t.faq.items} />
+      <FaqJsonLd questions={messages.faq.items} />
       <section className="relative border-b-2 border-ink">
         <div className="dot-paper absolute inset-0" aria-hidden />
         <div className="container relative mx-auto max-w-4xl px-5 py-20 lg:px-8 lg:py-24">
           <span className="inline-flex items-center gap-2 rounded-full border-2 border-ink bg-paper px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.18em] shadow-brutal-sm">
             <Sparkles className="h-3.5 w-3.5 text-[var(--brand-orange)]" />
-            {t.faq.eyebrow}
+            {messages.faq.eyebrow}
           </span>
           <h1 className="mt-6 font-display text-5xl font-extrabold leading-none tracking-tighter md:text-7xl">
-            {t.faq.title}
+            {messages.faq.title}
           </h1>
-          <p className="mt-6 max-w-2xl text-lg text-ink/70">{t.faq.sub}</p>
+          <p className="mt-6 max-w-2xl text-lg text-ink/70">{messages.faq.sub}</p>
         </div>
       </section>
 
@@ -34,7 +36,7 @@ export default function FaqPage() {
           data-testid="faq-accordion"
         >
           <ul className="space-y-3">
-            {t.faq.items.map((item, i) => {
+            {messages.faq.items.map((item: { q: string; a: string }, i: number) => {
               const open = openIdx === i;
               return (
                 <li
@@ -86,7 +88,7 @@ export default function FaqPage() {
               hello@restocking.app
             </h2>
             <p className="mt-2 max-w-xl text-ink/80">
-              {t.faq.sub}
+              {messages.faq.sub}
             </p>
           </div>
           <Link
@@ -94,7 +96,7 @@ export default function FaqPage() {
             data-testid="faq-waitlist-cta"
             className="inline-flex h-12 items-center gap-2 rounded-full border-2 border-ink bg-ink px-5 font-display text-sm font-bold uppercase tracking-wide text-cream shadow-brutal hover-press"
           >
-            {t.nav.cta}
+            {messages.nav.cta}
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

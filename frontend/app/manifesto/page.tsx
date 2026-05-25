@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
-import { useLocale } from "@/components/site/locale-provider";
+import { useMessages } from "next-intl";
 
 export default function ManifestoPage() {
-  const { t } = useLocale();
+  const t = useMessages();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const messages = t as any;
 
   return (
     <main data-testid="manifesto-page" className="overflow-hidden">
@@ -14,14 +16,14 @@ export default function ManifestoPage() {
         <div className="container relative mx-auto max-w-5xl px-5 py-24 lg:px-8 lg:py-28">
           <span className="inline-flex items-center gap-2 rounded-full border-2 border-ink bg-paper px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.18em] shadow-brutal-sm">
             <Sparkles className="h-3.5 w-3.5 text-[var(--brand-orange)]" />
-            {t.manifesto.eyebrow}
+            {messages.manifesto.eyebrow}
           </span>
 
           <h1
             data-testid="manifesto-title"
             className="mt-10 max-w-5xl font-display text-[2.75rem] font-extrabold leading-[0.95] tracking-tighter text-ink md:text-7xl lg:text-[5.5rem]"
           >
-            {t.manifesto.title}
+            {messages.manifesto.title}
           </h1>
 
           <div className="pointer-events-none absolute right-6 top-20 hidden md:block">
@@ -41,7 +43,7 @@ export default function ManifestoPage() {
           data-testid="manifesto-content"
         >
           <div className="space-y-7 text-lg leading-relaxed text-ink/85 md:text-xl">
-            {t.manifesto.paragraphs.map((p, i) => (
+            {messages.manifesto.paragraphs.map((p: string, i: number) => (
               <p
                 key={i}
                 data-testid={`manifesto-paragraph-${i}`}
@@ -51,7 +53,7 @@ export default function ManifestoPage() {
               </p>
             ))}
             <p className="font-display text-2xl font-bold text-ink">
-              {t.manifesto.signature}
+              {messages.manifesto.signature}
             </p>
           </div>
 
@@ -61,7 +63,7 @@ export default function ManifestoPage() {
                 Paris · Lyon · Berlin
               </h3>
               <p className="mt-2 text-sm text-ink/80">
-                {t.footer.madeIn}
+                {messages.footer.madeIn}
               </p>
             </div>
             <Link
@@ -69,7 +71,7 @@ export default function ManifestoPage() {
               data-testid="manifesto-waitlist-cta"
               className="inline-flex h-12 items-center gap-2 rounded-full border-2 border-ink bg-ink px-5 font-display text-sm font-bold uppercase tracking-wide text-cream shadow-brutal hover-press"
             >
-              {t.nav.cta}
+              {messages.nav.cta}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </aside>

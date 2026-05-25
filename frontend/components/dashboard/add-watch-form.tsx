@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "motion/react";
 import { cn, formatPrice, shortHost } from "@/lib/utils";
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations } from "next-intl";
 import { createWatch, type AnalyzeResult } from "@/app/actions/watches";
 import { analyzeUrlStream, type ProgressEvent } from "@/lib/analyze-stream";
 
@@ -54,8 +54,7 @@ function getDomainWarning(url: string): DomainStatus {
 
 export function AddWatchForm() {
   const router = useRouter();
-  const { t } = useLocale();
-  const aw = t.addWatch;
+  const t = useTranslations();
   const [step, setStep] = useState<Step>("url");
   const [analyzing, setAnalyzing] = useState(false);
   const [submitting, startSubmit] = useTransition();
@@ -91,7 +90,7 @@ export function AddWatchForm() {
     event.preventDefault();
     if (!url.trim()) return;
     setAnalyzing(true);
-    setProgress({ step: "http", message: aw.progressHttp });
+    setProgress({ step: "http", message: t("addWatch.progressHttp") });
     try {
       const res = await analyzeUrlStream(url.trim(), (evt) => setProgress(evt));
       setAnalysis(res);
@@ -103,13 +102,13 @@ export function AddWatchForm() {
       setStep("confirm");
       if (!res.ok || res.enrichment_pending) {
         if (res.error === "TIMEOUT") {
-          toast.warning(aw.partialAnalysis);
+          toast.warning(t("addWatch.partialAnalysis"));
         } else {
-          toast.warning(aw.couldNotRead);
+          toast.warning(t("addWatch.couldNotRead"));
         }
       }
     } catch {
-      toast.error(aw.networkError);
+      toast.error(t("addWatch.networkError"));
     } finally {
       setAnalyzing(false);
       setProgress(null);
@@ -121,9 +120,9 @@ export function AddWatchForm() {
     if (!analysis) return;
     if (!variantLabel) {
       if (hasMultiSelect) {
-        toast.error(aw.selectSizeColor);
+        toast.error(t("addWatch.selectSizeColor"));
       } else {
-        toast.error(aw.chooseVariant);
+        toast.error(t("addWatch.chooseVariant"));
       }
       return;
     }
@@ -140,19 +139,19 @@ export function AddWatchForm() {
 
       if (!res.ok) {
         if (res.error === "LIMIT_REACHED") {
-          toast.error(aw.limitReached);
+          toast.error(t("addWatch.limitReached"));
           router.push("/upgrade");
           return;
         }
         if (res.error === "INVALID_URL") {
-          toast.error(aw.invalidUrl);
+          toast.error(t("addWatch.invalidUrl"));
           return;
         }
-        toast.error(aw.createFailed);
+        toast.error(t("addWatch.createFailed"));
         return;
       }
 
-      toast.success(aw.activated);
+      toast.success(t("addWatch.activated"));
       router.push("/dashboard");
       router.refresh();
     });
@@ -169,28 +168,28 @@ export function AddWatchForm() {
       {step === "url" || !analysis ? (
         <motion.form key="url" onSubmit={handleAnalyze} className="space-y-4" {...slideAnim} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}>
         <div className="space-y-2">
-          <Label htmlFor="product-url">{aw.urlLabel}</Label>
+          <Label htmlFor="product-url">{t("addWatch.urlLabel")}</Label>
           <Input
             id="product-url"
             type="url"
             inputMode="url"
             required
-            placeholder={aw.urlPlaceholder}
+            placeholder={t("addWatch.urlPlaceholder")}
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             disabled={analyzing}
           />
-          <p className="text-xs text-muted-foreground">{aw.urlHelp}</p>
+          <p className="text-xs text-muted-foreground">{t("addWatch.urlHelp")}</p>
 
           {domainWarning?.level === "blocked" ? (
             <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
               <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <span>{aw.blockedWarning(domainWarning.label)}</span>
+              <span>{t("addWatch.blockedWarning", { brand: domainWarning.label })}</span>
             </div>
           ) : domainWarning?.level === "limited" ? (
             <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
               <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <span>{aw.limitedWarning(domainWarning.label)}</span>
+              <span>{t("addWatch.limitedWarning", { brand: domainWarning.label })}</span>
             </div>
           ) : null}
         </div>
@@ -199,12 +198,12 @@ export function AddWatchForm() {
           {analyzing ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              {aw.analyzing}
+              {t("addWatch.analyzing")}
             </>
           ) : (
             <>
               <Search className="h-4 w-4" />
-              {aw.analyze}
+              {t("addWatch.analyze")}
             </>
           )}
         </Button>
@@ -221,7 +220,7 @@ export function AddWatchForm() {
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
-        {aw.modifyUrl}
+        {t("addWatch.modifyUrl")}
       </button>
 
       <Card>
@@ -231,7 +230,7 @@ export function AddWatchForm() {
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 src={analysis.image_base64 ? `data:image/jpeg;base64,${analysis.image_base64}` : (analysis.image_url ?? "")}
-                alt={analysis.name ?? aw.productName}
+                alt={analysis.name ?? t("addWatch.productName")}
                 className="h-full w-full object-cover"
                 onError={(e) => {
                   // If image URL fails (CDN block), try base64, then hide
@@ -244,7 +243,7 @@ export function AddWatchForm() {
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                {aw.noImage}
+                {t("addWatch.noImage")}
               </div>
             )}
           </div>
@@ -255,11 +254,11 @@ export function AddWatchForm() {
               </p>
             ) : (
               <div className="space-y-2">
-                <Label htmlFor="product-name">{aw.productName}</Label>
+                <Label htmlFor="product-name">{t("addWatch.productName")}</Label>
                 <Input
                   id="product-name"
                   required
-                  placeholder={aw.productNamePlaceholder}
+                  placeholder={t("addWatch.productNamePlaceholder")}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
@@ -275,7 +274,7 @@ export function AddWatchForm() {
 
       {analysis?.enrichment_pending ? (
         <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
-          {aw.enrichmentPending}
+          {t("addWatch.enrichmentPending")}
         </p>
       ) : null}
 
@@ -283,7 +282,7 @@ export function AddWatchForm() {
         <>
           {/* Size selection */}
           <div className="space-y-3">
-            <Label>{aw.size}</Label>
+            <Label>{t("addWatch.size")}</Label>
             <div className="flex flex-wrap gap-2">
               {sizes.map((s) => {
                 const active = selectedSize === s;
@@ -302,7 +301,7 @@ export function AddWatchForm() {
                       inStock && !active && "border-border bg-background hover:border-foreground/40 hover:bg-muted",
                     )}
                   >
-                    {s}{!inStock ? <span className="ml-1 text-[9px] opacity-60">{aw.oosBadge}</span> : null}
+                    {s}{!inStock ? <span className="ml-1 text-[9px] opacity-60">{t("addWatch.oosBadge")}</span> : null}
                   </button>
                 );
               })}
@@ -311,7 +310,7 @@ export function AddWatchForm() {
 
           {/* Color selection */}
           <div className="space-y-3">
-            <Label>{aw.color}</Label>
+            <Label>{t("addWatch.color")}</Label>
             <div className="flex flex-wrap gap-2">
               {colors.map((c) => {
                 const active = selectedColor === c;
@@ -330,7 +329,7 @@ export function AddWatchForm() {
                       inStock && !active && "border-border bg-background hover:border-foreground/40 hover:bg-muted",
                     )}
                   >
-                    {c}{!inStock ? <span className="ml-1 text-[9px] opacity-60">{aw.oosBadge}</span> : null}
+                    {c}{!inStock ? <span className="ml-1 text-[9px] opacity-60">{t("addWatch.oosBadge")}</span> : null}
                   </button>
                 );
               })}
@@ -339,7 +338,7 @@ export function AddWatchForm() {
         </>
       ) : hasLegacyVariants ? (
         <div className="space-y-3">
-          <Label>{aw.selectVariant}</Label>
+          <Label>{t("addWatch.selectVariant")}</Label>
           <div className="flex flex-wrap gap-2">
             {variants.map((v) => {
               const active = selectedVariant === v;
@@ -361,17 +360,17 @@ export function AddWatchForm() {
               );
             })}
           </div>
-          <p className="text-xs text-muted-foreground">{aw.selectVariantHelp}</p>
+          <p className="text-xs text-muted-foreground">{t("addWatch.selectVariantHelp")}</p>
         </div>
       ) : (
         <div className="space-y-3">
-          <Label>{aw.selectVariant}</Label>
+          <Label>{t("addWatch.selectVariant")}</Label>
           <Input
-            placeholder={aw.manualVariantPlaceholder}
+            placeholder={t("addWatch.manualVariantPlaceholder")}
             value={manualVariant}
             onChange={(e) => setManualVariant(e.target.value)}
           />
-          <p className="text-xs text-muted-foreground">{aw.noVariantsHelp}</p>
+          <p className="text-xs text-muted-foreground">{t("addWatch.noVariantsHelp")}</p>
         </div>
       )}
 
@@ -381,16 +380,16 @@ export function AddWatchForm() {
           variant="ghost"
           onClick={() => router.push("/dashboard")}
         >
-          {aw.cancel}
+          {t("addWatch.cancel")}
         </Button>
         <Button type="submit" size="lg" disabled={submitting}>
           {submitting ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              {aw.activating}
+              {t("addWatch.activating")}
             </>
           ) : (
-            aw.activate
+            t("addWatch.activate")
           )}
         </Button>
       </div>

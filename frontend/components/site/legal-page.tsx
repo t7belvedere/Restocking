@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale } from "@/components/site/locale-provider";
+import { useMessages } from "next-intl";
 import { Sparkles } from "lucide-react";
 
 type LegalPageProps = {
@@ -8,8 +8,9 @@ type LegalPageProps = {
 };
 
 export function LegalPage({ type }: LegalPageProps) {
-  const { t } = useLocale();
-  const content = t.legal[type];
+  const t = useMessages();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const content = (t as any).legal[type];
 
   return (
     <main className="min-h-screen bg-paper py-20 lg:py-32">
@@ -37,7 +38,7 @@ export function LegalPage({ type }: LegalPageProps) {
           </div>
 
           <div className="grid gap-8">
-            {content.sections.map((section, i) => (
+            {content.sections.map((section: { title: string; content: string }, i: number) => (
               <section
                 key={i}
                 className="group rounded-3xl border-2 border-ink bg-paper p-8 transition-colors hover:bg-cream/50"
