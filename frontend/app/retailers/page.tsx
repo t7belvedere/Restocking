@@ -228,19 +228,26 @@ export default function RetailersPage() {
           </div>
         </div>
 
-        {/* Blur overlay — progressively blurs the last row of cards */}
+        {/* Blur overlay — progressively blurs the last two rows of cards */}
         <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-44"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-[340px] md:h-[380px]"
           style={{
             backdropFilter: "blur(3px)",
             WebkitBackdropFilter: "blur(3px)",
             maskImage:
-              "linear-gradient(to top, black 15%, transparent 100%)",
+              "linear-gradient(to top, black 30%, transparent 100%)",
             WebkitMaskImage:
-              "linear-gradient(to top, black 15%, transparent 100%)",
+              "linear-gradient(to top, black 30%, transparent 100%)",
           }}
           aria-hidden="true"
         />
+      </section>
+
+      {/* Many more hint */}
+      <section className="border-b-2 border-ink bg-cream py-7 text-center">
+        <p className="font-display text-sm font-bold uppercase tracking-[0.2em] text-ink/30">
+          Et des centaines d'autres marques...
+        </p>
       </section>
 
       {/* REQUEST */}
