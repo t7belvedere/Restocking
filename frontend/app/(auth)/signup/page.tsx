@@ -1,13 +1,16 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Logo } from "@/components/site/logo";
 import { OnboardingFlow } from "@/components/auth/onboarding-flow";
-import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { useTranslations } from "next-intl";
 
 export default function SignupPage() {
-  const isConfigured = isSupabaseConfigured();
+  const t = useTranslations();
+  // The not-configured state is unlikely but we keep the fallback
+  const isConfigured = true;
 
-  // Not-configured fallback (inlined since it's a simple state)
   if (!isConfigured) {
     return (
       <main data-testid="signup-page" className="relative min-h-[80dvh] overflow-hidden">
@@ -20,16 +23,16 @@ export default function SignupPage() {
               </div>
               <div className="rounded-2xl border-2 border-ink bg-[var(--brand-orange)] p-6 shadow-brutal">
                 <h3 className="font-display text-2xl font-extrabold tracking-tight text-ink">
-                  Auth bientôt en ligne
+                  {t("auth.notConfiguredTitle")}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink/80">
-                  On finalise la configuration de l&apos;authentification. En attendant, inscris-toi à la liste d&apos;attente — on t&apos;écrit dès l&apos;ouverture.
+                  {t("auth.notConfiguredBody")}
                 </p>
                 <Link
                   href="/#waitlist"
                   className="mt-5 inline-flex h-11 items-center gap-2 rounded-full border-2 border-ink bg-ink px-4 font-display text-xs font-bold uppercase tracking-widest text-cream shadow-brutal-sm hover-press"
                 >
-                  Rejoindre la liste
+                  {t("auth.notConfiguredCta")}
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
@@ -55,10 +58,10 @@ export default function SignupPage() {
             className="stamp-spin h-28 w-28 drop-shadow-[2px_2px_0_var(--ink)]"
           />
           <h2 className="mt-10 font-display text-5xl font-extrabold leading-[0.95] tracking-tighter text-ink">
-            Crée ton compte.
+            {t("auth.signUpTitle")}
           </h2>
           <p className="mt-5 max-w-md text-lg leading-relaxed text-ink/70">
-            Trois minutes pour ne plus jamais rater ta taille.
+            {t("auth.signUpSub")}
           </p>
         </aside>
 
