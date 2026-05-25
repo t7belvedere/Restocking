@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from scrapling.fetchers import Fetcher, PlayWrightFetcher
-from starlette.responses import StreamingResponse
+from starlette.responses import HTMLResponse, StreamingResponse
 
 load_dotenv()
 
@@ -1349,27 +1349,57 @@ async def health():
 
 @app.get("/unsubscribe")
 async def unsubscribe(watch_id: str = Query(min_length=1)):
-    """Deactivate a watch by ID. Called from the unsubscribe link in emails."""
+    """Deactivate a watch and show a confirmation page."""
     from db.client import supabase as _supabase
 
-    # Validate UUID format before hitting the DB
+    _DARK = "#0F0F0F"
+    _CREAM = "#FAFAF8"
+    _ORANGE = "#E85D2C"
+    _MUTED = "#9CA3AF"
+
     import uuid as _uuid
+    valid = False
     try:
         _uuid.UUID(watch_id)
+        valid = True
     except ValueError:
-        return {
-            "ok": False,
-            "message": "Lien invalide. Tu peux gérer tes alertes depuis ton tableau de bord.",
-        }
+        pass
 
-    try:
-        _supabase.table("watches").update({"is_active": False}).eq("id", watch_id).execute()
-        return {
-            "ok": True,
-            "message": "Alerte désactivée. Tu ne recevras plus d'emails pour ce produit.",
-        }
-    except Exception as exc:
-        raise HTTPException(status_code=502, detail=str(exc)[:200])
+    if valid:
+        try:
+            _supabase.table("watches").update({"is_active": False}).eq("id", watch_id).execute()
+            title = "Alerte désactivée"
+            message = "Tu ne recevras plus d'emails pour ce produit."
+        except Exception:
+            title = "Erreur"
+            message = "Une erreur est survenue. Réessaie plus tard."
+    else:
+        title = "Lien invalide"
+        message = "Tu peux gérer tes alertes depuis ton tableau de bord."
+
+    html = f"""<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>{title} — restocking</title></head>
+<body style="margin:0;padding:0;background:{_CREAM};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:80px 16px;">
+<tr><td align="center">
+  <table width="400" cellpadding="0" cellspacing="0" style="background:#fff;border:2px solid {_DARK};border-radius:20px;max-width:400px;width:100%;text-align:center;">
+    <tr><td style="padding:40px 32px;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="48" height="48" style="margin-bottom:20px;">
+        <circle cx="50" cy="50" r="46" fill="none" stroke="{_DARK}" stroke-width="4" opacity="0.15"/>
+        <circle cx="50" cy="50" r="14" fill="{_ORANGE}"/>
+        <circle cx="50" cy="50" r="5" fill="#fff" opacity="0.5"/>
+        <circle cx="50" cy="50" r="24" fill="none" stroke="{_ORANGE}" stroke-width="2" opacity="0.4"/>
+      </svg>
+      <h1 style="margin:0;font-size:22px;font-weight:800;color:{_DARK};letter-spacing:-0.02em;">{title}</h1>
+      <p style="margin:12px 0 0 0;font-size:15px;color:{_MUTED};line-height:1.5;">{message}</p>
+      <a href="https://www.restocking.app/dashboard" style="display:inline-block;margin-top:24px;background:{_DARK};color:#fff;text-decoration:none;padding:12px 28px;border-radius:9999px;font-size:14px;font-weight:600;">Tableau de bord</a>
+    </td></tr>
+  </table>
+</td></tr></table></body></html>"""
+
+    return HTMLResponse(content=html, status_code=200)
 
 @app.get("/my-ip")
 async def my_ip():
