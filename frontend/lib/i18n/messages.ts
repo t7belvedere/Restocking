@@ -521,7 +521,7 @@ export const messages = {
         sections: [
           {
             title: "Éditeur du site",
-            content: "Le site restocking.app est édité par Oscar Albert, entrepreneur individuel immatriculé en France. Adresse email : hello@restocking.app. Numéro de TVA intracommunautaire : communiqué sur demande. Le site est exploité sous le nom commercial \"Restocking\".",
+            content: "Le site restocking.app est édité par Oscar Albert, entrepreneur individuel immatriculé en France sous le numéro SIREN [À COMPLÉTER] et SIRET [À COMPLÉTER]. Adresse email : hello@restocking.app. Numéro de TVA intracommunautaire : [À COMPLÉTER]. Le site est exploité sous le nom commercial \"Restocking\".",
           },
           {
             title: "Directeur de la publication",
@@ -1273,7 +1273,7 @@ export const messages = {
         sections: [
           {
             title: "Site publisher",
-            content: "The restocking.app website is published by Oscar Albert, sole proprietor registered in France. Email address: hello@restocking.app. EU VAT number: available upon request. The site operates under the trade name \"Restocking\".",
+            content: "The restocking.app website is published by Oscar Albert, sole proprietor registered in France under SIREN [TO BE COMPLETED] and SIRET [TO BE COMPLETED]. Email address: hello@restocking.app. EU VAT number: [TO BE COMPLETED]. The site operates under the trade name \"Restocking\".",
           },
           {
             title: "Publication director",
