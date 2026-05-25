@@ -1,5 +1,8 @@
 {
-  "_meta": { "status": "machine-translated", "date": "2026-05-25" },
+  "_meta": {
+    "status": "machine-translated",
+    "date": "2026-05-25"
+  },
   "nav": {
     "home": "Home",
     "how": "Come funziona",
@@ -669,7 +672,13 @@
       "min": "{n} min fa",
       "hour": "{n}h fa",
       "day": "{n}g fa"
-    }
+    },
+    "upgradeBannerTitle": "Benvenuto in Pro!",
+    "upgradeBannerSub": "Ecco cosa cambia per te:",
+    "upgradeBannerCheck": "Ogni 5 min",
+    "upgradeBannerSMS": "Avvisi SMS",
+    "upgradeBannerAlerts": "20 avvisi",
+    "upgradeBannerHistory": "Cronologia illimitata"
   },
   "watchDetail": {
     "backToAlerts": "I miei avvisi",

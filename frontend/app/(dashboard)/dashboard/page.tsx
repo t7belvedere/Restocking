@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { getSubscription, getCurrentUser, getWatches } from "@/lib/data/watches";
 import { PLAN_LIMITS, type WatchStatus } from "@/lib/supabase/types";
 import { getLocale, getTranslations } from "next-intl/server";
+import { UpgradeSuccessBanner } from "@/components/dashboard/upgrade-success-banner";
 
 function relativeTime(iso: string | null, t: any): string {
   if (!iso) return "—";
@@ -29,10 +30,16 @@ function inStockCount(watches: { last_status: WatchStatus; is_active: boolean }[
   return watches.filter((w) => w.is_active && w.last_status === "IN_STOCK").length;
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ upgrade?: string }>;
+}) {
   const locale = await getLocale();
+  const isUpgradeSuccess = (await searchParams).upgrade === "success";
   return (
     <Suspense fallback={<DashboardLoading />}>
+      {isUpgradeSuccess && <UpgradeSuccessBanner />}
       <AutoRefresh intervalSeconds={60} />
       <div suppressHydrationWarning>
         <DashboardContent locale={locale} />

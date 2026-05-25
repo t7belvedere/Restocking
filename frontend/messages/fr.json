@@ -668,7 +668,13 @@
       "min": "il y a {n} min",
       "hour": "il y a {n}h",
       "day": "il y a {n}j"
-    }
+    },
+    "upgradeBannerTitle": "Bienvenue en Pro !",
+    "upgradeBannerSub": "Voici ce qui change pour toi :",
+    "upgradeBannerCheck": "Toutes les 5 min",
+    "upgradeBannerSMS": "Alertes SMS",
+    "upgradeBannerAlerts": "20 alertes",
+    "upgradeBannerHistory": "Historique illimité"
   },
   "watchDetail": {
     "backToAlerts": "Mes alertes",
