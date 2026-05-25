@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 _FROM_EMAIL_DEFAULT = "alertes@restocking.app"
 _BASE_URL = os.getenv("FRONTEND_URL", "https://www.restocking.app")
+_BRANDFETCH_CLIENT = "1idoVDqRtZmwOL9NXro"
 
 # Brand colours (hex for email client compatibility)
 _INK = "#111827"
@@ -23,6 +24,20 @@ _BLUE = "#4A7FCF"
 _EMERALD = "#059669"
 _GREY = "#6B7280"
 _GREY_LIGHT = "#9CA3AF"
+
+
+def _extract_domain(url: str) -> str | None:
+    """Extract domain from a product URL for Brandfetch logo lookup."""
+    from urllib.parse import urlparse as _urlparse
+
+    try:
+        hostname = _urlparse(url).hostname or ""
+        hostname = hostname.replace("www.", "")
+        if not hostname:
+            return None
+        return hostname
+    except Exception:
+        return None
 
 
 def send_restock_email(
@@ -53,6 +68,23 @@ def send_restock_email(
             subject = f"✅ {product_name} — Taille {variant_label} est de retour !"
         else:
             subject = f"✅ {product_name} est de retour !"
+
+        # ── Brand logo (Brandfetch CDN) ──────────────────────────
+        brand_domain = _extract_domain(product_url)
+        brandfetch_url = (
+            f"https://cdn.brandfetch.io/{brand_domain}/theme/dark"
+            f"?c={_BRANDFETCH_CLIENT}"
+            if brand_domain
+            else ""
+        )
+        brand_logo = (
+            f'<img src="{brandfetch_url}" alt="{brand_name or brand_domain}" '
+            f'height="24" '
+            f'style="display:block;height:24px;width:auto;max-width:140px;'
+            f'filter:brightness(0)invert(1);" />'
+            if brandfetch_url
+            else ""
+        )
 
         # ── Brand + variant pills (same size) ────────────────────
         pill_style = (
@@ -132,21 +164,22 @@ def send_restock_email(
 
           <!-- HEADER -->
           <tr>
-            <td style="background:{_INK};padding:24px 32px;text-align:center;">
-              <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
+            <td style="background:{_INK};padding:24px 32px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td style="text-align:center;">
+                  <td style="text-align:left;vertical-align:middle;">
                     <p style="margin:0;font-size:20px;font-weight:800;color:{_CREAM};
                               letter-spacing:-0.02em;font-family:Georgia,serif;">
                       {logo_svg}restocking
                     </p>
-                    <p style="margin:6px 0 0 0;font-size:11px;color:{_ORANGE};
-                              text-transform:uppercase;letter-spacing:0.15em;font-weight:600;">
-                      Ton article est de retour
-                    </p>
                   </td>
+                  {f'<td style="text-align:right;vertical-align:middle;">{brand_logo}</td>' if brand_logo else ""}
                 </tr>
               </table>
+              <p style="margin:6px 0 0 0;font-size:11px;color:{_ORANGE};
+                        text-transform:uppercase;letter-spacing:0.15em;font-weight:600;">
+                Ton article est de retour
+              </p>
             </td>
           </tr>
 
