@@ -117,6 +117,7 @@ export function SettingsForm({ email, phone: initialPhone, phoneVerified: initia
     if (res.ok) {
       setNewEmail("");
       toast.success(t.profile.changeEmailSuccess);
+      router.push("/dashboard");
     } else {
       toast.error(res.error ?? "Erreur");
     }
@@ -139,6 +140,7 @@ export function SettingsForm({ email, phone: initialPhone, phoneVerified: initia
       setNewPassword("");
       setConfirmPassword("");
       toast.success(t.profile.changePasswordSuccess);
+      router.push("/dashboard");
     } else {
       toast.error(res.error ?? "Erreur");
     }

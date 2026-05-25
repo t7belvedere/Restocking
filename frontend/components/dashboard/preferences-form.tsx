@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useLocale } from "@/components/site/locale-provider";
 import { Button } from "@/components/ui/button";
@@ -16,9 +17,9 @@ type Props = {
 };
 
 export function PreferencesForm({ initial }: Props) {
+  const router = useRouter();
   const { t, locale } = useLocale();
   const [isPending, startTransition] = useTransition();
-  const [saved, setSaved] = useState(false);
 
   const [name, setName] = useState(initial.first_name ?? "");
   const [size, setSize] = useState<string | null>(initial.preferred_size ?? null);
@@ -43,9 +44,8 @@ export function PreferencesForm({ initial }: Props) {
         toast.error(res.error ?? "Erreur lors de la sauvegarde.");
         return;
       }
-      setSaved(true);
       toast.success(locale === "fr" ? "Préférences sauvegardées" : "Preferences saved");
-      setTimeout(() => setSaved(false), 2000);
+      router.push("/dashboard");
     });
   }
 
@@ -130,16 +130,10 @@ export function PreferencesForm({ initial }: Props) {
           <Button onClick={handleSave} disabled={isPending} size="lg" className="w-full gap-2 sm:w-auto">
             {isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
-            ) : saved ? (
-              <CheckCircle2 className="h-4 w-4" />
             ) : (
               <ArrowRight className="h-4 w-4" />
             )}
-            {isPending
-              ? t.profile.saving
-              : saved
-                ? t.profile.saved
-                : t.profile.saveButton}
+            {isPending ? t.profile.saving : t.profile.saveButton}
           </Button>
         </div>
       </div>
