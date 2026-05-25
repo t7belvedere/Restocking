@@ -563,25 +563,31 @@ def _detect_oos_variants(page, variants: list[str]) -> set[str]:
                 cls = (el.attrib.get("class") or "").lower()
                 disabled = el.attrib.get("disabled")
                 aria_disabled = el.attrib.get("aria-disabled", "")
+                aria_label = (el.attrib.get("aria-label") or "").lower()
+                data_available = (el.attrib.get("data-availability-site") or
+                                  el.attrib.get("data-available") or "").lower()
 
                 # Check if this element is marked OOS
                 is_oos = (
                     disabled is not None or
                     aria_disabled == "true" or
+                    data_available == "false" or
                     any(w in cls for w in _OOS_CLASSES) or
-                    any(w in txt for w in _OOS_WORDS)
+                    any(w in txt for w in _OOS_WORDS) or
+                    any(w in aria_label for w in _OOS_WORDS)
                 )
                 if not is_oos:
                     continue
 
                 # Find which variant this element corresponds to
+                search_text = f"{txt} {aria_label}"
                 for v in variants:
                     v_lower = v.lower()
                     # For single-letter sizes (S, M, L), require word boundary
                     if len(v) == 1:
-                        if re.search(rf"\b{re.escape(v_lower)}\b", txt):
+                        if re.search(rf"\b{re.escape(v_lower)}\b", search_text):
                             oos.add(v)
-                    elif v_lower in txt:
+                    elif v_lower in search_text:
                         oos.add(v)
     except Exception:
         pass
