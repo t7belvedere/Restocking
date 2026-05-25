@@ -3,6 +3,7 @@
 import { Check, ExternalLink, Sparkles, Zap } from "lucide-react";
 import { useTransition } from "react";
 import { useTranslations, useMessages } from "next-intl";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,11 +21,17 @@ export function UpgradeCards({ currentPlan }: UpgradeCardsProps) {
   const uc = messages.dashboard?.upgradeCards as Record<string, any> ?? {};
 
   function checkout(interval: "monthly" | "annual") {
-    startTransition(() => createCheckoutSession(interval));
+    startTransition(async () => {
+      const result = await createCheckoutSession(interval);
+      if (result?.error) toast.error(result.error);
+    });
   }
 
   function portal() {
-    startTransition(() => createPortalSession());
+    startTransition(async () => {
+      const result = await createPortalSession();
+      if (result?.error) toast.error(result.error);
+    });
   }
 
   return (

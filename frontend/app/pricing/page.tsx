@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { ArrowRight, Check, Minus, Sparkles, Zap } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
+import { toast } from "sonner";
 import { createCheckoutSession } from "@/app/actions/stripe";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +21,10 @@ export default function PricingPage() {
   const proSub = billing === "annual" ? t("pricing.plans.pro.subAnnual") : t("pricing.plans.pro.subMonthly");
 
   function handleProCheckout() {
-    startTransition(() => createCheckoutSession(billing === "annual" ? "annual" : "monthly"));
+    startTransition(async () => {
+      const result = await createCheckoutSession(billing === "annual" ? "annual" : "monthly");
+      if (result?.error) toast.error(result.error);
+    });
   }
 
   const features: Feature[] = [
