@@ -53,6 +53,7 @@ export async function createCheckoutSession(
 
     redirect(session.url!);
   } catch (err: any) {
+    if (err?.digest?.startsWith("NEXT_REDIRECT")) throw err;
     console.error("createCheckoutSession error:", err);
     return { error: err?.message ?? "Erreur lors de la création de la session Stripe" };
   }
@@ -82,6 +83,7 @@ export async function createPortalSession(): Promise<{ error: string } | void> {
 
     redirect(session.url);
   } catch (err: any) {
+    if (err?.digest?.startsWith("NEXT_REDIRECT")) throw err;
     console.error("createPortalSession error:", err);
     return { error: err?.message ?? "Erreur lors de la création du portail Stripe" };
   }
