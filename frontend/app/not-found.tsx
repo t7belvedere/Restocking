@@ -13,12 +13,10 @@ export default function NotFound() {
           404
         </p>
         <h1 className="font-display text-6xl font-extrabold leading-none tracking-tighter md:text-8xl">
-          Lost in the wardrobe.
+          {t.common.notFoundTitle}
         </h1>
         <p className="text-base text-ink/70">
-          {t === undefined
-            ? "This page does not exist (anymore)."
-            : "Cette URL n’existe pas (ou plus). On te ramène à la page d’accueil ?"}
+          {t.common.notFoundBody}
         </p>
         <div className="flex items-center justify-center">
           <Link

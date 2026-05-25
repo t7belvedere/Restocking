@@ -68,6 +68,8 @@ export const messages = {
       saveBadge: "Économise 30%",
       restocked: "EN STOCK",
       soldOut: "ÉPUISÉ",
+      notFoundTitle: "Lost in the wardrobe.",
+      notFoundBody: "Cette URL n'existe pas (ou plus). On te ramène à la page d'accueil ?",
     },
     home: {
       eyebrow: "Alertes retour en stock par taille · Europe",
@@ -674,6 +676,8 @@ export const messages = {
       saveBadge: "Save 30%",
       restocked: "RESTOCKED",
       soldOut: "SOLD OUT",
+      notFoundTitle: "Lost in the wardrobe.",
+      notFoundBody: "This page does not exist (anymore). Want us to take you home?",
     },
     home: {
       eyebrow: "Size-specific restock alerts · Europe",
