@@ -539,22 +539,47 @@ async def _download_image_base64(image_url: str, page_url: str) -> str | None:
     return None
 
 
-def _detect_oos_variants(page, variants: list[str]) -> set[str]:
-    """Return the subset of *variants* that appear out-of-stock in the DOM.
+def _detect_oos_variants(
+    page, variants: list[str], sizes: list[str] | None = None, colors: list[str] | None = None
+) -> tuple[set[str], dict[str, bool]]:
+    """Return OOS variants + per-combination status.
 
-    Checks for common OOS signals: disabled attribute, "épuisé"/"sold out"
-    text, opacity/pointer-events-none classes on size/color buttons.
+    Returns:
+        oos: set of variant strings that are out of stock
+        combinations: dict like {"S / Noir": True, "XXL / Noir": False, ...}
     """
     if page is None or not variants:
-        return set()
+        return set(), {}
 
     oos: set[str] = set()
+    oos_sizes: set[str] = set()  # sizes that are OOS for the current color
+    current_color: str | None = None
+    combinations: dict[str, bool] = {}
+
     _OOS_CLASSES = {"opacity-20", "pointer-events-none", "sold-out", "out-of-stock",
                     "unavailable", "disabled", "line-through"}
     _OOS_WORDS = {"épuisé", "epuise", "sold out", "out of stock", "rupture",
                   "indisponible", "unavailable", "épuisée"}
 
+    _sizes = sizes or []
+    _colors = colors or []
+
     try:
+        # Try to find the currently selected color from aria or data attrs
+        for sel in ("[aria-current]", "[aria-selected=true]", "[class*=selected]", "[class*=active]"):
+            els = page.css(sel)
+            for el in els[:3]:
+                aria = (el.attrib.get("aria-label") or "").strip()
+                text = (el.get_all_text() or "").strip() if hasattr(el, "get_all_text") else ""
+                for c in _colors:
+                    if c.lower() in (aria + " " + text).lower():
+                        current_color = c
+                        break
+                if current_color:
+                    break
+            if current_color:
+                break
+
         # Scan size/color buttons and labels
         for sel in ("label", "button", "[class*=size]", "[class*=swatch]",
                      "[class*=variant]", "[class*=selector] button"):
@@ -576,23 +601,38 @@ def _detect_oos_variants(page, variants: list[str]) -> set[str]:
                     any(w in txt for w in _OOS_WORDS) or
                     any(w in aria_label for w in _OOS_WORDS)
                 )
-                if not is_oos:
-                    continue
 
                 # Find which variant this element corresponds to
                 search_text = f"{txt} {aria_label}"
                 for v in variants:
                     v_lower = v.lower()
-                    # For single-letter sizes (S, M, L), require word boundary
                     if len(v) == 1:
-                        if re.search(rf"\b{re.escape(v_lower)}\b", search_text):
+                        match = re.search(rf"\b{re.escape(v_lower)}\b", search_text)
+                    else:
+                        match = v_lower in search_text
+                    if match:
+                        if is_oos:
                             oos.add(v)
-                    elif v_lower in search_text:
-                        oos.add(v)
+                            if v in _sizes:
+                                oos_sizes.add(v)
+                        break
+
+        # Build per-combination status when we have color context
+        if current_color and _sizes and _colors:
+            for s in _sizes:
+                for c in _colors:
+                    key = f"{s} / {c}"
+                    if c == current_color:
+                        # For the visible color, we have per-size OOS data
+                        combinations[key] = s not in oos_sizes
+                    else:
+                        # Unknown for other colors (page only shows one color at a time)
+                        combinations[key] = True  # assume available
+
     except Exception:
         pass
 
-    return oos
+    return oos, combinations
 
 
 async def _universal_extract(page, html: str, url: str) -> dict:
@@ -682,12 +722,13 @@ async def _universal_extract(page, html: str, url: str) -> dict:
     result["sizes"] = sizes
     result["colors"] = colors
 
-    # Detect which sizes/colors are out of stock
-    oos = _detect_oos_variants(page, variants)
+    # Detect which sizes/colors are out of stock (per combination when possible)
+    oos, combinations = _detect_oos_variants(page, variants, sizes, colors)
     for s in sizes:
         result["sizes_status"][s] = s not in oos
     for c in colors:
         result["colors_status"][c] = c not in oos
+    result["variants_status"] = combinations
 
     return result
 
@@ -1310,6 +1351,16 @@ async def health():
 async def unsubscribe(watch_id: str = Query(min_length=1)):
     """Deactivate a watch by ID. Called from the unsubscribe link in emails."""
     from db.client import supabase as _supabase
+
+    # Validate UUID format before hitting the DB
+    import uuid as _uuid
+    try:
+        _uuid.UUID(watch_id)
+    except ValueError:
+        return {
+            "ok": False,
+            "message": "Lien invalide. Tu peux gérer tes alertes depuis ton tableau de bord.",
+        }
 
     try:
         _supabase.table("watches").update({"is_active": False}).eq("id", watch_id).execute()

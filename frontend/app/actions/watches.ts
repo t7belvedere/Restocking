@@ -20,6 +20,7 @@ export type AnalyzeResult = {
   colors: string[];
   sizes_status?: Record<string, boolean>;
   colors_status?: Record<string, boolean>;
+  variants_status?: Record<string, boolean>;
   enrichment_pending?: boolean;
   error?: "FETCH_FAILED" | "INVALID_URL" | "TIMEOUT";
 };

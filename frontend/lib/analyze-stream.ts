@@ -112,6 +112,7 @@ function mapResult(data: Record<string, unknown>): AnalyzeResult {
     colors: Array.isArray(data.colors) ? (data.colors as string[]) : [],
     sizes_status: (data.sizes_status as Record<string, boolean>) ?? {},
     colors_status: (data.colors_status as Record<string, boolean>) ?? {},
+    variants_status: (data.variants_status as Record<string, boolean>) ?? {},
   };
 }
 
