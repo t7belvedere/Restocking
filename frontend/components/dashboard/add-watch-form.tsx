@@ -17,24 +17,23 @@ type Step = "url" | "confirm";
 
 // Domaines où l'analyse fonctionne mais avec des limitations (variantes, images...)
 const LIMITED_DOMAINS: Record<string, string> = {
-  "pullandbear.com": "Pull&Bear",
-  "weekday.com": "Weekday",
-  "stradivarius.com": "Stradivarius",
-  "arket.com": "ARKET",
-  "monki.com": "Monki",
+  "pullandbear": "Pull&Bear",
+  "weekday": "Weekday",
+  "stradivarius": "Stradivarius",
+  "arket": "ARKET",
+  "monki": "Monki",
   "stories.com": "& Other Stories",
-  "ginatricot.com": "Gina Tricot",
-  "massimodutti.com": "Massimo Dutti",
-  "oysho.com": "Oysho",
-  "lefties.com": "Lefties",
+  "ginatricot": "Gina Tricot",
+  "massimodutti": "Massimo Dutti",
+  "oysho": "Oysho",
+  "lefties": "Lefties",
 };
 
 // Domaines où l'analyse ne fonctionne pas du tout
 const BLOCKED_DOMAINS: Record<string, string> = {
-  "shein.com": "Shein",
-  "sephora.fr": "Sephora",
-  "sephora.com": "Sephora",
-  "louisvuitton.com": "Louis Vuitton",
+  "shein": "Shein",
+  "sephora": "Sephora",
+  "louisvuitton": "Louis Vuitton",
 };
 
 type DomainStatus = { label: string; level: "limited" | "blocked" } | null;
@@ -42,11 +41,11 @@ type DomainStatus = { label: string; level: "limited" | "blocked" } | null;
 function getDomainWarning(url: string): DomainStatus {
   try {
     const hostname = new URL(url).hostname.replace("www.", "");
-    for (const [domain, label] of Object.entries(BLOCKED_DOMAINS)) {
-      if (hostname.includes(domain)) return { label, level: "blocked" };
+    for (const [keyword, label] of Object.entries(BLOCKED_DOMAINS)) {
+      if (hostname.includes(keyword)) return { label, level: "blocked" };
     }
-    for (const [domain, label] of Object.entries(LIMITED_DOMAINS)) {
-      if (hostname.includes(domain)) return { label, level: "limited" };
+    for (const [keyword, label] of Object.entries(LIMITED_DOMAINS)) {
+      if (hostname.includes(keyword)) return { label, level: "limited" };
     }
   } catch {}
   return null;
