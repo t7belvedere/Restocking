@@ -235,9 +235,9 @@ export default function RetailersPage() {
             backdropFilter: "blur(3px)",
             WebkitBackdropFilter: "blur(3px)",
             maskImage:
-              "linear-gradient(to bottom, black 40%, transparent 100%)",
+              "linear-gradient(to top, black 30%, transparent 100%)",
             WebkitMaskImage:
-              "linear-gradient(to bottom, black 40%, transparent 100%)",
+              "linear-gradient(to top, black 30%, transparent 100%)",
           }}
           aria-hidden="true"
         />
