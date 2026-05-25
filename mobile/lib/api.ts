@@ -1,48 +1,101 @@
 import { supabase } from "./supabase";
 
-const WORKER_URL =
-  process.env.EXPO_PUBLIC_WORKER_URL || "https://worker.restocking.app";
-const FRONTEND_URL =
-  process.env.EXPO_PUBLIC_FRONTEND_URL || "https://restocking.app";
+const WORKER_API_URL = process.env.EXPO_PUBLIC_WORKER_API_URL ?? "https://worker.restocking.app";
 
-export interface AnalyzeResult {
+export type AnalyzeResult = {
   ok: boolean;
-  name?: string;
-  image_url?: string;
-  price?: number;
-  currency?: string;
-  variants?: Array<{ label: string; in_stock: boolean }>;
+  url: string;
+  name?: string | null;
+  image_url?: string | null;
+  image_base64?: string | null;
+  price?: number | null;
+  sizes?: string[];
+  colors?: string[];
+  sizes_status?: Record<string, boolean>;
+  colors_status?: Record<string, boolean>;
+  variants?: string[];
   enrichment_pending?: boolean;
   error?: string;
+};
+
+export async function analyzeUrl(
+  url: string,
+  onProgress?: (evt: { step: string; message: string }) => void,
+): Promise<AnalyzeResult> {
+  onProgress?.({ step: "http", message: "Connexion au worker..." });
+  try {
+    const res = await fetch(`${WORKER_API_URL}/api/analyze`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url }),
+    });
+    if (!res.ok) throw new Error(`Worker error: ${res.status}`);
+    onProgress?.({ step: "extracting", message: "Extraction des données..." });
+    return res.json();
+  } catch (e) {
+    return { ok: false, url, error: (e as Error).message };
+  }
 }
 
-export async function analyzeUrl(url: string): Promise<AnalyzeResult> {
-  const res = await fetch(
-    `${WORKER_URL}/analyze?url=${encodeURIComponent(url)}`,
-  );
-  if (!res.ok) {
-    return { ok: false, error: `Worker returned ${res.status}` };
+export async function createWatch(payload: {
+  userId: string;
+  url: string;
+  name?: string | null;
+  image_url?: string | null;
+  price?: number | null;
+  variant_label: string;
+  variant_id: string;
+}): Promise<{ ok: boolean; error?: string; id?: string }> {
+  const { data, error } = await supabase
+    .from("watches")
+    .insert({
+      user_id: payload.userId,
+      url: payload.url,
+      name: payload.name,
+      image_url: payload.image_url,
+      price: payload.price,
+      variant_label: payload.variant_label,
+      variant_id: payload.variant_id,
+      last_status: "UNKNOWN",
+      is_active: true,
+    })
+    .select("id")
+    .single();
+
+  if (error) {
+    if (error.code === "23505") return { ok: false, error: "DUPLICATE" };
+    return { ok: false, error: error.message };
   }
-  return res.json();
+  return { ok: true, id: data.id };
 }
 
-export async function deleteAccount(): Promise<{ ok: boolean; error?: string }> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.access_token) {
-    return { ok: false, error: "Not authenticated" };
-  }
+export async function getWatches(userId: string) {
+  const { data, error } = await supabase
+    .from("watches")
+    .select("*")
+    .eq("user_id", userId)
+    .order("last_check", { ascending: false });
 
-  const res = await fetch(`${FRONTEND_URL}/api/auth/delete-account`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.access_token}`,
-    },
-  });
+  if (error) return [];
+  return data;
+}
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    return { ok: false, error: (err as any)?.error ?? `HTTP ${res.status}` };
-  }
-  return { ok: true };
+export async function toggleWatch(id: string, userId: string, active: boolean) {
+  const { error } = await supabase
+    .from("watches")
+    .update({ is_active: active })
+    .eq("id", id)
+    .eq("user_id", userId);
+
+  return !error;
+}
+
+export async function deleteWatch(id: string, userId: string) {
+  const { error } = await supabase
+    .from("watches")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", userId);
+
+  return !error;
 }

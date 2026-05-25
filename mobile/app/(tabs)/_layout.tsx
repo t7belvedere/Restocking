@@ -1,78 +1,67 @@
 import { Tabs } from "expo-router";
-import { Bell, Plus, Settings } from "lucide-react-native";
+import { View, Pressable, Platform } from "react-native";
+import { Home, Plus, User } from "lucide-react-native";
 
-export default function TabLayout() {
+function AddTabButton({ onPress }: { onPress?: (e: any) => void }) {
+  return (
+    <View className="relative -top-5 items-center justify-center">
+      <Pressable
+        onPress={onPress}
+        className="w-14 h-14 bg-orange border-2 border-ink rounded-2xl items-center justify-center"
+        style={{ boxShadow: "4px 4px 0 0 #262626" }}
+        android_ripple={{ color: "rgba(255,255,255,0.2)", borderless: false }}
+      >
+        <Plus size={24} color="#FFFFFF" strokeWidth={3} />
+      </Pressable>
+    </View>
+  );
+}
+
+export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#fbf8f0",
-        tabBarInactiveTintColor: "#5a5355",
+        tabBarActiveTintColor: "#FF6B35",
+        tabBarInactiveTintColor: "#737373",
         tabBarStyle: {
-          backgroundColor: "#0b0b0b",
-          borderTopColor: "#0b0b0b",
-          borderTopWidth: 0,
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
-          height: 72,
-          paddingBottom: 8,
+          backgroundColor: "#FFFFFF",
+          borderTopWidth: 2,
+          borderTopColor: "#262626",
+          height: 60,
+          paddingBottom: Platform.OS === "ios" ? 16 : 8,
           paddingTop: 8,
-          // Neo-brutal shadow (top-only)
-          shadowColor: "#0b0b0b",
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 1,
-          shadowRadius: 0,
-          elevation: 8,
         },
         tabBarLabelStyle: {
-          fontFamily: "DMSans_700Bold",
+          fontFamily: "DMSansBold",
           fontSize: 11,
-          letterSpacing: 1.2,
-          textTransform: "uppercase",
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "Alertes",
+          tabBarLabel: "Accueil",
           tabBarIcon: ({ color, size }) => (
-            <Bell size={size} color={color} strokeWidth={2.5} />
+            <Home size={size} color={color as unknown as string} strokeWidth={2.5} />
           ),
         }}
       />
       <Tabs.Screen
         name="add"
         options={{
-          title: "Ajouter",
-          tabBarIcon: ({ focused }) => (
-            <Plus
-              size={28}
-              color="#0b0b0b"
-              strokeWidth={3}
-              style={{
-                backgroundColor: focused ? "#ff803d" : "#c8ff68",
-                borderRadius: 16,
-                padding: 6,
-                marginTop: -8,
-              }}
-            />
+          tabBarLabel: "Ajouter",
+          tabBarButton: (props: any) => (
+            <AddTabButton onPress={props.onPress} />
           ),
-          tabBarLabelStyle: {
-            fontFamily: "DMSans_700Bold",
-            fontSize: 10,
-            letterSpacing: 1,
-            textTransform: "uppercase",
-            marginTop: 2,
-          },
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: "Profil",
+          tabBarLabel: "Profil",
           tabBarIcon: ({ color, size }) => (
-            <Settings size={size} color={color} strokeWidth={2.5} />
+            <User size={size} color={color as unknown as string} strokeWidth={2.5} />
           ),
         }}
       />

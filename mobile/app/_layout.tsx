@@ -1,58 +1,48 @@
-import { useState, useEffect } from "react";
 import "../global.css";
 import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthProvider } from "@/lib/auth";
-import { I18nProvider } from "@/lib/i18n";
-import { PushRegistration } from "@/components/push-registration";
 import {
   useFonts,
-  BricolageGrotesque_800ExtraBold,
   BricolageGrotesque_700Bold,
-  BricolageGrotesque_600SemiBold,
+  BricolageGrotesque_800ExtraBold,
 } from "@expo-google-fonts/bricolage-grotesque";
 import {
   DMSans_400Regular,
-  DMSans_600SemiBold,
+  DMSans_500Medium,
   DMSans_700Bold,
 } from "@expo-google-fonts/dm-sans";
-import { DMMono_400Regular } from "@expo-google-fonts/dm-mono";
-
-export { ErrorBoundary } from "expo-router";
-
-export const unstable_settings = {
-  initialRouteName: "(tabs)",
-};
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    BricolageGrotesque_800ExtraBold,
     BricolageGrotesque_700Bold,
-    BricolageGrotesque_600SemiBold,
+    BricolageGrotesque_800ExtraBold,
     DMSans_400Regular,
-    DMSans_600SemiBold,
+    DMSans_500Medium,
     DMSans_700Bold,
-    DMMono_400Regular,
   });
 
-  const [timedOut, setTimedOut] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setTimedOut(true), 3000);
-    return () => clearTimeout(t);
-  }, []);
-
-  if (!fontsLoaded && !timedOut) {
-    return null;
-  }
+  if (!fontsLoaded) return null;
 
   return (
-    <I18nProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthProvider>
-        <PushRegistration />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(tabs)" />
-        </Stack>
+        <StatusBar style="dark" />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: "#FDF9F3" },
+              animation: "slide_from_right",
+            }}
+          >
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="watch/[id]" options={{ presentation: "modal" }} />
+            <Stack.Screen name="upgrade" options={{ presentation: "modal" }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
       </AuthProvider>
-    </I18nProvider>
+    </GestureHandlerRootView>
   );
 }

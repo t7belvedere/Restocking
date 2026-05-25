@@ -3,147 +3,234 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
+  Pressable,
   ActivityIndicator,
   Alert,
+  Linking,
 } from "react-native";
-import { Stack, useRouter } from "expo-router";
-import { useI18n } from "@/lib/i18n";
-import { openCheckout, PRICE_IDS } from "@/lib/stripe";
-import { brutal, brutalSm } from "@/lib/shadows";
-import { ChevronLeft, Check } from "lucide-react-native";
+import { router } from "expo-router";
+import { X, Check, Zap, Crown } from "lucide-react-native";
+import { useAuth } from "@/lib/auth";
+import { cn } from "@/lib/utils";
+import { createCheckoutSession, createPortalSession } from "@/lib/stripe";
+
+const PRICE_IDS = {
+  monthly: "price_1TaRRJR3spq7tVuKKAOkHEzw",
+  annual: "price_1TaRRJR3spq7tVuK5FpHaGoK",
+};
+
+const FREE_FEATURES = [
+  "3 alertes actives",
+  "Verification toutes les 30 min",
+  "Marques supportees : Zara, COS, Uniqlo, ASOS...",
+];
+
+const PRO_FEATURES = [
+  "Alertes illimitees",
+  "Verification toutes les 5 min",
+  "Support prioritaire",
+  "Toutes les marques supportees",
+  "Choix taille + couleur",
+];
 
 export default function UpgradeScreen() {
-  const { t, locale } = useI18n();
-  const router = useRouter();
-  const [loading, setLoading] = useState<string | null>(null);
+  const { session } = useAuth();
+  const [interval, setInterval] = useState<"monthly" | "annual">("annual");
+  const [loading, setLoading] = useState(false);
+  const isPro = false; // TODO: derive from user metadata
 
-  const handleCheckout = async (interval: "monthly" | "annual") => {
-    const priceId = PRICE_IDS[interval];
-    if (!priceId) {
-      Alert.alert("Erreur", "Price ID not configured.");
+  async function handleSubscribe() {
+    if (!session?.access_token) {
+      Alert.alert("Erreur", "Tu dois etre connecte.");
       return;
     }
-    setLoading(interval);
-    const result = await openCheckout(priceId);
-    setLoading(null);
-
-    if (!result.success && result.error !== "Cancelled") {
-      Alert.alert("Erreur", result.error ?? "Échec du paiement.");
+    setLoading(true);
+    try {
+      const url = await createCheckoutSession(
+        session.access_token,
+        PRICE_IDS[interval],
+      );
+      if (url) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert("Erreur", "Impossible de creer la session de paiement.");
+      }
+    } catch {
+      Alert.alert("Erreur", "Une erreur est survenue.");
+    } finally {
+      setLoading(false);
     }
-    // If success or cancelled, just return; user will see updated plan on refresh
-  };
+  }
+
+  async function handleManage() {
+    if (!session?.access_token) return;
+    setLoading(true);
+    try {
+      const url = await createPortalSession(session.access_token);
+      if (url) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert("Erreur", "Impossible d'ouvrir le portail.");
+      }
+    } catch {
+      Alert.alert("Erreur", "Une erreur est survenue.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <View className="flex-1 bg-cream">
-      <Stack.Screen
-        options={{
-          headerShown: true,
-          headerTitle: t.upgrade ?? "Passer à Pro",
-          headerStyle: { backgroundColor: "#fbf8f0" },
-          headerTintColor: "#0b0b0b",
-          headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} className="mr-4">
-              <ChevronLeft size={24} color="#0b0b0b" />
-            </TouchableOpacity>
-          ),
-        }}
-      />
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ padding: 20, paddingBottom: 60 }}
-      >
-        {/* Pro card */}
-        <View
-          className="rounded-3xl border-2 border-ink bg-paper p-6"
-          style={brutal}
+    <ScrollView className="flex-1 bg-cream" showsVerticalScrollIndicator={false}>
+      {/* Header */}
+      <View className="flex-row items-center justify-between px-4 pt-12 pb-4">
+        <Pressable
+          onPress={() => router.back()}
+          className="w-10 h-10 items-center justify-center rounded-xl"
         >
-          <View className="mb-1 self-start rounded-full border-2 border-ink bg-lime px-3 py-1">
-            <Text className="font-display text-xs font-bold uppercase tracking-wider text-ink">
-              Le plus populaire
+          <X size={24} color="#262626" strokeWidth={2.5} />
+        </Pressable>
+        <Text className="font-display text-xl text-ink">Passer a Pro</Text>
+        <View className="w-10" />
+      </View>
+
+      <View className="px-4">
+        {/* Interval toggle */}
+        <View className="flex-row bg-muted rounded-xl p-1 border-2 border-ink mb-8">
+          <Pressable
+            className={cn(
+              "flex-1 py-2.5 rounded-lg items-center",
+              interval === "monthly" && "bg-ink",
+            )}
+            onPress={() => setInterval("monthly")}
+          >
+            <Text
+              className={cn(
+                "font-bold text-sm",
+                interval === "monthly" ? "text-cream" : "text-ink",
+              )}
+            >
+              Mensuel
             </Text>
-          </View>
-          <Text className="mt-4 font-display text-3xl font-extrabold text-ink">
-            Pro
-          </Text>
-          <Text className="mt-2 font-sans text-base leading-relaxed text-ink/70">
-            20 alertes actives · Vérification toutes les 5 min · Notifications SMS
-          </Text>
-
-          {/* Annual option */}
-          <TouchableOpacity
-            onPress={() => handleCheckout("annual")}
-            disabled={loading !== null}
-            activeOpacity={0.8}
-            className="mt-6 h-14 flex-row items-center justify-between rounded-xl border-2 border-ink bg-blue px-5"
-            style={brutalSm}
-          >
-            <View>
-              <Text className="font-display text-base font-bold text-white">
-                59€ / an
-              </Text>
-              <Text className="font-sans text-xs text-white/80">
-                Soit 4,90€/mois · Économisez 30%
-              </Text>
-            </View>
-            {loading === "annual" ? (
-              <ActivityIndicator color="#fff" size="small" />
-            ) : (
-              <Text className="font-display text-sm font-bold uppercase tracking-widest text-white">
-                Choisir
-              </Text>
+          </Pressable>
+          <Pressable
+            className={cn(
+              "flex-1 py-2.5 rounded-lg items-center",
+              interval === "annual" && "bg-ink",
             )}
-          </TouchableOpacity>
-
-          {/* Monthly option */}
-          <TouchableOpacity
-            onPress={() => handleCheckout("monthly")}
-            disabled={loading !== null}
-            activeOpacity={0.8}
-            className="mt-4 h-14 flex-row items-center justify-between rounded-xl border-2 border-ink bg-paper px-5"
-            style={brutalSm}
+            onPress={() => setInterval("annual")}
           >
-            <View>
-              <Text className="font-display text-base font-bold text-ink">
-                7,99€ / mois
-              </Text>
-              <Text className="font-sans text-xs text-ink/60">
-                Sans engagement
-              </Text>
-            </View>
-            {loading === "monthly" ? (
-              <ActivityIndicator color="#0b0b0b" size="small" />
-            ) : (
-              <Text className="font-display text-sm font-bold uppercase tracking-widest text-ink">
-                Choisir
-              </Text>
-            )}
-          </TouchableOpacity>
+            <Text
+              className={cn(
+                "font-bold text-sm",
+                interval === "annual" ? "text-cream" : "text-ink",
+              )}
+            >
+              Annuel
+            </Text>
+          </Pressable>
         </View>
 
-        {/* Feature list */}
-        <View className="mt-6 rounded-3xl border-2 border-ink bg-paper p-6" style={brutal}>
-          <Text className="font-display text-xl font-bold text-ink">
-            Tout ce qui est inclus
-          </Text>
-          <View className="mt-4 gap-3">
-            {[
-              "20 produits surveillés",
-              "Vérification toutes les 5 minutes",
-              "Notifications SMS (France)",
-              "Accès prioritaire aux nouvelles marques",
-              "Support prioritaire",
-            ].map((feat) => (
-              <View key={feat} className="flex-row items-center gap-3">
-                <View className="h-5 w-5 items-center justify-center rounded-full bg-lime">
-                  <Check size={12} color="#0b0b0b" strokeWidth={3} />
+        {/* Plan cards */}
+        <View className="gap-6 mb-12">
+          {/* Free plan */}
+          <View
+            className="bg-paper border-2 border-ink rounded-xl p-5"
+            style={{ boxShadow: "4px 4px 0 0 #262626" }}
+          >
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="font-display text-xl text-ink">Gratuit</Text>
+              {!isPro && (
+                <View className="bg-muted border-2 border-ink rounded-lg px-3 py-1">
+                  <Text className="text-ink-soft text-xs font-bold">Actuel</Text>
                 </View>
-                <Text className="font-sans text-base text-ink">{feat}</Text>
+              )}
+            </View>
+            <Text className="font-display text-3xl text-ink mb-1">0 EUR</Text>
+            <Text className="text-ink-soft text-sm mb-4">Pour commencer</Text>
+            <View className="gap-2.5">
+              {FREE_FEATURES.map((feature) => (
+                <View key={feature} className="flex-row items-center gap-2">
+                  <Check size={16} color="#262626" strokeWidth={2.5} />
+                  <Text className="text-ink text-sm">{feature}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          {/* Pro plan */}
+          <View
+            className="bg-paper border-2 border-blue rounded-xl p-5"
+            style={{ boxShadow: "6px 6px 0 0 #262626" }}
+          >
+            <View className="flex-row items-center justify-between mb-2">
+              <View className="flex-row items-center gap-2">
+                <Crown size={20} color="#FF6B35" strokeWidth={2} />
+                <Text className="font-display text-xl text-ink">Pro</Text>
               </View>
-            ))}
+              <View
+                className="-rotate-6 bg-blue border-2 border-ink rounded-lg px-3 py-1"
+                style={{ boxShadow: "2px 2px 0 0 #262626" }}
+              >
+                <Text className="text-white font-bold text-xs">Populaire</Text>
+              </View>
+            </View>
+            <Text className="font-display text-3xl text-ink mb-1">
+              {interval === "monthly" ? "4,99 EUR" : "49 EUR"}
+              <Text className="text-base font-sans text-ink-soft font-normal">
+                {interval === "monthly" ? "/mois" : "/an"}
+              </Text>
+            </Text>
+            <Text className="text-ink-soft text-sm mb-4">
+              {interval === "annual"
+                ? "Soit 4,08 EUR/mois — 2 mois offerts"
+                : "Sans engagement, annulable a tout moment"}
+            </Text>
+            <View className="gap-2.5 mb-6">
+              {PRO_FEATURES.map((feature) => (
+                <View key={feature} className="flex-row items-center gap-2">
+                  <Check size={16} color="#3B82F6" strokeWidth={2.5} />
+                  <Text className="text-ink text-sm font-bold">{feature}</Text>
+                </View>
+              ))}
+            </View>
+
+            {isPro ? (
+              <Pressable
+                onPress={handleManage}
+                disabled={loading}
+                className="bg-paper border-2 border-ink rounded-xl py-3.5 items-center"
+                style={{ boxShadow: "4px 4px 0 0 #262626" }}
+              >
+                {loading ? (
+                  <ActivityIndicator size="small" color="#262626" />
+                ) : (
+                  <Text className="font-bold text-ink text-base">
+                    Gerer mon abonnement
+                  </Text>
+                )}
+              </Pressable>
+            ) : (
+              <Pressable
+                onPress={handleSubscribe}
+                disabled={loading}
+                className="bg-orange border-2 border-ink rounded-xl py-3.5 flex-row items-center justify-center gap-2"
+                style={{ boxShadow: "4px 4px 0 0 #262626" }}
+              >
+                {loading ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <>
+                    <Zap size={18} color="#FFFFFF" strokeWidth={2.5} />
+                    <Text className="font-bold text-white text-base">
+                      S'abonner
+                    </Text>
+                  </>
+                )}
+              </Pressable>
+            )}
           </View>
         </View>
-      </ScrollView>
-    </View>
+      </View>
+    </ScrollView>
   );
 }

@@ -5,61 +5,60 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "restocking",
     "userInterfaceStyle": "light",
+    "scheme": "restocking",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FDF9F3"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.restocking.mobile",
+      "usesAppleSignIn": true,
       "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true,
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "buildNumber": "5"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#F9F8F6",
+        "backgroundColor": "#FDF9F3",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "package": "app.restocking.mobile"
+      "package": "app.restocking.mobile",
+      "predictiveBackGestureEnabled": false
     },
     "web": {
-      "bundler": "metro",
-      "output": "single",
-      "favicon": "./assets/favicon.png"
-    },
-    "experiments": {
-      "typedRoutes": true
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store",
+      "expo-apple-authentication",
       "expo-localization",
+      "expo-font",
+      "expo-build-properties",
       [
-        "expo-notifications",
+        "@stripe/stripe-react-native",
         {
-          "icon": "./assets/notification-icon.png",
-          "color": "#F85C15"
+          "merchantIdentifier": "",
+          "enableGooglePay": false
         }
       ],
-      "expo-web-browser",
-      "expo-font",
-      "expo-splash-screen",
-      [
-        "expo-build-properties",
-        {
-          "ios": {
-            "useFrameworks": "static"
-          }
-        }
-      ]
+      "expo-splash-screen"
     ],
     "extra": {
-      "router": {},
       "eas": {
         "projectId": "60c18899-7df7-4846-91ba-ec1c365b5de0"
       }
     },
-    "owner": "0xosx"
+    "owner": "0xosx",
+    "experiments": {
+      "typedRoutes": true
+    }
   }
 }

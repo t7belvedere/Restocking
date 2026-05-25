@@ -1,430 +1,283 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
   ScrollView,
-  Image,
-  TouchableOpacity,
-  ActivityIndicator,
+  Pressable,
   Alert,
+  ActivityIndicator,
+  Switch,
+  Image,
   Linking,
-  RefreshControl,
 } from "react-native";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
+import { ChevronLeft, Trash2, ExternalLink, Clock, Globe, Tag } from "lucide-react-native";
 import { useAuth } from "@/lib/auth";
-import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
-import { brutal, brutalSm } from "@/lib/shadows";
-import {
-  ArrowLeft,
-  ExternalLink,
-  Pause,
-  Play,
-  Trash2,
-  Clock,
-  Tag,
-  Euro,
-  CircleDot,
-} from "lucide-react-native";
+import { toggleWatch, deleteWatch } from "@/lib/api";
+import { cn, formatPrice, shortHost, relativeTime } from "@/lib/utils";
 
-interface Watch {
+type WatchStatus = "IN_STOCK" | "OUT_OF_STOCK" | "UNKNOWN";
+type Watch = {
   id: string;
-  user_id: string;
-  name: string;
-  image_url?: string | null;
+  name: string | null;
   url: string;
-  price?: number | null;
-  currency?: string;
-  variant_label?: string | null;
-  variant_id?: string | null;
-  size?: string | null;
-  last_status?: string;
-  last_check?: string | null;
-  is_active?: boolean;
-  created_at: string;
-}
-
-interface CheckLog {
-  id: string;
-  status: string;
-  signal_source?: string | null;
-  checked_at: string;
-  price?: number | null;
-}
-
-function getStatusLabel(t: any, status: string): string {
-  switch (status) {
-    case "IN_STOCK": return t.inStock;
-    case "OUT_OF_STOCK": return t.outOfStock;
-    default: return t.waiting;
-  }
-}
-
-const STATUS_COLOR: Record<string, string> = {
-  IN_STOCK: "bg-lime",
-  OUT_OF_STOCK: "bg-pink",
-  UNKNOWN: "bg-muted",
+  image_url: string | null;
+  variant_label: string | null;
+  price: number | null;
+  last_status: WatchStatus;
+  last_check: string | null;
+  is_active: boolean;
 };
 
-const SOURCE_LABEL: Record<string, string> = {
-  dataLayer: "Code de la page",
-  add_to_cart_btn: "Bouton d'achat",
-  variant_attr: "Détail de la taille",
-  playwright: "Analyse complète",
+const STATUS_CONFIG: Record<WatchStatus, { label: string; bg: string; text: string; dot: string }> = {
+  IN_STOCK: { label: "En stock", bg: "bg-lime", text: "text-ink", dot: "bg-lime" },
+  OUT_OF_STOCK: { label: "Rupture", bg: "bg-muted", text: "text-orange", dot: "bg-orange" },
+  UNKNOWN: { label: "En attente", bg: "bg-muted", text: "text-ink-soft", dot: "bg-ink-soft" },
 };
 
-function formatRelativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const sec = Math.floor(diff / 1000);
-  if (sec < 60) return `il y a ${sec}s`;
-  const min = Math.floor(sec / 60);
-  if (min < 60) return `il y a ${min} min`;
-  const hours = Math.floor(min / 60);
-  if (hours < 24) return `il y a ${hours}h`;
-  return `il y a ${Math.floor(hours / 24)}j`;
+function StatusBadge({ status }: { status: WatchStatus }) {
+  const s = STATUS_CONFIG[status];
+  return (
+    <View
+      className={cn("flex-row items-center gap-2 rounded-xl border-2 border-ink px-4 py-2", s.bg)}
+      style={{ boxShadow: "2px 2px 0 0 #262626" }}
+    >
+      <View className={cn("w-3 h-3 rounded-full", s.dot)} />
+      <Text className={cn("font-bold text-base", s.text)}>{s.label}</Text>
+    </View>
+  );
+}
+
+function InfoRow({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
+  return (
+    <View className="flex-row items-center gap-3 py-3 border-b-2 border-muted">
+      <View className="w-8 h-8 rounded-lg bg-muted items-center justify-center">
+        <Icon size={16} color="#737373" strokeWidth={2} />
+      </View>
+      <View className="flex-1">
+        <Text className="text-ink-soft text-xs">{label}</Text>
+        <Text className="font-bold text-ink text-sm">{value}</Text>
+      </View>
+    </View>
+  );
 }
 
 export default function WatchDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuth();
-  const { t, locale } = useI18n();
-  const router = useRouter();
-
   const [watch, setWatch] = useState<Watch | null>(null);
-  const [logs, setLogs] = useState<CheckLog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [toggling, setToggling] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const fetchData = useCallback(async () => {
-    if (!user || !id) return;
-
-    const { data: watchData, error: watchErr } = await supabase
+  useEffect(() => {
+    if (!id || !user) return;
+    supabase
       .from("watches")
       .select("*")
       .eq("id", id)
       .eq("user_id", user.id)
-      .single();
+      .single()
+      .then(({ data, error }) => {
+        if (!error && data) setWatch(data as Watch);
+        setLoading(false);
+      });
+  }, [id, user]);
 
-    if (watchErr || !watchData) {
-      setLoading(false);
-      return;
-    }
-
-    setWatch(watchData as Watch);
-
-    const { data: logData } = await supabase
-      .from("check_logs")
-      .select("*")
-      .eq("watch_id", id)
-      .order("checked_at", { ascending: false })
-      .limit(20);
-
-    setLogs((logData ?? []) as CheckLog[]);
-    setLoading(false);
-  }, [user, id]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await fetchData();
-    setRefreshing(false);
-  }, [fetchData]);
-
-  const handleToggle = async () => {
+  async function handleToggle(value: boolean) {
     if (!watch) return;
     setToggling(true);
-    const newActive = !watch.is_active;
-    await supabase.from("watches").update({ is_active: newActive }).eq("id", id);
-    setWatch({ ...watch, is_active: newActive });
+    if (!user) return;
+    const ok = await toggleWatch(watch.id, user.id, value);
+    if (ok) setWatch({ ...watch, is_active: value });
     setToggling(false);
-  };
+  }
 
-  const handleDelete = () => {
+  function handleDelete() {
     Alert.alert(
-      t.deleteWatchTitle,
-      t.deleteWatchMessage,
+      "Supprimer l'alerte",
+      "Es-tu sur de vouloir supprimer cette alerte ? Cette action est irreversible.",
       [
-        { text: t.cancel, style: "cancel" },
+        { text: "Annuler", style: "cancel" },
         {
-          text: t.deleteConfirm,
+          text: "Supprimer",
           style: "destructive",
           onPress: async () => {
             setDeleting(true);
-            await supabase.from("watches").delete().eq("id", id);
-            router.back();
+            if (!user) return;
+            const ok = await deleteWatch(id, user.id);
+            if (ok) {
+              router.back();
+            } else {
+              Alert.alert("Erreur", "Impossible de supprimer l'alerte.");
+              setDeleting(false);
+            }
           },
         },
       ],
     );
-  };
+  }
+
+  function handleOpenUrl() {
+    if (watch?.url) Linking.openURL(watch.url);
+  }
+
+  /* ── Loading ────────────────────────────────────────────── */
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-cream">
-        <ActivityIndicator color="#0b0b0b" size="large" />
+      <View className="flex-1 bg-cream items-center justify-center">
+        <ActivityIndicator size="large" color="#FF6B35" />
       </View>
     );
   }
+
+  /* ── Not found ──────────────────────────────────────────── */
 
   if (!watch) {
     return (
-      <View className="flex-1 items-center justify-center bg-cream px-6">
-        <Text className="font-display text-xl text-ink">{t.notFound}</Text>
-        <TouchableOpacity
+      <View className="flex-1 bg-cream px-6 items-center justify-center gap-4">
+        <Text className="font-display text-2xl text-ink">Introuvable</Text>
+        <Text className="text-ink-soft text-center">
+          Cette alerte n'existe pas ou a ete supprimee.
+        </Text>
+        <Pressable
           onPress={() => router.back()}
-          className="mt-6 rounded-xl border-2 border-ink bg-ink px-6 py-3"
+          className="bg-orange border-2 border-ink rounded-xl px-6 py-3"
+          style={{ boxShadow: "4px 4px 0 0 #262626" }}
         >
-          <Text className="font-display text-sm font-bold text-cream">{t.back}</Text>
-        </TouchableOpacity>
+          <Text className="font-bold text-white">Retour</Text>
+        </Pressable>
       </View>
     );
   }
 
-  const status = watch.last_status ?? "UNKNOWN";
-  const domain = (() => {
-    try {
-      return new URL(watch.url).hostname.replace(/^www\./, "");
-    } catch {
-      return watch.url;
-    }
-  })();
+  /* ── Main render ────────────────────────────────────────── */
 
   return (
     <View className="flex-1 bg-cream">
-      <Stack.Screen
-        options={{
-          headerShown: true,
-          headerTitle: watch.name ?? "Produit",
-          headerTitleStyle: { fontFamily: "BricolageGrotesque_700Bold", fontSize: 17 },
-          headerStyle: { backgroundColor: "#fbf8f0" },
-          headerTintColor: "#0b0b0b",
-          headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} className="mr-3">
-              <ArrowLeft size={22} color="#0b0b0b" />
-            </TouchableOpacity>
-          ),
-        }}
-      />
+      {/* Header */}
+      <View className="flex-row items-center justify-between px-4 pt-12 pb-3">
+        <Pressable onPress={() => router.back()} className="p-2 -ml-2">
+          <ChevronLeft size={24} color="#262626" strokeWidth={2.5} />
+        </Pressable>
+        <Text className="font-display text-lg text-ink">Details</Text>
+        <View className="w-10" />
+      </View>
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ padding: 20, paddingBottom: 60 }}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor="#0b0b0b"
-          />
-        }
+        contentContainerStyle={{ paddingBottom: 40 }}
+        showsVerticalScrollIndicator={false}
       >
-        {/* Image + Status */}
-        <View className="flex-row gap-4">
+        {/* Product image */}
+        <View className="mx-4 mb-4" style={{ boxShadow: "4px 4px 0 0 #262626" }}>
           {watch.image_url ? (
             <Image
               source={{ uri: watch.image_url }}
-              className="h-28 w-28 rounded-xl border-2 border-ink"
-              style={brutalSm}
+              className="w-full aspect-square rounded-xl border-2 border-ink"
               resizeMode="cover"
             />
           ) : (
-            <View className="h-28 w-28 items-center justify-center rounded-xl border-2 border-ink bg-muted">
-              <Text className="font-mono text-xs text-ink/30">sans visuel</Text>
+            <View
+              className="w-full aspect-square rounded-xl border-2 border-ink bg-muted items-center justify-center"
+              style={{ boxShadow: "4px 4px 0 0 #262626" }}
+            >
+              <Text className="text-ink-soft font-bold text-lg">Aucune image</Text>
             </View>
           )}
+        </View>
 
-          <View className="flex-1 justify-between">
-            <View>
-              <Text
-                className="font-display text-xl font-bold text-ink"
-                numberOfLines={3}
-              >
-                {watch.name ?? "Produit sans titre"}
-              </Text>
-              <TouchableOpacity
-                onPress={() => Linking.openURL(watch.url)}
-                className="mt-1 flex-row items-center gap-1"
-              >
-                <Text className="font-mono text-xs text-ink/50" numberOfLines={1}>
-                  {domain}
-                </Text>
-                <ExternalLink size={12} color="#0b0b0b" style={{ opacity: 0.4 }} />
-              </TouchableOpacity>
-            </View>
+        <View className="px-4">
+          {/* Product info card */}
+          <View
+            className="bg-paper border-2 border-ink rounded-xl p-4 mb-4"
+            style={{ boxShadow: "4px 4px 0 0 #262626" }}
+          >
+            <Text className="font-display text-xl text-ink mb-3">
+              {watch.name ?? "Produit sans titre"}
+            </Text>
 
-            {/* Status + activity */}
-            <View className="flex-row items-center gap-2">
-              <View
-                className={`rounded-full px-3 py-1.5 ${STATUS_COLOR[status] ?? "bg-muted"}`}
-              >
-                <View className="flex-row items-center gap-1.5">
-                  <CircleDot
-                    size={8}
-                    color="#0b0b0b"
-                    fill={status === "IN_STOCK" ? "#059669" : status === "OUT_OF_STOCK" ? "#d97706" : "#9ca3af"}
-                  />
-                  <Text className="font-mono text-xs font-bold uppercase tracking-wider text-ink">
-                    {getStatusLabel(t, status)}
-                  </Text>
-                </View>
-              </View>
-
+            <View className="flex-row items-center gap-3 mb-4">
+              <StatusBadge status={watch.last_status} />
               {!watch.is_active && (
-                <View className="rounded-full bg-ink/10 px-3 py-1.5">
-                  <Text className="font-mono text-xs font-bold uppercase text-ink/50">
-                    {t.paused}
-                  </Text>
+                <View className="bg-muted border-2 border-ink rounded-xl px-3 py-1.5">
+                  <Text className="text-ink-soft text-xs font-bold">En pause</Text>
                 </View>
               )}
             </View>
+
+            {watch.variant_label ? (
+              <InfoRow icon={Tag} label="Variante" value={watch.variant_label} />
+            ) : null}
+            <InfoRow icon={Globe} label="Boutique" value={shortHost(watch.url)} />
+            <InfoRow
+              icon={() => <View />}
+              label="Prix"
+              value={formatPrice(watch.price)}
+            />
+            <InfoRow icon={Clock} label="Derniere verification" value={relativeTime(watch.last_check)} />
           </View>
-        </View>
 
-        {/* Meta info */}
-        <View
-          className="mt-5 flex-row flex-wrap gap-4 rounded-2xl border-2 border-ink bg-paper p-4"
-          style={brutal}
-        >
-          <MetaItem icon={<Tag size={14} color="#0b0b0b" />} label={t.variant} value={watch.variant_label ?? watch.size ?? "—"} />
-          <MetaItem
-            icon={<Euro size={14} color="#0b0b0b" />}
-            label={t.price}
-            value={
-              watch.price
-                ? new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {
-                    style: "currency",
-                    currency: watch.currency || "EUR",
-                  }).format(watch.price)
-                : "—"
-            }
-          />
-          <MetaItem
-            icon={<Clock size={14} color="#0b0b0b" />}
-            label={t.lastChecked}
-            value={watch.last_check ? formatRelativeTime(watch.last_check) : "—"}
-          />
-        </View>
-
-        {/* Actions */}
-        <View className="mt-5 flex-row gap-3">
-          <TouchableOpacity
-            onPress={handleToggle}
-            disabled={toggling}
-            className={`flex-1 h-12 flex-row items-center justify-center gap-2 rounded-xl border-2 border-ink ${
-              watch.is_active ? "bg-paper" : "bg-lime"
-            }`}
-            style={brutalSm}
-            activeOpacity={0.8}
+          {/* Toggle card */}
+          <View
+            className="bg-paper border-2 border-ink rounded-xl p-4 mb-4"
+            style={{ boxShadow: "4px 4px 0 0 #262626" }}
           >
-            {toggling ? (
-              <ActivityIndicator color="#0b0b0b" size="small" />
-            ) : (
-              <>
-                {watch.is_active ? (
-                  <>
-                    <Pause size={16} color="#0b0b0b" />
-                    <Text className="font-display text-sm font-bold text-ink">{t.pause}</Text>
-                  </>
-                ) : (
-                  <>
-                    <Play size={16} color="#0b0b0b" />
-                    <Text className="font-display text-sm font-bold text-ink">{t.reactivate}</Text>
-                  </>
-                )}
-              </>
-            )}
-          </TouchableOpacity>
+            <View className="flex-row items-center justify-between">
+              <View className="flex-1 mr-4">
+                <Text className="font-bold text-ink text-base">
+                  {watch.is_active ? "Alerte active" : "Alerte en pause"}
+                </Text>
+                <Text className="text-ink-soft text-sm mt-0.5">
+                  {watch.is_active
+                    ? "Tu recevras une notification des que le produit revient en stock."
+                    : "Reactive pour recommencer a surveiller ce produit."}
+                </Text>
+              </View>
+              {toggling ? (
+                <ActivityIndicator size="small" color="#FF6B35" />
+              ) : (
+                <Switch
+                  value={watch.is_active}
+                  onValueChange={handleToggle}
+                  trackColor={{ false: "#E5E0DA", true: "#A3E635" }}
+                  thumbColor="#FFFFFF"
+                  ios_backgroundColor="#E5E0DA"
+                />
+              )}
+            </View>
+          </View>
 
-          <TouchableOpacity
+          {/* Open product link */}
+          <Pressable
+            onPress={handleOpenUrl}
+            className="bg-paper border-2 border-ink rounded-xl py-4 mb-4 flex-row items-center justify-center gap-2"
+            style={{ boxShadow: "4px 4px 0 0 #262626" }}
+          >
+            <ExternalLink size={18} color="#262626" strokeWidth={2} />
+            <Text className="font-bold text-ink">Voir le produit</Text>
+          </Pressable>
+
+          {/* Delete button */}
+          <Pressable
             onPress={handleDelete}
             disabled={deleting}
-            className="h-12 w-12 items-center justify-center rounded-xl border-2 border-destructive/40 bg-destructive/5"
-            activeOpacity={0.7}
+            className="bg-destructive border-2 border-ink rounded-xl py-4 items-center"
+            style={{ boxShadow: "4px 4px 0 0 #262626" }}
           >
             {deleting ? (
-              <ActivityIndicator color="#ee3533" size="small" />
+              <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Trash2 size={16} color="#ee3533" />
+              <View className="flex-row items-center gap-2">
+                <Trash2 size={18} color="#FFFFFF" strokeWidth={2} />
+                <Text className="font-bold text-white text-base">Supprimer l'alerte</Text>
+              </View>
             )}
-          </TouchableOpacity>
-        </View>
-
-        {/* Check log history */}
-        <View className="mt-8">
-          <Text className="mb-4 font-display text-lg font-bold text-ink">
-            {t.checkLog}
-          </Text>
-
-          {logs.length === 0 ? (
-            <View className="items-center rounded-2xl border-2 border-dashed border-ink/20 py-10">
-              <Clock size={24} color="#0b0b0b" style={{ opacity: 0.3 }} />
-              <Text className="mt-3 font-sans text-sm text-ink/40">
-                {t.pendingFirstCheck}
-              </Text>
-            </View>
-          ) : (
-            <View className="gap-2">
-              {logs.map((log, i) => (
-                <View
-                  key={log.id}
-                  className="flex-row items-center justify-between rounded-xl border-2 border-ink/20 bg-paper px-4 py-3"
-                >
-                  <View className="flex-1">
-                    <Text className="font-mono text-xs text-ink/50">
-                      {formatRelativeTime(log.checked_at)}
-                    </Text>
-                    <View className="mt-1 flex-row items-center gap-2">
-                      <View
-                        className={`h-2 w-2 rounded-full ${
-                          log.status === "IN_STOCK"
-                            ? "bg-emerald-500"
-                            : log.status === "OUT_OF_STOCK"
-                              ? "bg-amber-500"
-                              : "bg-muted-foreground/50"
-                        }`}
-                      />
-                      <Text className="font-sans text-sm font-medium text-ink">
-                        {getStatusLabel(t, log.status)}
-                      </Text>
-                      {log.signal_source && (
-                        <Text className="font-mono text-[10px] text-ink/30">
-                          · {SOURCE_LABEL[log.signal_source] ?? log.signal_source}
-                        </Text>
-                      )}
-                    </View>
-                  </View>
-                  {log.price && (
-                    <Text className="font-mono text-sm font-semibold text-ink">
-                      {new Intl.NumberFormat("fr-FR", {
-                        style: "currency",
-                        currency: "EUR",
-                      }).format(log.price)}
-                    </Text>
-                  )}
-                </View>
-              ))}
-            </View>
-          )}
+          </Pressable>
         </View>
       </ScrollView>
-    </View>
-  );
-}
-
-function MetaItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <View className="min-w-[30%] flex-1">
-      <View className="flex-row items-center gap-1.5">
-        {icon}
-        <Text className="font-mono text-[10px] uppercase tracking-wider text-ink/40">{label}</Text>
-      </View>
-      <Text className="mt-1 font-sans text-sm font-semibold text-ink" numberOfLines={1}>
-        {value}
-      </Text>
     </View>
   );
 }

@@ -1,3 +1,37 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --cream: #FDF9F3;
+    --paper: #FFFFFF;
+    --ink: #262626;
+    --ink-soft: #737373;
+    --brand-orange: #FF6B35;
+    --brand-blue: #3B82F6;
+    --brand-lime: #A3E635;
+    --brand-pink: #F472B6;
+  }
+
+  body {
+    background-color: var(--cream);
+    color: var(--ink);
+    font-family: DM_Sans, system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .shadow-brutal {
+    box-shadow: 4px 4px 0 0 #262626;
+  }
+  .shadow-brutal-lg {
+    box-shadow: 6px 6px 0 0 #262626;
+  }
+  .shadow-brutal-sm {
+    box-shadow: 2px 2px 0 0 #262626;
+  }
+  .border-ink {
+    border-color: #262626;
+  }
+}

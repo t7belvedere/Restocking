@@ -1,389 +1,422 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
-  Image,
+  Pressable,
   ScrollView,
-  Animated,
+  Image,
   ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { router } from "expo-router";
+import { Link, Check, ChevronLeft, Sparkles } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/lib/auth";
-import { useI18n } from "@/lib/i18n";
-import { analyzeUrl, type AnalyzeResult } from "@/lib/api";
-import { supabase } from "@/lib/supabase";
-import { brutalSm, brutal } from "@/lib/shadows";
+import { analyzeUrl, createWatch } from "@/lib/api";
+import type { AnalyzeResult } from "@/lib/api";
+import { cn, formatPrice, shortHost } from "@/lib/utils";
+import { VariantPicker } from "@/components/variant-picker";
 
-type Step = "input" | "preview" | "success";
+/* ── Progress indicator ───────────────────────────────────── */
+
+const PROGRESS_STEPS = [
+  { key: "http", label: "Connexion" },
+  { key: "browser", label: "Navigateur" },
+  { key: "extracting", label: "Extraction" },
+];
+
+function AnalysisProgress({ currentStep }: { currentStep: string }) {
+  return (
+    <View className="mt-6">
+      <View className="flex-row justify-between mb-3">
+        {PROGRESS_STEPS.map((step) => {
+          const stepIdx = PROGRESS_STEPS.findIndex(
+            (s) => s.key === currentStep,
+          );
+          const i = PROGRESS_STEPS.indexOf(step);
+          const done = i < stepIdx;
+          const active = i === stepIdx;
+
+          return (
+            <View key={step.key} className="items-center flex-1">
+              <View
+                className={cn(
+                  "w-8 h-8 rounded-xl border-2 border-ink items-center justify-center mb-1",
+                  done && "bg-ink",
+                  active && "bg-orange",
+                  !done && !active && "bg-paper",
+                )}
+                style={
+                  active
+                    ? { boxShadow: "3px 3px 0 0 #262626" }
+                    : undefined
+                }
+              >
+                {done ? (
+                  <Check size={16} color="#FDF9F3" strokeWidth={3} />
+                ) : active ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text className="text-ink-soft text-xs font-bold">
+                    {i + 1}
+                  </Text>
+                )}
+              </View>
+              <Text
+                className={cn(
+                  "text-[10px] font-bold text-center",
+                  active ? "text-orange" : "text-ink-soft",
+                )}
+              >
+                {step.label}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
+      {/* Connector lines */}
+      <View className="flex-row px-8">
+        {PROGRESS_STEPS.slice(0, -1).map((_, i) => (
+          <View
+            key={i}
+            className="flex-1 h-0.5 bg-muted mx-2 rounded-full"
+          />
+        ))}
+      </View>
+    </View>
+  );
+}
+
+/* ── Product preview card ─────────────────────────────────── */
+
+function ProductPreview({ result }: { result: AnalyzeResult }) {
+  return (
+    <View
+      className="bg-paper border-2 border-ink rounded-xl p-4 mb-6"
+      style={{ boxShadow: "4px 4px 0 0 #262626" }}
+    >
+      <View className="flex-row gap-4">
+        {result.image_url ? (
+          <Image
+            source={{ uri: result.image_url }}
+            className="w-20 h-20 rounded-xl border-2 border-ink"
+            resizeMode="cover"
+          />
+        ) : (
+          <View className="w-20 h-20 rounded-xl border-2 border-ink bg-muted items-center justify-center">
+            <Text className="text-ink-soft text-xs font-bold">IMG</Text>
+          </View>
+        )}
+        <View className="flex-1 justify-center">
+          <Text className="font-bold text-ink text-sm" numberOfLines={2}>
+            {result.name || "Produit sans titre"}
+          </Text>
+          <Text className="text-ink-soft text-xs mt-1">
+            {shortHost(result.url)}
+          </Text>
+          {result.price != null && (
+            <Text className="font-display text-ink text-lg mt-1">
+              {formatPrice(result.price)}
+            </Text>
+          )}
+        </View>
+      </View>
+    </View>
+  );
+}
+
+/* ── Main screen ──────────────────────────────────────────── */
 
 export default function AddScreen() {
   const { user } = useAuth();
-  const { t, locale } = useI18n();
-  const router = useRouter();
-
-  const [step, setStep] = useState<Step>("input");
+  const insets = useSafeAreaInsets();
   const [url, setUrl] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [product, setProduct] = useState<AnalyzeResult | null>(null);
+  const [step, setStep] = useState<"input" | "analyzing" | "confirm">(
+    "input",
+  );
+  const [progressStep, setProgressStep] = useState("http");
+  const [result, setResult] = useState<AnalyzeResult | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-
-  const pulseAnim = useRef(new Animated.Value(0.3)).current;
-
-  useEffect(() => {
-    if (loading) {
-      const pulse = Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 600,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 0.3,
-            duration: 600,
-            useNativeDriver: true,
-          }),
-        ]),
-      );
-      pulse.start();
-      return () => pulse.stop();
-    } else {
-      pulseAnim.setValue(0.3);
-    }
-  }, [loading, pulseAnim]);
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<TextInput>(null);
 
   const handleAnalyze = async () => {
     const trimmed = url.trim();
-    if (!trimmed) return;
-    setError(null);
-    setLoading(true);
-
-    try {
-      const result = await analyzeUrl(trimmed);
-      setLoading(false);
-
-      if (!result.ok) {
-        setError(result.error || "Impossible d'analyser cette URL.");
-        return;
-      }
-
-      const availableVariant = result.variants?.find((v) => v.in_stock);
-      setSelectedVariant(availableVariant?.label ?? result.variants?.[0]?.label ?? null);
-      setProduct(result);
-      setStep("preview");
-    } catch {
-      setLoading(false);
-      setError("Erreur reseau. Verifie ta connexion et reessaie.");
+    if (!trimmed) {
+      setError("Entre une URL de produit.");
+      return;
     }
-  };
-
-  const handleCreateAlert = async () => {
-    if (!user || !product) return;
-    setSubmitting(true);
-
-    const { error: insertError } = await supabase.from("watches").insert({
-      user_id: user.id,
-      name: product.name,
-      image_url: product.image_url ?? null,
-      price: product.price ?? null,
-      currency: product.currency ?? "EUR",
-      url: url.trim(),
-      variant: selectedVariant ?? null,
-      enrichment_pending: product.enrichment_pending ?? false,
-    });
-
-    setSubmitting(false);
-
-    if (insertError) {
-      Alert.alert("Erreur", insertError.message);
+    if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
+      setError("L'URL doit commencer par http:// ou https://");
       return;
     }
 
-    setStep("success");
+    setError(null);
+    setStep("analyzing");
+    setProgressStep("http");
+
+    try {
+      const data = await analyzeUrl(trimmed, (evt) => {
+        if (evt.step === "http") setProgressStep("http");
+        else if (evt.step === "browser" || evt.step === "playwright")
+          setProgressStep("browser");
+        else setProgressStep("extracting");
+      });
+
+      if (!data.ok) {
+        setError(data.error || "Impossible d'analyser cette URL.");
+        setStep("input");
+        return;
+      }
+
+      setResult(data);
+      setSelectedSize(null);
+      setSelectedColor(null);
+      setSelectedVariant(null);
+      setStep("confirm");
+    } catch (e: any) {
+      setError(e?.message || "Erreur de connexion au serveur.");
+      setStep("input");
+    }
+  };
+
+  const handleActivate = async () => {
+    if (!result) return;
+
+    let variantLabel = "";
+    let variantId = "";
+    if (selectedSize && selectedColor) {
+      variantLabel = `${selectedSize} / ${selectedColor}`;
+      variantId = `${selectedSize}|${selectedColor}`;
+    } else if (selectedSize) {
+      variantLabel = selectedSize;
+      variantId = selectedSize;
+    } else if (selectedColor) {
+      variantLabel = selectedColor;
+      variantId = selectedColor;
+    } else if (selectedVariant) {
+      variantLabel = selectedVariant;
+      variantId = selectedVariant;
+    }
+
+    const hasOptions =
+      (result.sizes && result.sizes.length > 0) ||
+      (result.variants && result.variants.length > 0);
+
+    if (!variantId && hasOptions) {
+      Alert.alert(
+        "Selection requise",
+        "Choisis une taille ou une variante avant d'activer l'alerte.",
+      );
+      return;
+    }
+
+    setCreating(true);
+    try {
+      if (!user) return;
+      const res = await createWatch({
+        userId: user.id,
+        url: result.url,
+        name: result.name,
+        image_url: result.image_url,
+        price: result.price,
+        variant_label: variantLabel || "Standard",
+        variant_id: variantId || "standard",
+      });
+
+      if (!res.ok) {
+        Alert.alert(
+          "Erreur",
+          res.error || "Impossible de creer l'alerte.",
+        );
+        return;
+      }
+
+      Alert.alert(
+        "Alerte creee !",
+        "Tu seras notifie des que le produit revient en stock.",
+        [{ text: "OK", onPress: () => router.replace("/(tabs)") }],
+      );
+    } catch {
+      Alert.alert("Erreur", "Une erreur est survenue.");
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handleReset = () => {
-    setUrl("");
-    setProduct(null);
-    setSelectedVariant(null);
-    setError(null);
     setStep("input");
+    setResult(null);
+    setError(null);
+    setSelectedSize(null);
+    setSelectedColor(null);
+    setSelectedVariant(null);
+    setUrl("");
   };
-
-  const domain = (() => {
-    if (!url) return "";
-    try {
-      return new URL(url.trim()).hostname.replace(/^www\./, "");
-    } catch {
-      return "";
-    }
-  })();
 
   return (
     <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1 bg-cream"
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      style={{ paddingTop: insets.top }}
     >
       <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ padding: 20, flexGrow: 1 }}
+        className="flex-1 px-4"
+        contentContainerStyle={{ paddingBottom: 40 }}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        {/* ────────── Step 1: URL Input ────────── */}
+        {/* ── Step 1: URL Input ──────────────────────────── */}
         {step === "input" && (
-          <View style={{ gap: 24, marginTop: 40 }}>
-            <Text className="font-display text-3xl font-extrabold text-ink">
-              {t.addAlert}
-            </Text>
-            <Text className="font-sans text-base font-semibold text-ink-soft">
-              {t.pasteProductUrl}
-            </Text>
+          <View className="pt-6">
+            <View className="mb-6">
+              <Text className="font-display text-2xl text-ink mb-2">
+                Nouvelle alerte
+              </Text>
+              <Text className="font-sans text-ink-soft text-base leading-relaxed">
+                Colle l'URL d'un produit et on verifiera les stocks pour toi.
+              </Text>
+            </View>
 
-            <View>
-              <TextInput
-                className="h-14 rounded-xl border-2 border-ink bg-paper px-4 font-sans text-base font-medium text-ink"
-                style={brutalSm}
-                placeholder={t.urlPlaceholder}
-                placeholderTextColor="#5a5355"
-                value={url}
-                onChangeText={(text) => {
-                  setUrl(text);
-                  if (error) setError(null);
-                }}
-                autoCapitalize="none"
-                autoCorrect={false}
-                keyboardType="url"
-                returnKeyType="go"
-                onSubmitEditing={handleAnalyze}
-              />
-              {error ? (
-                <Text className="mt-2 font-sans text-sm text-destructive">
+            {/* URL input */}
+            <View className="mb-3">
+              <Text className="font-bold text-ink text-sm mb-2">
+                URL du produit
+              </Text>
+              <View className="flex-row items-center bg-paper border-2 border-ink rounded-xl px-4">
+                <Link size={18} color="#737373" strokeWidth={2} />
+                <TextInput
+                  ref={inputRef}
+                  className="flex-1 py-4 px-3 font-sans text-ink text-base"
+                  placeholder="https://www.zara.com/fr/..."
+                  placeholderTextColor="#A3A3A3"
+                  value={url}
+                  onChangeText={(t) => {
+                    setUrl(t);
+                    if (error) setError(null);
+                  }}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="url"
+                  returnKeyType="go"
+                  onSubmitEditing={handleAnalyze}
+                />
+              </View>
+              <Text className="text-ink-soft text-xs mt-2 ml-1">
+                Colle l'URL d'une fiche produit Zara, COS, Uniqlo...
+              </Text>
+            </View>
+
+            {error && (
+              <View className="bg-red-50 border-2 border-destructive rounded-xl p-3 mb-3">
+                <Text className="text-destructive text-sm font-bold">
                   {error}
                 </Text>
-              ) : null}
-            </View>
+              </View>
+            )}
 
-            <TouchableOpacity
-              className="h-12 items-center justify-center rounded-xl border-2 border-ink bg-ink"
-              style={brutal}
+            <Pressable
               onPress={handleAnalyze}
-              disabled={loading || !url.trim()}
-              activeOpacity={0.8}
+              className="bg-orange border-2 border-ink rounded-xl py-4 items-center mt-2"
+              style={{ boxShadow: "4px 4px 0 0 #262626" }}
             >
-              {loading ? (
-                <ActivityIndicator color="#fbf8f0" />
-              ) : (
-                <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
-                  {t.analyzeProduct}
-                </Text>
-              )}
-            </TouchableOpacity>
-
-            {/* Skeleton loading bars */}
-            {loading && (
-              <View style={{ gap: 12, marginTop: 8 }}>
-                {[100, 85, 60].map((width, i) => (
-                  <Animated.View
-                    key={i}
-                    className="h-5 rounded-md bg-ink/10"
-                    style={{ opacity: pulseAnim, width: `${width}%` }}
-                  />
-                ))}
-              </View>
-            )}
+              <Text className="font-bold text-white text-base">Analyser</Text>
+            </Pressable>
           </View>
         )}
 
-        {/* ────────── Step 2: Product Preview ────────── */}
-        {step === "preview" && product && (
-          <View style={{ gap: 24, marginTop: 40 }}>
-            <Text className="font-display text-3xl font-extrabold text-ink">
-              {t.addAlert}
+        {/* ── Analyzing state ────────────────────────────── */}
+        {step === "analyzing" && (
+          <View className="pt-12 items-center">
+            <Text className="font-display text-xl text-ink mb-2">
+              Analyse en cours
+            </Text>
+            <Text className="font-sans text-ink-soft text-center mb-8">
+              On inspecte la page produit pour trouver les tailles et les
+              prix...
             </Text>
 
-            {/* Product preview card */}
-            <View
-              className="rounded-2xl border-2 border-ink bg-paper p-5"
-              style={brutal}
-            >
-              {product.image_url ? (
-                <Image
-                  source={{ uri: product.image_url }}
-                  className="mb-4 h-48 w-full rounded-xl border border-ink/20"
-                  resizeMode="cover"
-                />
-              ) : (
-                <View className="mb-4 h-48 w-full items-center justify-center rounded-xl border border-ink/20 bg-muted">
-                  <Text className="font-mono text-sm text-ink-soft">
-                    {t.noImage}
-                  </Text>
-                </View>
-              )}
+            <View className="w-full bg-paper border-2 border-ink rounded-xl p-6 mb-6">
+              <AnalysisProgress currentStep={progressStep} />
+              <View className="items-center mt-8">
+                <Sparkles size={32} color="#FF6B35" strokeWidth={2} />
+                <Text className="text-ink-soft text-sm mt-3 text-center">
+                  {progressStep === "http"
+                    ? "Connexion au service d'analyse..."
+                    : progressStep === "browser"
+                      ? "Navigation sur la page produit..."
+                      : "Extraction des variantes disponibles..."}
+                </Text>
+              </View>
+            </View>
 
-              <Text
-                className="font-display text-xl font-bold text-ink"
-                numberOfLines={2}
-              >
-                {product.name}
+            <Pressable onPress={handleReset} className="py-3 px-6">
+              <Text className="text-ink-soft text-sm font-bold underline">
+                Annuler
               </Text>
-
-              {domain ? (
-                <Text className="mt-1 font-mono text-sm text-ink-soft">
-                  {domain}
-                </Text>
-              ) : null}
-
-              {product.price ? (
-                <Text className="mt-2 font-mono text-lg font-bold text-ink">
-                  {new Intl.NumberFormat(
-                    locale === "fr" ? "fr-FR" : "en-US",
-                    {
-                      style: "currency",
-                      currency: product.currency || "EUR",
-                    },
-                  ).format(product.price)}
-                </Text>
-              ) : null}
-            </View>
-
-            {/* Variant pills */}
-            {product.variants && product.variants.length > 0 && (
-              <View>
-                <Text className="mb-3 font-sans text-sm font-semibold text-ink">
-                  {t.selectSize}
-                </Text>
-                <View className="flex-row flex-wrap gap-2">
-                  {product.variants.map((v) => {
-                    const isSelected = selectedVariant === v.label;
-                    return (
-                      <TouchableOpacity
-                        key={v.label}
-                        onPress={() => {
-                          if (v.in_stock) setSelectedVariant(v.label);
-                        }}
-                        disabled={!v.in_stock}
-                        className={`rounded-full border-2 px-4 py-2.5 ${
-                          isSelected
-                            ? "border-ink bg-ink"
-                            : v.in_stock
-                              ? "border-ink bg-paper"
-                              : "border-ink/20 opacity-40"
-                        }`}
-                        style={isSelected ? brutalSm : undefined}
-                        activeOpacity={0.7}
-                      >
-                        <Text
-                          className={`font-mono text-sm font-medium ${
-                            isSelected
-                              ? "text-cream"
-                              : v.in_stock
-                                ? "text-ink"
-                                : "text-ink-soft line-through"
-                          }`}
-                        >
-                          {v.label}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              </View>
-            )}
-
-            {/* Enrichment banner */}
-            {product.enrichment_pending ? (
-              <View className="rounded-xl border border-orange/40 bg-orange/5 p-4">
-                <Text className="font-sans text-sm leading-relaxed text-ink-soft">
-                  {t.enrichmentMessage}
-                </Text>
-              </View>
-            ) : null}
-
-            {/* Action buttons */}
-            <View className="flex-row gap-3">
-              <TouchableOpacity
-                className="flex-1 h-12 items-center justify-center rounded-xl border-2 border-ink bg-paper"
-                style={brutal}
-                onPress={handleReset}
-                activeOpacity={0.8}
-              >
-                <Text className="font-display text-sm font-bold uppercase tracking-widest text-ink">
-                  {t.cancel}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                className="flex-1 h-12 items-center justify-center rounded-xl border-2 border-ink bg-ink"
-                style={brutal}
-                onPress={handleCreateAlert}
-                disabled={submitting}
-                activeOpacity={0.8}
-              >
-                {submitting ? (
-                  <ActivityIndicator color="#fbf8f0" />
-                ) : (
-                  <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
-                    {t.activateAlert}
-                  </Text>
-                )}
-              </TouchableOpacity>
-            </View>
+            </Pressable>
           </View>
         )}
 
-        {/* ────────── Success ────────── */}
-        {step === "success" && (
-          <View
-            className="flex-1 items-center justify-center"
-            style={{ gap: 32, marginTop: 80 }}
-          >
-            <View
-              className="h-24 w-24 items-center justify-center rounded-full bg-lime"
-              style={brutal}
+        {/* ── Step 2: Confirm ────────────────────────────── */}
+        {step === "confirm" && result && (
+          <View className="pt-6">
+            {/* Back button */}
+            <Pressable
+              onPress={handleReset}
+              className="flex-row items-center mb-4"
             >
-              <Text className="font-display text-4xl text-ink">
-                {"✓"}
+              <ChevronLeft size={20} color="#737373" strokeWidth={2.5} />
+              <Text className="text-ink-soft text-sm font-bold ml-1">
+                Modifier l'URL
               </Text>
-            </View>
+            </Pressable>
 
-            <Text className="font-display text-3xl font-extrabold text-ink text-center">
-              {t.alertCreated}
+            <Text className="font-display text-2xl text-ink mb-4">
+              Confirmer l'alerte
             </Text>
 
-            <Text className="font-sans text-base text-ink-soft text-center leading-relaxed">
-              {t.alertActiveDesc}
-            </Text>
+            <ProductPreview result={result} />
 
-            <View className="flex-row gap-3" style={{ marginTop: 8 }}>
-              <TouchableOpacity
-                className="h-12 items-center justify-center rounded-xl border-2 border-ink bg-paper px-6"
-                style={brutal}
-                onPress={handleReset}
-                activeOpacity={0.8}
-              >
-                <Text className="font-display text-sm font-bold uppercase tracking-widest text-ink">
-                  {t.addAnother}
-                </Text>
-              </TouchableOpacity>
+            {/* Variant picker */}
+            <VariantPicker
+              sizes={result.sizes}
+              colors={result.colors}
+              variants={result.variants}
+              sizesStatus={result.sizes_status}
+              colorsStatus={result.colors_status}
+              selectedSize={selectedSize}
+              selectedColor={selectedColor}
+              selectedVariant={selectedVariant}
+              onSelectSize={setSelectedSize}
+              onSelectColor={setSelectedColor}
+              onSelectVariant={setSelectedVariant}
+            />
 
-              <TouchableOpacity
-                className="h-12 items-center justify-center rounded-xl border-2 border-ink bg-ink px-6"
-                style={brutal}
-                onPress={() => router.push("/(tabs)")}
-                activeOpacity={0.8}
-              >
-                <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
-                  {t.seeMyAlerts}
+            {/* Activate button */}
+            <Pressable
+              onPress={handleActivate}
+              disabled={creating}
+              className={cn(
+                "bg-orange border-2 border-ink rounded-xl py-4 items-center mt-2",
+                creating && "opacity-60",
+              )}
+              style={{ boxShadow: "4px 4px 0 0 #262626" }}
+            >
+              {creating ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Text className="font-bold text-white text-base">
+                  Activer l'alerte
                 </Text>
-              </TouchableOpacity>
-            </View>
+              )}
+            </Pressable>
           </View>
         )}
       </ScrollView>

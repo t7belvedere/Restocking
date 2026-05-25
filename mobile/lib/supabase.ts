@@ -1,20 +1,42 @@
 import { createClient } from "@supabase/supabase-js";
+import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL!;
+const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  const msg = `Supabase env vars missing. URL: ${!!supabaseUrl}, Key: ${!!supabaseAnonKey}`;
-  if (Platform.OS === "web") {
-    console.error(msg);
-  }
-  // On native, show the error visibly instead of silent crash
-  throw new Error(msg);
-}
+const secureStoreAdapter = {
+  getItem: async (key: string) => {
+    try {
+      if (Platform.OS === "web") return localStorage.getItem(key);
+      return await SecureStore.getItemAsync(key);
+    } catch {
+      return null;
+    }
+  },
+  setItem: async (key: string, value: string) => {
+    try {
+      if (Platform.OS === "web") {
+        localStorage.setItem(key, value);
+      } else {
+        await SecureStore.setItemAsync(key, value);
+      }
+    } catch {}
+  },
+  removeItem: async (key: string) => {
+    try {
+      if (Platform.OS === "web") {
+        localStorage.removeItem(key);
+      } else {
+        await SecureStore.deleteItemAsync(key);
+      }
+    } catch {}
+  },
+};
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
+    storage: secureStoreAdapter,
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,

@@ -3,162 +3,133 @@ import {
   View,
   Text,
   TextInput,
-  Pressable,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
 } from "react-native";
-import { Link } from "expo-router";
-import { useAuth } from "@/lib/auth";
-import { useI18n } from "@/lib/i18n";
-import { brutalSm, brutal, brutalXl } from "@/lib/shadows";
+import { router } from "expo-router";
+import { supabase } from "@/lib/supabase";
+import AppLogo from "@/components/AppLogo";
 
 export default function ForgotPasswordScreen() {
-  const { resetPassword } = useAuth();
-  const { t } = useI18n();
-
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [sent, setSent] = useState(false);
 
-  const handleReset = async () => {
-    setError("");
-    setLoading(true);
-    const { error: err } = await resetPassword(email.trim());
-    if (err) {
-      setError(err);
-      setLoading(false);
-    } else {
-      setSuccess(true);
+  async function handleResetPassword() {
+    if (!email.trim()) {
+      Alert.alert("Erreur", "Veuillez saisir votre adresse email.");
+      return;
     }
-  };
 
-  if (success) {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: "restock://auth/callback",
+      });
+
+      if (error) {
+        Alert.alert("Erreur", error.message);
+        return;
+      }
+
+      setSent(true);
+    } catch (err: any) {
+      Alert.alert("Erreur", err?.message ?? "Une erreur est survenue.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (sent) {
     return (
-      <View className="flex-1 items-center justify-center bg-cream px-6">
-        {/* Lime circle with mail icon */}
-        <View
-          className="mb-8 h-24 w-24 items-center justify-center rounded-full bg-lime"
-          style={brutal}
-        >
-          <Text className="font-display text-3xl text-ink">@</Text>
+      <View className="flex-1 bg-cream px-6 justify-center items-center">
+        <AppLogo />
+        <View className="mt-10 items-center">
+          <Text className="font-display text-2xl font-bold text-ink text-center mb-4">
+            Email envoye
+          </Text>
+          <Text className="font-sans text-ink-soft text-center mb-6">
+            Si un compte existe avec l'adresse{"\n"}
+            <Text className="font-bold text-ink">{email.trim()}</Text>,
+            {"\n\n"}
+            vous recevrez un lien pour reinitialiser votre mot de passe.
+          </Text>
+          <TouchableOpacity
+            className="rounded-xl border-2 border-ink bg-orange px-6 py-3.5"
+            onPress={() => router.replace("/(auth)/login")}
+            activeOpacity={0.8}
+          >
+            <Text className="font-bold text-ink text-base">Retour a la connexion</Text>
+          </TouchableOpacity>
         </View>
-        <Text className="font-display text-3xl font-extrabold tracking-tighter text-ink">
-          {t.emailSentTitle}
-        </Text>
-        <Text className="mt-3 text-center font-sans text-base leading-relaxed text-ink/70">
-          {t.emailSent}
-        </Text>
-        <Link href="/(auth)/login" asChild>
-          <Pressable className="mt-10">
-            <Text className="font-mono text-xs uppercase tracking-[0.2em] text-ink/60">
-              {t.back}
-            </Text>
-          </Pressable>
-        </Link>
       </View>
     );
   }
 
   return (
-    <ScrollView
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1 bg-cream"
-      contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
-      keyboardShouldPersistTaps="handled"
     >
-      <View className="px-6 py-12">
-        {/* Eyebrow badge */}
-        <View className="mb-6 self-start flex-row items-center gap-2 rounded-full border-2 border-ink bg-paper px-4 py-1.5">
-          <View className="h-2 w-2 rounded-full bg-orange" />
-          <Text className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink">
-            {t.password}
-          </Text>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+        keyboardShouldPersistTaps="handled"
+        className="px-6"
+      >
+        <View className="items-center mb-8">
+          <AppLogo />
         </View>
 
-        {/* Heading */}
-        <Text className="font-display text-5xl font-extrabold tracking-tighter text-ink">
-          {t.forgotPasswordTitle}
-        </Text>
-        <Text className="mt-2 font-sans text-base leading-relaxed text-ink/70">
-          {t.forgotPasswordSubtitle}
-        </Text>
-
-        {/* Form card */}
         <View
-          className="mt-8 rounded-3xl border-2 border-ink bg-paper p-7"
-          style={brutalXl}
+          className="bg-paper rounded-2xl border-2 border-ink p-6"
+          style={{ boxShadow: "4px 4px 0 0 #262626" }}
         >
-          {/* Logo wordmark */}
-          <View className="mb-8 items-center">
-            <View className="flex-row items-baseline">
-              <Text className="font-display text-2xl tracking-tighter text-ink">
-                restocking
-              </Text>
-              <Text className="font-display text-2xl tracking-tighter text-orange">
-                .
-              </Text>
-            </View>
-          </View>
+          <Text className="font-display text-2xl font-bold text-ink mb-6 text-center">
+            Mot de passe oublie
+          </Text>
 
-          {/* Error message */}
-          {error !== "" && (
-            <View className="mb-4 rounded-xl border-2 border-destructive bg-destructive/10 px-4 py-3">
-              <Text className="font-sans text-sm font-semibold text-destructive">
-                {error}
-              </Text>
-            </View>
-          )}
+          <Text className="font-sans text-ink-soft mb-5 text-center">
+            Saisissez votre adresse email et nous vous enverrons un lien de reinitialisation.
+          </Text>
 
-          {/* Email field */}
-          <View className="mb-6">
-            <Text className="mb-2 font-display text-xs font-bold uppercase tracking-[0.2em] text-ink">
-              {t.email}
-            </Text>
-            <TextInput
-              className="h-12 rounded-xl border-2 border-ink bg-paper px-4 font-sans text-base text-ink"
-              style={brutalSm}
-              placeholder="ton@email.com"
-              placeholderTextColor="rgba(11,11,11,0.35)"
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              autoComplete="email"
-              keyboardType="email-address"
-              textContentType="emailAddress"
-              inputMode="email"
-              editable={!loading}
-            />
-          </View>
+          <Text className="font-sans text-ink font-bold mb-1.5 ml-1">Email</Text>
+          <TextInput
+            className="rounded-xl border-2 border-ink bg-white px-4 py-3 font-sans text-ink mb-5"
+            placeholder="votre@email.com"
+            placeholderTextColor="#737373"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            value={email}
+            onChangeText={setEmail}
+            editable={!loading}
+            onSubmitEditing={handleResetPassword}
+          />
 
-          {/* Submit button */}
-          <Pressable
-            onPress={handleReset}
-            disabled={loading || !email}
-            className="h-12 w-full items-center justify-center rounded-xl border-2 border-ink bg-ink"
-            style={brutal}
+          <TouchableOpacity
+            className="rounded-xl border-2 border-ink bg-orange px-6 py-3.5 items-center"
+            onPress={handleResetPassword}
+            disabled={loading}
+            activeOpacity={0.8}
           >
             {loading ? (
-              <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream/60">
-                ...
-              </Text>
+              <ActivityIndicator size="small" color="#262626" />
             ) : (
-              <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
-                {t.sendReset}
-              </Text>
+              <Text className="font-bold text-ink text-base">Envoyer le lien</Text>
             )}
-          </Pressable>
+          </TouchableOpacity>
         </View>
 
-        {/* Bottom link */}
-        <View className="mt-8 items-center">
-          <Link href="/(auth)/login" asChild>
-            <Pressable>
-              <Text className="font-mono text-xs uppercase tracking-[0.2em] text-ink/60">
-                {t.back}
-              </Text>
-            </Pressable>
-          </Link>
+        <View className="flex-row justify-center mt-6">
+          <TouchableOpacity onPress={() => router.back()} activeOpacity={0.8}>
+            <Text className="font-bold text-orange underline">Retour a la connexion</Text>
+          </TouchableOpacity>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

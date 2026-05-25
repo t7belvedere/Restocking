@@ -3,217 +3,256 @@ import {
   View,
   Text,
   TextInput,
-  Pressable,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
 } from "react-native";
-import { Link } from "expo-router";
-import { useAuth } from "@/lib/auth";
-import { useI18n } from "@/lib/i18n";
-import { brutalSm, brutal, brutalXl } from "@/lib/shadows";
+import { router, Link } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 import { supabase } from "@/lib/supabase";
-import { AppLogo } from "@/components/AppLogo";
+import AppLogo from "@/components/AppLogo";
+import GoogleIcon from "@/components/GoogleIcon";
+
+WebBrowser.maybeCompleteAuthSession();
+
+function extractCodeFromUrl(url: string): string | null {
+  try {
+    const escaped = url.replace(/#/g, "?");
+    const params = new URLSearchParams(escaped.split("?")[1] ?? "");
+    return params.get("code");
+  } catch {
+    return null;
+  }
+}
 
 export default function RegisterScreen() {
-  const { signUp } = useAuth();
-  const { t } = useI18n();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const handleSignUp = async () => {
-    setError("");
-    setLoading(true);
-    const { error: err } = await signUp(email.trim(), password);
-    if (err) {
-      setError(err);
-      setLoading(false);
-    } else {
-      setSuccess(true);
+  async function handleEmailRegister() {
+    if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
+      Alert.alert("Erreur", "Veuillez remplir tous les champs.");
+      return;
     }
-  };
 
-  const handleGoogleSignIn = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo:
-          typeof window !== "undefined" ? window.location.origin : "",
-      },
-    });
-  };
+    if (password !== confirmPassword) {
+      Alert.alert("Erreur", "Les mots de passe ne correspondent pas.");
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert("Erreur", "Le mot de passe doit contenir au moins 6 caracteres.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+      });
+
+      if (error) {
+        Alert.alert("Erreur", error.message);
+        return;
+      }
+
+      setSuccess(true);
+    } catch (err: any) {
+      Alert.alert("Erreur", err?.message ?? "Une erreur est survenue.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleOAuth(provider: "google" | "apple") {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: "restock://auth/callback",
+        },
+      });
+
+      if (error) {
+        Alert.alert("Erreur", error.message);
+        return;
+      }
+
+      if (data?.url) {
+        const result = await WebBrowser.openAuthSessionAsync(data.url, "restock://auth/callback");
+
+        if (result.type === "success" && result.url) {
+          const code = extractCodeFromUrl(result.url);
+
+          if (code) {
+            const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+            if (exchangeError) {
+              Alert.alert("Erreur", exchangeError.message);
+              return;
+            }
+            router.replace("/(tabs)");
+          } else {
+            const { data: sessionData } = await supabase.auth.getSession();
+            if (sessionData?.session) {
+              router.replace("/(tabs)");
+            }
+          }
+        }
+      }
+    } catch (err: any) {
+      Alert.alert("Erreur", err?.message ?? "Une erreur est survenue.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   if (success) {
     return (
-      <View className="flex-1 items-center justify-center bg-cream px-6">
-        {/* Lime circle with checkmark */}
-        <View
-          className="mb-8 h-24 w-24 items-center justify-center rounded-full bg-lime"
-          style={brutal}
-        >
-          <Text className="font-display text-4xl text-ink">OK</Text>
+      <View className="flex-1 bg-cream px-6 justify-center items-center">
+        <AppLogo />
+        <View className="mt-10 items-center">
+          <Text className="font-display text-2xl font-bold text-ink text-center mb-4">
+            Verifiez votre email
+          </Text>
+          <Text className="font-sans text-ink-soft text-center mb-6">
+            Un lien de confirmation a ete envoye a{"\n"}
+            <Text className="font-bold text-ink">{email.trim()}</Text>.
+            {"\n\n"}
+            Cliquez dessus pour activer votre compte.
+          </Text>
+          <TouchableOpacity
+            className="rounded-xl border-2 border-ink bg-orange px-6 py-3.5"
+            onPress={() => router.replace("/(auth)/login")}
+            activeOpacity={0.8}
+          >
+            <Text className="font-bold text-ink text-base">Retour a la connexion</Text>
+          </TouchableOpacity>
         </View>
-        <Text className="font-display text-3xl font-extrabold tracking-tighter text-ink">
-          {t.checkEmailTitle}
-        </Text>
-        <Text className="mt-3 text-center font-sans text-base leading-relaxed text-ink/70">
-          {t.checkEmail}
-        </Text>
-        <Link href="/(auth)/login" asChild>
-          <Pressable className="mt-10">
-            <Text className="font-mono text-xs uppercase tracking-[0.2em] text-ink/60">
-              {t.back}
-            </Text>
-          </Pressable>
-        </Link>
       </View>
     );
   }
 
   return (
-    <ScrollView
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1 bg-cream"
-      contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
-      keyboardShouldPersistTaps="handled"
     >
-      <View className="px-6 py-12">
-        {/* Eyebrow badge */}
-        <View className="mb-6 self-start flex-row items-center gap-2 rounded-full border-2 border-ink bg-paper px-4 py-1.5">
-          <View className="h-2 w-2 rounded-full bg-orange" />
-          <Text className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink">
-            {t.register}
-          </Text>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+        keyboardShouldPersistTaps="handled"
+        className="px-6"
+      >
+        <View className="items-center mb-8">
+          <AppLogo />
         </View>
 
-        {/* Heading */}
-        <Text className="font-display text-5xl font-extrabold tracking-tighter text-ink">
-          {t.createAccount}
-        </Text>
-        <Text className="mt-2 font-sans text-base leading-relaxed text-ink/70">
-          {t.registerSubtitle}
-        </Text>
-
-        {/* Form card */}
         <View
-          className="mt-8 rounded-3xl border-2 border-ink bg-paper p-7"
-          style={brutalXl}
+          className="bg-paper rounded-2xl border-2 border-ink p-6"
+          style={{ boxShadow: "4px 4px 0 0 #262626" }}
         >
-          {/* App logo */}
-          <View className="mb-8 items-center gap-3">
-            <AppLogo size={64} />
-            <View className="flex-row items-baseline">
-              <Text className="font-display text-2xl tracking-tighter text-ink">
-                restocking
-              </Text>
-              <Text className="font-display text-2xl tracking-tighter text-orange">
-                .
-              </Text>
-            </View>
-          </View>
+          <Text className="font-display text-2xl font-bold text-ink mb-6 text-center">
+            Inscription
+          </Text>
 
-          {/* Google OAuth button */}
-          <Pressable
-            onPress={handleGoogleSignIn}
-            className="h-12 w-full flex-row items-center justify-center rounded-xl border-2 border-ink bg-paper"
-            style={brutal}
-          >
-            <Text className="font-display text-sm font-bold uppercase tracking-widest text-ink">
-              {t.googleContinue}
-            </Text>
-          </Pressable>
+          <Text className="font-sans text-ink font-bold mb-1.5 ml-1">Email</Text>
+          <TextInput
+            className="rounded-xl border-2 border-ink bg-white px-4 py-3 font-sans text-ink mb-4"
+            placeholder="votre@email.com"
+            placeholderTextColor="#737373"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            value={email}
+            onChangeText={setEmail}
+            editable={!loading}
+          />
 
-          {/* Divider */}
-          <View className="my-6 flex-row items-center gap-3">
-            <View className="h-px flex-1 bg-ink/15" />
-            <Text className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/50">
-              {t.orContinueWith}
-            </Text>
-            <View className="h-px flex-1 bg-ink/15" />
-          </View>
+          <Text className="font-sans text-ink font-bold mb-1.5 ml-1">Mot de passe</Text>
+          <TextInput
+            className="rounded-xl border-2 border-ink bg-white px-4 py-3 font-sans text-ink mb-4"
+            placeholder="Min. 6 caracteres"
+            placeholderTextColor="#737373"
+            secureTextEntry
+            autoCapitalize="none"
+            value={password}
+            onChangeText={setPassword}
+            editable={!loading}
+          />
 
-          {/* Error message */}
-          {error !== "" && (
-            <View className="mb-4 rounded-xl border-2 border-destructive bg-destructive/10 px-4 py-3">
-              <Text className="font-sans text-sm font-semibold text-destructive">
-                {error}
-              </Text>
-            </View>
-          )}
+          <Text className="font-sans text-ink font-bold mb-1.5 ml-1">Confirmer le mot de passe</Text>
+          <TextInput
+            className="rounded-xl border-2 border-ink bg-white px-4 py-3 font-sans text-ink mb-5"
+            placeholder="Repetez votre mot de passe"
+            placeholderTextColor="#737373"
+            secureTextEntry
+            autoCapitalize="none"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            editable={!loading}
+            onSubmitEditing={handleEmailRegister}
+          />
 
-          {/* Email field */}
-          <View className="mb-4">
-            <Text className="mb-2 font-display text-xs font-bold uppercase tracking-[0.2em] text-ink">
-              {t.email}
-            </Text>
-            <TextInput
-              className="h-12 rounded-xl border-2 border-ink bg-paper px-4 font-sans text-base text-ink"
-              style={brutalSm}
-              placeholder="ton@email.com"
-              placeholderTextColor="rgba(11,11,11,0.35)"
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              autoComplete="email"
-              keyboardType="email-address"
-              textContentType="emailAddress"
-              inputMode="email"
-              editable={!loading}
-            />
-          </View>
-
-          {/* Password field */}
-          <View className="mb-2">
-            <Text className="mb-2 font-display text-xs font-bold uppercase tracking-[0.2em] text-ink">
-              {t.password}
-            </Text>
-            <TextInput
-              className="h-12 rounded-xl border-2 border-ink bg-paper px-4 font-sans text-base text-ink"
-              style={brutalSm}
-              placeholder="••••••••"
-              placeholderTextColor="rgba(11,11,11,0.35)"
-              value={password}
-              onChangeText={setPassword}
-              autoCapitalize="none"
-              autoComplete="new-password"
-              textContentType="newPassword"
-              secureTextEntry
-              editable={!loading}
-            />
-          </View>
-
-          {/* Submit button */}
-          <Pressable
-            onPress={handleSignUp}
-            disabled={loading || !email || !password}
-            className="mt-6 h-12 w-full items-center justify-center rounded-xl border-2 border-ink bg-ink"
-            style={brutal}
+          <TouchableOpacity
+            className="rounded-xl border-2 border-ink bg-orange px-6 py-3.5 items-center mb-5"
+            onPress={handleEmailRegister}
+            disabled={loading}
+            activeOpacity={0.8}
           >
             {loading ? (
-              <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream/60">
-                ...
-              </Text>
+              <ActivityIndicator size="small" color="#262626" />
             ) : (
-              <Text className="font-display text-sm font-bold uppercase tracking-widest text-cream">
-                {t.signUp}
-              </Text>
+              <Text className="font-bold text-ink text-base">S'inscrire</Text>
             )}
-          </Pressable>
+          </TouchableOpacity>
+
+          <View className="flex-row items-center mb-5">
+            <View className="flex-1 h-px bg-ink/20" />
+            <Text className="font-sans text-ink-soft mx-3">ou continuer avec</Text>
+            <View className="flex-1 h-px bg-ink/20" />
+          </View>
+
+          <View className="flex-row justify-center gap-4">
+            <TouchableOpacity
+              className="flex-1 rounded-xl border-2 border-ink bg-white px-4 py-3 flex-row items-center justify-center gap-2"
+              onPress={() => handleOAuth("google")}
+              disabled={loading}
+              activeOpacity={0.8}
+            >
+              <GoogleIcon size={20} />
+              <Text className="font-bold text-ink text-sm">Google</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="flex-1 rounded-xl border-2 border-ink bg-white px-4 py-3 flex-row items-center justify-center gap-2"
+              onPress={() => handleOAuth("apple")}
+              disabled={loading}
+              activeOpacity={0.8}
+            >
+              <Text className="text-lg" style={{ lineHeight: 20 }}>
+                &#63743;
+              </Text>
+              <Text className="font-bold text-ink text-sm">Apple</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
-        {/* Bottom link */}
-        <View className="mt-8 flex-row items-center justify-center gap-1">
-          <Text className="font-sans text-sm text-ink/70">{t.hasAccount}</Text>
+        <View className="flex-row justify-center mt-6">
+          <Text className="font-sans text-ink-soft">Deja un compte ? </Text>
           <Link href="/(auth)/login" asChild>
-            <Pressable>
-              <Text className="font-sans text-sm font-bold text-orange underline decoration-orange underline-offset-2">
-                {t.signIn}
-              </Text>
-            </Pressable>
+            <TouchableOpacity>
+              <Text className="font-bold text-orange underline">Se connecter</Text>
+            </TouchableOpacity>
           </Link>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
