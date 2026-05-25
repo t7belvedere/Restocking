@@ -1,56 +1,65 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const BRANDFETCH_API_KEY = process.env.BRANDFETCH_API_KEY;
+const CLIENT_ID = process.env.NEXT_PUBLIC_BRANDFETCH_CLIENT_ID || "1idoVDqRtZmwOL9NXro";
 
 /**
- * Server-side proxy for Brandfetch Brand API.
- * 
- * We use this to get high-quality assets (logos, not icons) that aren't
- * easily accessible via the public CDN without the API's structured response.
+ * Server-side proxy that chains logo providers until one works:
+ *  1. Brandfetch API v2 (rich structured data, light-bg format preferred)
+ *  2. Simple Icons CDN (SVG, 3000+ brands, black-on-transparent)
+ *  3. Returns null → frontend shows typographic wordmark fallback
+ *
+ * Cached for 14 days via Next.js fetch revalidation.
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ domain: string }> }
+  { params }: { params: Promise<{ domain: string }> },
 ) {
   const { domain } = await params;
-  
-  // Public Client ID for CDN fallback
-  const CLIENT_ID = process.env.NEXT_PUBLIC_BRANDFETCH_CLIENT_ID || "1idoVDqRtZmwOL9NXro";
-  const cdnFallback = `https://cdn.brandfetch.io/${domain}?c=${CLIENT_ID}`;
 
-  if (!BRANDFETCH_API_KEY) {
-    // If no API key, return the CDN URL directly
-    return NextResponse.json({ url: cdnFallback });
+  // ── 1. Brandfetch API ──────────────────────────────────────────
+  if (BRANDFETCH_API_KEY) {
+    try {
+      const res = await fetch(`https://api.brandfetch.io/v2/brands/${domain}`, {
+        headers: { Authorization: `Bearer ${BRANDFETCH_API_KEY}` },
+        next: { revalidate: 3600 * 24 * 14 },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const logoAsset =
+          data.logos?.find((l: any) => l.type === "logo") || data.logos?.[0];
+        const formats: any[] = logoAsset?.formats ?? [];
+
+        const lightFormat = formats.find(
+          (f: any) =>
+            f.background === "light" || f.background === "transparent",
+        );
+        const bestUrl = lightFormat?.src || formats[0]?.src;
+        if (bestUrl) {
+          return NextResponse.json({ url: bestUrl });
+        }
+      }
+    } catch {
+      // Brandfetch API failed → try next provider
+    }
   }
+
+  // ── 2. Simple Icons CDN ─────────────────────────────────────────
+  // Derive the Simple Icons slug from the domain's SLD.
+  // Simple Icons uses lowercase slugs like "zara", "cos", "acnestudios".
+  const slug = domain.replace("www.", "").split(".")[0].toLowerCase();
+  const simpleIconsUrl = `https://cdn.simpleicons.org/${slug}/000000`;
 
   try {
-    const res = await fetch(`https://api.brandfetch.io/v2/brands/${domain}`, {
-      headers: {
-        Authorization: `Bearer ${BRANDFETCH_API_KEY}`,
-      },
-      next: { revalidate: 3600 * 24 * 14 },
-    });
-
-    if (!res.ok) {
-      return NextResponse.json({ url: cdnFallback });
+    const check = await fetch(simpleIconsUrl, { method: "HEAD" });
+    if (check.ok) {
+      return NextResponse.json({ url: simpleIconsUrl });
     }
-
-    const data = await res.json();
-
-    // Find a wordmark logo (type "logo"), falling back to any logo asset.
-    const logoAsset = data.logos?.find((l: any) => l.type === "logo") || data.logos?.[0];
-    const formats: any[] = logoAsset?.formats ?? [];
-
-    // Prefer a format made for light backgrounds so the logo is visible
-    // on our light/cream UI. "light" = logo is dark (for light bg),
-    // "transparent" = works anywhere, "dark" = logo is white (for dark bg).
-    const lightFormat = formats.find(
-      (f: any) => f.background === "light" || f.background === "transparent",
-    );
-    const bestUrl = lightFormat?.src || formats[0]?.src || cdnFallback;
-
-    return NextResponse.json({ url: bestUrl });
-  } catch (error) {
-    return NextResponse.json({ url: cdnFallback });
+  } catch {
+    // Simple Icons unreachable → return null
   }
+
+  // ── 3. Nothing found ────────────────────────────────────────────
+  return NextResponse.json({ url: null });
 }

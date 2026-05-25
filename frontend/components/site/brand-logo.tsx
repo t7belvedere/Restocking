@@ -31,7 +31,11 @@ export function BrandLogo({ retailer, className, wordmarkClassName }: Props) {
     const cached = localStorage.getItem(cacheKey);
     
     if (cached) {
-      setState({ kind: "loaded", url: cached });
+      if (cached === "__none__") {
+        setState({ kind: "fallback" });
+      } else {
+        setState({ kind: "loaded", url: cached });
+      }
       return;
     }
 
@@ -48,6 +52,7 @@ export function BrandLogo({ retailer, className, wordmarkClassName }: Props) {
           localStorage.setItem(cacheKey, data.url);
           setState({ kind: "loaded", url: data.url });
         } else {
+          localStorage.setItem(cacheKey, "__none__");
           setState({ kind: "fallback" });
         }
       } catch (err) {
@@ -93,7 +98,7 @@ export function BrandLogo({ retailer, className, wordmarkClassName }: Props) {
           fill
           sizes="(min-width: 1024px) 190px, (min-width: 768px) 160px, (min-width: 640px) 140px, 50vw"
           className="object-contain object-left transition-opacity duration-300"
-          unoptimized={state.url.includes("brandfetch.io")}
+          unoptimized={state.url.includes("brandfetch.io") || state.url.includes("simpleicons.org")}
         />
       )}
     </div>

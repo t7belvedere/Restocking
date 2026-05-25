@@ -229,6 +229,29 @@ export default function RetailersPage() {
         </div>
       </section>
 
+      {/* FADE HINT — suggests there are hundreds more brands */}
+      <section className="border-b-2 border-ink bg-gradient-to-b from-paper to-cream">
+        <div className="container mx-auto max-w-7xl px-5 py-14 text-center lg:px-8">
+          <div
+            className="mx-auto max-w-xl select-none blur-[2px] opacity-20"
+            aria-hidden="true"
+          >
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 font-display text-sm font-bold uppercase tracking-widest text-ink">
+              {[
+                "Mango", "& Other Stories", "Uniqlo", "Dior", "Celine",
+                "Filippa K", "Sessùn", "Rouje", "Isabel Marant", "Patagonia",
+                "Nike", "Adidas", "Monki", "Arket", "The North Face",
+              ].map((name) => (
+                <span key={name}>{name}</span>
+              ))}
+            </div>
+          </div>
+          <p className="mt-6 font-display text-sm font-bold uppercase tracking-[0.2em] text-ink/25">
+            Des centaines de marques à venir...
+          </p>
+        </div>
+      </section>
+
       {/* REQUEST */}
       <section className="border-b-2 border-ink bg-[var(--brand-blue)]">
         <div className="container mx-auto grid max-w-6xl gap-10 px-5 py-20 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:px-8">

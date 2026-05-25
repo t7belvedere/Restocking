@@ -156,6 +156,16 @@ export const RETAILERS: Retailer[] = [
   { name: "Salomon", domain: "salomon.com", country: "FR", status: "optimized", wordmark: "geist-bold",
     note_fr: "XT-6 & éditions limitées", note_en: "XT-6 & limited editions" },
 
+  // ── LIMITED DROPS ─────────────────────────────────────────────────
+  { name: "StockX", domain: "stockx.com", country: "US", status: "beta", wordmark: "geist-bold",
+    note_fr: "Sneakers & streetwear limités", note_en: "Limited sneakers & streetwear" },
+  { name: "Kith", domain: "kith.com", country: "US", status: "beta", wordmark: "serif-bold",
+    note_fr: "Drops du lundi convoités", note_en: "Coveted Monday drops" },
+  { name: "Aimé Leon Dore", domain: "aimeleondore.com", country: "US", status: "beta", wordmark: "italiana-caps",
+    note_fr: "Drops new-yorkais rares", note_en: "Rare NYC drops" },
+  { name: "Palace", domain: "palaceskateboards.com", country: "UK", status: "beta", wordmark: "anton-caps",
+    note_fr: "Drops skate hebdo cultes", note_en: "Cult weekly skate drops" },
+
   // ── BETA / ROADMAP ───────────────────────────────────────────────
   { name: "Victoria's Secret", domain: "victoriassecret.com", country: "US", status: "beta", wordmark: "serif-italic",
     note_fr: "Lingerie & pyjamas cultes", note_en: "Cult lingerie & sleepwear" },
