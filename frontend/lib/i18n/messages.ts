@@ -431,6 +431,8 @@ export const messages = {
       saveError: "Erreur lors de la sauvegarde.",
     },
     addWatch: {
+      pageTitle: "Nouvelle alerte",
+      pageSub: "Collez l'URL d'un produit, choisissez votre taille — on s'occupe du reste.",
       urlLabel: "URL du produit",
       urlHelp: "Collez le lien direct de la fiche produit. On lit les balises publiques pour pré-remplir le formulaire.",
       urlPlaceholder: "https://www.cos.com/...",
@@ -1002,6 +1004,8 @@ export const messages = {
       saveError: "Couldn't save.",
     },
     addWatch: {
+      pageTitle: "New alert",
+      pageSub: "Paste a product URL, pick your size — we'll handle the rest.",
       urlLabel: "Product URL",
       urlHelp: "Paste the direct link to the product page. We read the public tags to pre-fill the form.",
       urlPlaceholder: "https://www.cos.com/...",
