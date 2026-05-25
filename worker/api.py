@@ -626,12 +626,11 @@ async def _universal_extract(page, html: str, url: str) -> dict:
     result["price"] = price
 
     # --- IMAGE ---
-    # Priority: DOM <img> (real element, less likely blocked) > og:image meta > srcset
-    # Inditex brands (Pull&Bear, Zara) have different CDN paths for og:image
-    # vs the actual <img> tag — the real <img> URL is more accessible.
-    image_url = _extract_css_image(page, url)
+    # Priority: og:image meta (always the product image) > DOM <img>
+    # DOM images often include thumbnails, related products, and cross-sells.
+    image_url = _pick_meta(html, "og:image")
     if not image_url:
-        image_url = _pick_meta(html, "og:image")
+        image_url = _extract_css_image(page, url)
     if image_url and image_url.startswith("http://"):
         image_url = image_url.replace("http://", "https://", 1)
     # Fix double-URL bug in source HTML (e.g. Na-KD og:image has doubled domain)
@@ -642,17 +641,17 @@ async def _universal_extract(page, html: str, url: str) -> dict:
     result["image_url"] = image_url
 
     # Download the product image as base64.
-    # Try the main image_url first, then og:image as fallback.
+    # If og:image download fails, try DOM images as fallback.
     if image_url:
         b64 = await _download_image_base64(image_url, url)
         if not b64:
-            og_img = _pick_meta(html, "og:image")
-            if og_img and og_img != image_url:
-                if og_img.startswith("http://"):
-                    og_img = og_img.replace("http://", "https://", 1)
-                b64 = await _download_image_base64(og_img, url)
+            fallback_img = _extract_css_image(page, url)
+            if fallback_img and fallback_img != image_url:
+                if fallback_img.startswith("http://"):
+                    fallback_img = fallback_img.replace("http://", "https://", 1)
+                b64 = await _download_image_base64(fallback_img, url)
                 if b64:
-                    result["image_url"] = og_img  # Use the one that actually works
+                    result["image_url"] = fallback_img
         result["image_base64"] = b64
 
     # --- VARIANTS (sizes + colors unified) ---
