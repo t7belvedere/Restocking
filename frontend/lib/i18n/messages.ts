@@ -209,6 +209,7 @@ export const messages = {
       noResultsBody: "Mais rappelle-toi : tous les sites marchent !",
       universalCardTitle: "Toutes les boutiques",
       universalCardBody: "Copie n’importe quel lien. Notre outil trouve ta taille automatiquement.",
+      fadeMore: "Et des centaines d’autres marques...",
     },
     pricing: {
       eyebrow: "Tarifs",
@@ -428,6 +429,40 @@ export const messages = {
       saving: "Sauvegarde…",
       saved: "Sauvegardé !",
       saveError: "Erreur lors de la sauvegarde.",
+    },
+    addWatch: {
+      urlLabel: "URL du produit",
+      urlHelp: "Collez le lien direct de la fiche produit. On lit les balises publiques pour pré-remplir le formulaire.",
+      urlPlaceholder: "https://www.cos.com/...",
+      analyze: "Analyser le produit",
+      analyzing: "Analyse en cours…",
+      blockedWarning: (brand: string) => `${brand} n'est pas compatible avec notre analyse automatique. Tu peux créer l'alerte manuellement, mais la détection des informations produit ne fonctionnera pas sur ce site.`,
+      limitedWarning: (brand: string) => `${brand} utilise des protections qui peuvent limiter la détection. L'analyse reste fonctionnelle mais les variantes ou les images pourraient être incomplètes.`,
+      modifyUrl: "Modifier l'URL",
+      noImage: "Sans visuel",
+      productName: "Nom du produit",
+      productNamePlaceholder: "ex: Manteau oversize en laine",
+      size: "Taille",
+      color: "Couleur",
+      oosBadge: "épuisé",
+      selectVariant: "Sélectionne ta taille / couleur",
+      selectVariantHelp: "Sélectionnez la variante exacte que vous souhaitez surveiller.",
+      manualVariantPlaceholder: "ex: Taille S / Bleu marine",
+      noVariantsHelp: "Aucune variante détectée — saisissez la taille / couleur manuellement.",
+      cancel: "Annuler",
+      activate: "Activer l'alerte",
+      activating: "Activation…",
+      enrichmentPending: "Le site bloque notre lecture automatique. Vous pouvez créer l'alerte et notre worker enrichira la fiche dans quelques minutes.",
+      partialAnalysis: "Analyse partielle — la page a mis trop de temps à répondre.",
+      couldNotRead: "On n'a pas pu lire la fiche produit, vous pouvez compléter manuellement.",
+      networkError: "Erreur réseau. Réessayez dans un instant.",
+      selectSizeColor: "Sélectionnez une taille et une couleur avant d'activer.",
+      chooseVariant: "Choisissez une taille / couleur avant d'activer.",
+      limitReached: "Limite de votre plan atteinte. Passez à Pro pour en suivre plus.",
+      invalidUrl: "URL invalide.",
+      createFailed: "Impossible de créer l'alerte.",
+      activated: "Alerte activée ✓",
+      progressHttp: "Connexion au site...",
     },
     dashboard: {
       greeting: (name: string | null) => name ? `Salut ${name}` : "Mes alertes",
@@ -745,6 +780,7 @@ export const messages = {
       noResultsBody: "But remember: every store works!",
       universalCardTitle: "All stores",
       universalCardBody: "Paste any link. We’ll find your size automatically.",
+      fadeMore: "And hundreds of other brands...",
     },
     pricing: {
       eyebrow: "Pricing",
@@ -965,6 +1001,40 @@ export const messages = {
       saved: "Saved!",
       saveError: "Couldn't save.",
     },
+    addWatch: {
+      urlLabel: "Product URL",
+      urlHelp: "Paste the direct link to the product page. We read the public tags to pre-fill the form.",
+      urlPlaceholder: "https://www.cos.com/...",
+      analyze: "Analyze product",
+      analyzing: "Analyzing…",
+      blockedWarning: (brand: string) => `${brand} is not compatible with our automatic analysis. You can create the alert manually, but product info detection won't work on this site.`,
+      limitedWarning: (brand: string) => `${brand} uses anti-bot protection that may limit detection. Analysis still works but variants or images may be incomplete.`,
+      modifyUrl: "Edit URL",
+      noImage: "No image",
+      productName: "Product name",
+      productNamePlaceholder: "e.g. Oversized wool coat",
+      size: "Size",
+      color: "Color",
+      oosBadge: "sold out",
+      selectVariant: "Select your size / color",
+      selectVariantHelp: "Select the exact variant you want to track.",
+      manualVariantPlaceholder: "e.g. Size S / Navy blue",
+      noVariantsHelp: "No variants detected — enter the size / color manually.",
+      cancel: "Cancel",
+      activate: "Activate alert",
+      activating: "Activating…",
+      enrichmentPending: "The site is blocking our automatic reading. You can create the alert and our worker will enrich the listing in a few minutes.",
+      partialAnalysis: "Partial analysis — the page took too long to respond.",
+      couldNotRead: "We couldn't read the product page. You can fill in the details manually.",
+      networkError: "Network error. Please try again shortly.",
+      selectSizeColor: "Select a size and color before activating.",
+      chooseVariant: "Choose a size / color before activating.",
+      limitReached: "Plan limit reached. Upgrade to Pro to track more.",
+      invalidUrl: "Invalid URL.",
+      createFailed: "Couldn't create alert.",
+      activated: "Alert activated ✓",
+      progressHttp: "Connecting to site...",
+    },
     dashboard: {
       greeting: (name: string | null) => name ? `Hey ${name}` : "My alerts",
       addAlert: "Add an alert",
@@ -1106,5 +1176,40 @@ export const messages = {
     },
   },
 } as const;
+
+export type AddWatchMessages = {
+  urlLabel: string;
+  urlHelp: string;
+  urlPlaceholder: string;
+  analyze: string;
+  analyzing: string;
+  blockedWarning: (brand: string) => string;
+  limitedWarning: (brand: string) => string;
+  modifyUrl: string;
+  noImage: string;
+  productName: string;
+  productNamePlaceholder: string;
+  size: string;
+  color: string;
+  oosBadge: string;
+  selectVariant: string;
+  selectVariantHelp: string;
+  manualVariantPlaceholder: string;
+  noVariantsHelp: string;
+  cancel: string;
+  activate: string;
+  activating: string;
+  enrichmentPending: string;
+  partialAnalysis: string;
+  couldNotRead: string;
+  networkError: string;
+  selectSizeColor: string;
+  chooseVariant: string;
+  limitReached: string;
+  invalidUrl: string;
+  createFailed: string;
+  activated: string;
+  progressHttp: string;
+};
 
 export type Messages = (typeof messages)[Locale];

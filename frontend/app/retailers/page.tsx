@@ -235,9 +235,9 @@ export default function RetailersPage() {
             backdropFilter: "blur(3px)",
             WebkitBackdropFilter: "blur(3px)",
             maskImage:
-              "linear-gradient(to top, black 30%, transparent 100%)",
+              "linear-gradient(to bottom, black 40%, transparent 100%)",
             WebkitMaskImage:
-              "linear-gradient(to top, black 30%, transparent 100%)",
+              "linear-gradient(to bottom, black 40%, transparent 100%)",
           }}
           aria-hidden="true"
         />
@@ -246,7 +246,7 @@ export default function RetailersPage() {
       {/* Many more hint */}
       <section className="border-b-2 border-ink bg-cream py-7 text-center">
         <p className="font-display text-sm font-bold uppercase tracking-[0.2em] text-ink/30">
-          Et des centaines d'autres marques...
+          {t.retailers.fadeMore}
         </p>
       </section>
 
