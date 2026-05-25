@@ -98,7 +98,7 @@ export function BrandLogo({ retailer, className, wordmarkClassName }: Props) {
           fill
           sizes="(min-width: 1024px) 190px, (min-width: 768px) 160px, (min-width: 640px) 140px, 50vw"
           className="object-contain object-left transition-opacity duration-300"
-          unoptimized={state.url.includes("brandfetch.io") || state.url.includes("simpleicons.org")}
+          unoptimized={state.url.includes("brandfetch.io") || state.url.includes("simpleicons.org") || state.url.includes("google.com")}
         />
       )}
     </div>
