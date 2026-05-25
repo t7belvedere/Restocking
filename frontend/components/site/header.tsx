@@ -24,9 +24,10 @@ export function SiteHeader({ isAuthenticated = false }: Props) {
 
   const handleLocaleChange = useCallback(
     (nextLocale: string) => {
-      router.replace(pathname, { locale: nextLocale });
+      document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+      router.refresh();
     },
-    [router, pathname],
+    [router],
   );
 
   const navItems = [
@@ -183,31 +184,48 @@ function LocaleSwitch({
   locale: string;
   onChange: (l: string) => void;
 }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <div
-      role="group"
-      aria-label="Language"
-      data-testid="locale-switcher"
-      className="inline-flex h-10 items-center rounded-full border-2 border-ink bg-paper p-0.5 text-xs font-bold uppercase tracking-widest shadow-brutal-sm"
-    >
-      {ALL_LOCALES.map((l) => {
-        const active = locale === l;
-        return (
-          <button
-            key={l}
-            type="button"
-            onClick={() => onChange(l)}
-            data-testid={`locale-${l}`}
-            aria-pressed={active}
-            className={cn(
-              "h-full rounded-full px-3 transition-colors",
-              active ? "bg-ink text-cream" : "text-ink/60 hover:text-ink",
-            )}
-          >
-            {l}
-          </button>
-        );
-      })}
+    <div className="relative" data-testid="locale-switcher">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        aria-label="Change language"
+        className="inline-flex h-10 w-12 items-center justify-center gap-1 rounded-full border-2 border-ink bg-paper text-xs font-bold uppercase tracking-widest shadow-brutal-sm transition-colors hover:bg-cream"
+      >
+        {locale}
+        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" className={cn("transition-transform", open && "rotate-180")}>
+          <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 z-50 mt-1.5 min-w-[6rem] rounded-2xl border-2 border-ink bg-paper py-1 shadow-brutal">
+            {ALL_LOCALES.map((l) => {
+              const active = locale === l;
+              return (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => {
+                    onChange(l);
+                    setOpen(false);
+                  }}
+                  data-testid={`locale-${l}`}
+                  className={cn(
+                    "block w-full px-4 py-2 text-left text-xs font-bold uppercase tracking-widest transition-colors",
+                    active ? "bg-ink text-cream" : "text-ink/60 hover:bg-cream hover:text-ink",
+                  )}
+                >
+                  {l}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 }
