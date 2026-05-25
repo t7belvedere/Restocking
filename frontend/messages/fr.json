@@ -570,8 +570,8 @@
     "urlPlaceholder": "https://www.cos.com/...",
     "analyze": "Analyser le produit",
     "analyzing": "Analyse en cours…",
-    "blockedWarning": "{brand} n'est pas compatible avec notre analyse automatique. Tu peux cr\\xE9er l'alerte manuellement, mais la d\\xE9tection des informations produit ne fonctionnera pas sur ce site.",
-    "limitedWarning": "{brand} utilise des protections qui peuvent limiter la d\\xE9tection. L'analyse reste fonctionnelle mais les variantes ou les images pourraient \\xEAtre incompl\\xE8tes.",
+    "blockedWarning": "{brand} n'est pas compatible avec notre analyse automatique. Tu peux créer l'alerte manuellement, mais la détection des informations produit ne fonctionnera pas sur ce site.",
+    "limitedWarning": "{brand} utilise des protections qui peuvent limiter la détection. L'analyse reste fonctionnelle mais les variantes ou les images pourraient être incomplètes.",
     "modifyUrl": "Modifier l'URL",
     "noImage": "Sans visuel",
     "productName": "Nom du produit",
@@ -654,10 +654,10 @@
       "manage": "Gérer →"
     },
     "limitReached": "Limite atteinte",
-    "limitBody": "Tu as {active} alertes sur ton plan {plan} (max {max}). Passe \\xE0 Pro pour 20 alertes et des v\\xE9rifications toutes les 5 minutes.",
+    "limitBody": "Tu as {active} alertes sur ton plan {plan} (max {max}). Passe à Pro pour 20 alertes et des vérifications toutes les 5 minutes.",
     "emptyTitle": {
-      "withParam": "Pr\\xEAte \\xE0 chasser, {name} ?",
-      "fallback": "Pr\\xEAte \\xE0 commencer ?"
+      "withParam": "Prête à chasser, {name} ?",
+      "fallback": "Prête à commencer ?"
     },
     "emptyBody": "Copie le lien d'un vêtement que tu as raté, choisis ta taille, et on s'occupe de tout.",
     "emptyCta": "Ajouter ma première alerte",
@@ -758,7 +758,7 @@
     "notConfiguredCta": "Rejoindre la liste",
     "legalBlurb": "En continuant, tu acceptes nos CGU et notre politique de confidentialité.",
     "onboarding": {
-      "stepLabel": "\\xC9tape {current}/{total}",
+      "stepLabel": "Étape {current}/{total}",
       "brandsTitle": "Tu suis quelles marques ?",
       "brandsSub": "On surveillera leurs restocks pour toi",
       "brandsContinue": "Continuer",
