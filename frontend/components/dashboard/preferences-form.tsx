@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { useLocale } from "@/components/site/locale-provider";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ export function PreferencesForm({ initial }: Props) {
   const [name, setName] = useState(initial.first_name ?? "");
   const [size, setSize] = useState<string | null>(initial.preferred_size ?? null);
   const [brands, setBrands] = useState<string[]>(initial.preferred_brands ?? []);
+  const [customBrand, setCustomBrand] = useState("");
 
   const sizes = [...EU_SIZES, ...LETTER_SIZES];
 
@@ -31,6 +32,17 @@ export function PreferencesForm({ initial }: Props) {
     setBrands((prev) =>
       prev.includes(b) ? prev.filter((x) => x !== b) : [...prev, b],
     );
+  }
+
+  function addCustomBrand() {
+    const v = customBrand.trim();
+    if (!v || brands.includes(v)) return;
+    setBrands((prev) => [...prev, v]);
+    setCustomBrand("");
+  }
+
+  function removeBrand(b: string) {
+    setBrands((prev) => prev.filter((x) => x !== b));
   }
 
   function handleSave() {
@@ -107,21 +119,58 @@ export function PreferencesForm({ initial }: Props) {
             {locale === "fr" ? "Marques suivies" : "Followed brands"}
           </Label>
           <div className="flex flex-wrap gap-2">
-            {ONBOARDING_BRANDS.map((b) => (
+            {brands.map((b) => (
+              <button
+                key={b}
+                type="button"
+                onClick={() => removeBrand(b)}
+                className={cn(
+                  "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all active:scale-[0.97] inline-flex items-center gap-1",
+                  "border-foreground bg-foreground text-background shadow-sm",
+                )}
+              >
+                {b}
+                <X className="h-3 w-3 opacity-60" />
+              </button>
+            ))}
+            {ONBOARDING_BRANDS.filter((b) => !brands.includes(b)).map((b) => (
               <button
                 key={b}
                 type="button"
                 onClick={() => toggleBrand(b)}
                 className={cn(
                   "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all active:scale-[0.97]",
-                  brands.includes(b)
-                    ? "border-foreground bg-foreground text-background shadow-sm"
-                    : "border-border bg-background hover:border-foreground/40 hover:bg-muted",
+                  "border-border bg-background hover:border-foreground/40 hover:bg-muted",
                 )}
               >
                 {b}
               </button>
             ))}
+          </div>
+          <div className="flex gap-2 pt-1">
+            <Input
+              type="text"
+              value={customBrand}
+              onChange={(e) => setCustomBrand(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addCustomBrand();
+                }
+              }}
+              placeholder={locale === "fr" ? "Autre marque…" : "Other brand…"}
+              className="flex-1"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={addCustomBrand}
+              disabled={!customBrand.trim()}
+              className="shrink-0"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
