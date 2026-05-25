@@ -270,8 +270,11 @@ def _process_watch(watch: dict) -> None:
     _apply_domain_rate_limit(url)
 
     # --- Scrape ---
-    page, method = fetch_with_fallback(url)
-    logger.debug("watch %s: fetched via %s", watch_id, method)
+    # Proxy is reserved for Pro users as a last resort (IPRoyal is expensive)
+    plan = watch.get("plan", "free")
+    use_proxy = plan == "pro"
+    page, method = fetch_with_fallback(url, use_proxy=use_proxy)
+    logger.debug("watch %s: fetched via %s (proxy=%s)", watch_id, method, use_proxy)
 
     # --- Enrich metadata if missing ---
     if not watch.get("name"):

@@ -1482,12 +1482,11 @@ def _sse_event(event: str, data: dict) -> str:
     return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
 
 
-async def _analyze_scrape(url: str, proxy_url: str | None, pw_proxy: dict | None):
+async def _analyze_scrape(url: str, proxy_url: str | None = None, pw_proxy: dict | None = None):
     """Core scraping logic — shared by SSE streaming and JSON endpoints.
 
-    Each level tries WITHOUT proxy first, then WITH proxy only if needed.
-    This avoids burning proxy bandwidth on sites that don't require it
-    (Zara, Bershka, Stüssy, Princess Polly, etc.).
+    No proxy usage here — the /analyze endpoint is a free preview.
+    Proxy is reserved for Pro plan monitoring in the main worker loop.
 
     Yields SSE-formatted progress/result/error event strings.
     """
@@ -1496,13 +1495,10 @@ async def _analyze_scrape(url: str, proxy_url: str | None, pw_proxy: dict | None
     html: str | None = None
     page = None
     _was_playwright = False
-    _has_proxy = bool(proxy_url and pw_proxy)
 
-    def _http_attempt(use_proxy: bool):
+    def _http_attempt():
         nonlocal page, html
         kwargs: dict = {"stealthy_headers": True, "timeout": 15}
-        if use_proxy and proxy_url:
-            kwargs["proxy"] = proxy_url
         page = Fetcher.get(url, **kwargs)
         if getattr(page, "status", 0) in (200, 304):
             html = getattr(page, "html_content", "")
@@ -1510,63 +1506,38 @@ async def _analyze_scrape(url: str, proxy_url: str | None, pw_proxy: dict | None
                 logger.debug("Level 1 HTML too small (%d bytes) — escalating", len(html))
                 html = None
 
-    def _pw_attempt(use_proxy: bool, disable_resources: bool = True, timeout: int = 40000):
+    def _pw_attempt(disable_resources: bool = True, timeout: int = 40000):
         nonlocal page, html
         kwargs: dict = {
             "headless": True, "stealth": True, "hide_canvas": True,
             "disable_resources": disable_resources, "timeout": timeout, "wait": 3000,
         }
-        if use_proxy and pw_proxy:
-            kwargs["proxy"] = pw_proxy
         page = PlayWrightFetcher.fetch(url, **kwargs)
         html = getattr(page, "html_content", "")
 
-    # Level 1a — HTTP without proxy
+    # Level 1 — HTTP
     yield _sse_event("progress", {"step": "http", "message": "Connexion au site..."})
     try:
-        await _asyncio.to_thread(_http_attempt, False)
+        await _asyncio.to_thread(_http_attempt)
     except Exception:
         logger.debug("Level 1 (HTTP) failed", exc_info=True)
 
-    # Level 1b — HTTP with proxy (only if we have one and Level 1a failed)
-    if html is None and _has_proxy:
-        logger.debug("Level 1 retry with proxy")
-        try:
-            await _asyncio.to_thread(_http_attempt, True)
-        except Exception:
-            logger.debug("Level 1 (HTTP+proxy) failed", exc_info=True)
-
-    # Level 2a — Playwright stealth without proxy
+    # Level 2 — Playwright stealth
     if html is None:
         _was_playwright = True
         yield _sse_event("progress", {"step": "playwright", "message": "Ouverture du navigateur..."})
         try:
-            await _asyncio.to_thread(_pw_attempt, False, True, 40000)
+            await _asyncio.to_thread(_pw_attempt, True, 40000)
         except Exception:
             logger.debug("Level 2 (Playwright) failed", exc_info=True)
 
-    # Level 2b — Playwright stealth with proxy
-    if html is None and _has_proxy:
-        logger.info("Level 2 Playwright retry with proxy — url=%s", url[:60])
-        try:
-            await _asyncio.to_thread(_pw_attempt, True, True, 40000)
-        except Exception:
-            logger.exception("Level 2 (Playwright+proxy) failed")
-
-    # Level 3a — Playwright best effort without proxy
+    # Level 3 — Playwright best effort
     if html is None:
         yield _sse_event("progress", {"step": "playwright_retry", "message": "Nouvelle tentative..."})
         try:
-            await _asyncio.to_thread(_pw_attempt, False, False, 30000)
+            await _asyncio.to_thread(_pw_attempt, False, 30000)
         except Exception:
             logger.debug("Level 3 (Playwright best-effort) failed", exc_info=True)
-
-    # Level 3b — Playwright best effort with proxy
-    if html is None and _has_proxy:
-        try:
-            await _asyncio.to_thread(_pw_attempt, True, False, 30000)
-        except Exception:
-            logger.debug("Level 3 (Playwright best-effort+proxy) failed", exc_info=True)
 
     if not html:
         yield _sse_event("error", {"error": "All fetch levels failed"})
@@ -1659,27 +1630,10 @@ async def analyze(request: Request, url: str = Query(min_length=1)):
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid URL")
 
-    proxy_url = os.getenv("PROXY_URL")
-
-    # For Playwright, proxy must be a dict with server/username/password
-    pw_proxy: dict | None = None
-    if proxy_url:
-        try:
-            from urllib.parse import urlparse as _urlparse
-            _p = _urlparse(proxy_url)
-            pw_proxy = {"server": f"{_p.scheme}://{_p.hostname}:{_p.port or 80}"}
-            if _p.username:
-                pw_proxy["username"] = _p.username
-            if _p.password:
-                pw_proxy["password"] = _p.password
-        except Exception:
-            pw_proxy = None
-            logger.debug("Failed to parse PROXY_URL, ignoring", exc_info=True)
-
     # SSE streaming path (client-side fetch from the frontend)
     if "text/event-stream" in request.headers.get("accept", ""):
         return StreamingResponse(
-            _analyze_scrape(url, proxy_url, pw_proxy),
+            _analyze_scrape(url),
             media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
@@ -1689,7 +1643,7 @@ async def analyze(request: Request, url: str = Query(min_length=1)):
 
     # JSON path (server-action / backward compat)
     result = None
-    async for event_str in _analyze_scrape(url, proxy_url, pw_proxy):
+    async for event_str in _analyze_scrape(url):
         for line in event_str.split("\n"):
             if line.startswith("data: "):
                 data = json.loads(line[6:])

@@ -4,6 +4,8 @@ Level 1: Fetcher.get()           — plain HTTP with stealthy headers  (method: 
 Level 2: PlayWrightFetcher.fetch  — Playwright with stealth mode     (method: "playwright_stealth")
 Level 3: PlayWrightFetcher.fetch  — Playwright, best effort          (method: "playwright_stealth")
 
+Proxy (IPRoyal residential) is only used when use_proxy=True (Pro plan, last resort).
+
 Returns (page, method) where page is a Scrapling Response/Adaptor object.
 Raises the last exception if all levels fail.
 """
@@ -29,8 +31,8 @@ if _proxy_url:
         pass
 
 
-def _pw_kwargs(**overrides):
-    """Base Playwright kwargs, with optional proxy."""
+def _pw_kwargs(use_proxy: bool = False, **overrides):
+    """Base Playwright kwargs. Proxy only when use_proxy=True (Pro plan)."""
     kw = {
         "headless": True,
         "stealth": True,
@@ -38,22 +40,25 @@ def _pw_kwargs(**overrides):
         "disable_resources": True,
     }
     kw.update(overrides)
-    if _pw_proxy:
+    if use_proxy and _pw_proxy:
         kw["proxy"] = _pw_proxy
     return kw
 
 
-def _http_kwargs(**overrides):
-    """Base HTTP kwargs, with optional proxy."""
+def _http_kwargs(use_proxy: bool = False, **overrides):
+    """Base HTTP kwargs. Proxy only when use_proxy=True (Pro plan)."""
     kw = {"stealthy_headers": True}
     kw.update(overrides)
-    if _proxy_url:
+    if use_proxy and _proxy_url:
         kw["proxy"] = _proxy_url
     return kw
 
 
-def fetch_with_fallback(url: str) -> tuple:
+def fetch_with_fallback(url: str, use_proxy: bool = False) -> tuple:
     """Fetch *url* with a 3-level fallback strategy.
+
+    Proxy is reserved for Pro users as a last resort.
+    Free users: HTTP → Playwright → Playwright best-effort (no proxy).
 
     Returns:
         (page, method) — page is the Scrapling Response object;
@@ -64,7 +69,7 @@ def fetch_with_fallback(url: str) -> tuple:
     """
     last_exc: Exception | None = None
 
-    # Level 1 — plain HTTP (Fetcher.get has retries=3 built-in)
+    # Level 1 — plain HTTP
     try:
         page = Fetcher.get(url, **_http_kwargs())
         if page.status in (200, 304):
@@ -90,5 +95,20 @@ def fetch_with_fallback(url: str) -> tuple:
         return page, "playwright_stealth"
     except Exception as exc:
         last_exc = exc
+
+    # Level 4 — Pro only: Playwright + proxy (last resort)
+    if use_proxy and (_proxy_url or _pw_proxy):
+        try:
+            page = PlayWrightFetcher.fetch(url, **_pw_kwargs(use_proxy=True, disable_resources=True))
+            if page.status == 200:
+                return page, "playwright_proxy"
+        except Exception as exc:
+            last_exc = exc
+
+        try:
+            page = PlayWrightFetcher.fetch(url, **_pw_kwargs(use_proxy=True, disable_resources=False))
+            return page, "playwright_proxy"
+        except Exception as exc:
+            last_exc = exc
 
     raise last_exc  # type: ignore[misc]
