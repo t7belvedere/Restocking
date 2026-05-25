@@ -79,8 +79,7 @@ def send_restock_email(
         )
         brand_logo = (
             f'<img src="{brandfetch_url}" alt="{brand_name or brand_domain}" '
-            f'height="24" '
-            f'style="display:block;height:24px;width:auto;max-width:140px;'
+            f'style="display:block;height:auto;max-height:38px;width:auto;max-width:170px;'
             f'filter:brightness(0)invert(1);" />'
             if brandfetch_url
             else ""

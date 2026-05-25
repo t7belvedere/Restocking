@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { BrandWordmark } from "@/components/site/brand-wordmark";
 import type { Retailer } from "@/lib/data/retailers";
@@ -68,29 +69,32 @@ export function BrandLogo({ retailer, className, wordmarkClassName }: Props) {
     );
   }
 
+  const testId = retailer.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
   return (
-    <div className="relative flex items-center">
+    <div
+      className={cn(
+        "relative h-12 w-full max-w-[160px] md:h-14 md:max-w-[190px]",
+        className,
+      )}
+    >
       {state.kind === "loading" && (
         <div
-          data-testid={`brand-logo-skeleton-${retailer.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
-          className={cn(
-            "h-12 w-32 animate-pulse rounded-md bg-ink/10 md:h-14",
-            className,
-          )}
+          data-testid={`brand-logo-skeleton-${testId}`}
+          className="h-full w-full animate-pulse rounded-md bg-ink/10"
           aria-label={retailer.name}
         />
       )}
       {state.kind === "loaded" && (
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img
+        <Image
           src={state.url}
           alt={retailer.name}
-          data-testid={`brand-logo-${retailer.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
-          loading="lazy"
-          className={cn(
-            "block max-h-14 max-w-[160px] object-contain object-left transition-opacity duration-300 md:max-h-18 md:max-w-[190px]",
-            className,
-          )}        />
+          data-testid={`brand-logo-${testId}`}
+          fill
+          sizes="(min-width: 1024px) 190px, (min-width: 768px) 160px, (min-width: 640px) 140px, 50vw"
+          className="object-contain object-left transition-opacity duration-300"
+          unoptimized={state.url.includes("brandfetch.io")}
+        />
       )}
     </div>
   );

@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "images.pexels.com" },
       { protocol: "https", hostname: "static.prod-images.emergentagent.com" },
       { protocol: "https", hostname: "cdn.brandfetch.io" },
+      { protocol: "https", hostname: "assets.brandfetch.io" },
     ],
   },
   // Security headers
