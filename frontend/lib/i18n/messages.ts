@@ -521,7 +521,7 @@ export const messages = {
         sections: [
           {
             title: "Éditeur du site",
-            content: "Le site restocking.app est édité par Oscar Albert, entrepreneur individuel immatriculé en France sous le numéro SIREN [À COMPLÉTER] et SIRET [À COMPLÉTER]. Adresse email : hello@restocking.app. Numéro de TVA intracommunautaire : [À COMPLÉTER]. Le site est exploité sous le nom commercial \"Restocking\".",
+            content: "Le site restocking.app est édité par Oscar Albert, entrepreneur individuel (micro-entreprise) sous la raison sociale Belvédère, immatriculé au RNE le 2 mars 2026. SIREN : 101 279 628. SIRET : 101 279 628 00016. Code APE : 6201Z (Programmation informatique). Adresse : 8 Rue des Acacias, 68870 Bartenheim, France. Téléphone : +33 6 22 73 96 62. Email : contact@belvedere-group.fr. TVA non applicable — franchise en base (article 293 B du CGI). Le site est exploité sous le nom commercial \"Restocking\".",
           },
           {
             title: "Directeur de la publication",
@@ -1273,7 +1273,7 @@ export const messages = {
         sections: [
           {
             title: "Site publisher",
-            content: "The restocking.app website is published by Oscar Albert, sole proprietor registered in France under SIREN [TO BE COMPLETED] and SIRET [TO BE COMPLETED]. Email address: hello@restocking.app. EU VAT number: [TO BE COMPLETED]. The site operates under the trade name \"Restocking\".",
+            content: "The restocking.app website is published by Oscar Albert, sole proprietor (micro-enterprise) under the trade name Belvédère, registered with the French National Business Register (RNE) on March 2, 2026. SIREN: 101 279 628. SIRET: 101 279 628 00016. APE code: 6201Z (Computer programming). Address: 8 Rue des Acacias, 68870 Bartenheim, France. Phone: +33 6 22 73 96 62. Email: contact@belvedere-group.fr. VAT not applicable — VAT exemption scheme (article 293 B of the French Tax Code). The site operates under the trade name \"Restocking\".",
           },
           {
             title: "Publication director",
