@@ -90,11 +90,7 @@ export function CheckLogTable({ logs, watchPrice }: { logs: CheckLog[]; watchPri
 
   return (
     <div className="rounded-2xl border-2 border-ink/20 bg-card overflow-hidden">
-      {/* Visual timeline */}
-      <div className="relative px-5 py-4 sm:px-6">
-        {/* Vertical line — centered on the 32px (sm:36px) node dots */}
-        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-ink/8 sm:left-[18px]" />
-
+      <div className="px-5 py-4 sm:px-6">
         <div className="space-y-0">
           {logs.map((log, i) => {
             const isInStock = log.status === "IN_STOCK";
@@ -111,14 +107,19 @@ export function CheckLogTable({ logs, watchPrice }: { logs: CheckLog[]; watchPri
             return (
               <div
                 key={log.id}
-                className="relative flex gap-4 pb-4 last:pb-0 animate-[rise-in_400ms_cubic-bezier(0.16,1,0.3,1)_forwards] opacity-0"
+                className="flex gap-4 animate-[rise-in_400ms_cubic-bezier(0.16,1,0.3,1)_forwards] opacity-0"
                 style={{ animationDelay: `${Math.min(i * 50, 800)}ms` }}
               >
-                {/* Timeline node */}
-                <div className="relative z-10 flex shrink-0 flex-col items-center">
+                {/* Timeline node + vertical line connector */}
+                <div className="relative flex flex-col items-center shrink-0">
+                  {/* Line above (connects from previous node) — hidden for first item */}
+                  {i > 0 && (
+                    <div className="w-0.5 h-4 bg-ink/8 -mt-4" />
+                  )}
+                  {/* Node */}
                   <div
                     className={cn(
-                      "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all sm:h-9 sm:w-9",
+                      "relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 bg-card sm:h-9 sm:w-9",
                       isInStock &&
                         "border-emerald-400 bg-emerald-100 shadow-[0_0_8px_rgba(16,185,129,0.3)]",
                       isOutOfStock && "border-amber-300 bg-amber-50",
@@ -136,12 +137,14 @@ export function CheckLogTable({ logs, watchPrice }: { logs: CheckLog[]; watchPri
                       <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/40" />
                     )}
                   </div>
+                  {/* Line below */}
+                  <div className="w-0.5 flex-1 bg-ink/8 min-h-4" />
                 </div>
 
                 {/* Content */}
                 <div
                   className={cn(
-                    "min-w-0 flex-1 rounded-xl px-3.5 py-2.5 transition-colors",
+                    "min-w-0 flex-1 rounded-xl px-3.5 py-2.5 mb-4 transition-colors",
                     isInStock && "bg-emerald-50/60",
                     statusChanged && isInStock && "bg-emerald-100/80 ring-1 ring-emerald-400/30",
                   )}
