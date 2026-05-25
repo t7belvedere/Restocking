@@ -206,11 +206,25 @@ def _send_notifications(watch: dict, status: str) -> None:
     # Fetch email — not stored directly on the watch dict
     to_email = get_user_email(user_id)
     if to_email:
+        # Extract brand name from URL domain
+        brand_name = None
+        try:
+            hostname = urllib.parse.urlparse(url).hostname or ""
+            # e.g. "www.zara.com" → "Zara", "rixolondon.com" → "Rixo London"
+            parts = hostname.replace("www.", "").split(".")[0]
+            brand_name = " ".join(w.capitalize() for w in parts.replace("-", " ").split())
+        except Exception:
+            pass
+
         success = send_restock_email(
             to_email=to_email,
             product_name=name,
             variant_label=variant_label,
             product_url=url,
+            watch_id=watch_id,
+            image_url=watch.get("image_url"),
+            price=watch.get("price"),
+            brand_name=brand_name,
         )
         insert_notification(watch_id, channel="email", success=success)
         if success:
