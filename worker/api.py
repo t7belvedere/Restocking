@@ -1386,12 +1386,7 @@ async def unsubscribe(watch_id: str = Query(min_length=1)):
 <tr><td align="center">
   <table width="400" cellpadding="0" cellspacing="0" style="background:#fff;border:2px solid {_DARK};border-radius:20px;max-width:400px;width:100%;text-align:center;">
     <tr><td style="padding:40px 32px;">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="48" height="48" style="margin-bottom:20px;">
-        <circle cx="50" cy="50" r="46" fill="none" stroke="{_DARK}" stroke-width="4" opacity="0.15"/>
-        <circle cx="50" cy="50" r="14" fill="{_ORANGE}"/>
-        <circle cx="50" cy="50" r="5" fill="#fff" opacity="0.5"/>
-        <circle cx="50" cy="50" r="24" fill="none" stroke="{_ORANGE}" stroke-width="2" opacity="0.4"/>
-      </svg>
+      <img src="https://www.restocking.app/apple-touch-icon.png" width="60" height="60" alt="restocking" style="display:block;margin:0 auto 20px;border-radius:16px;" />
       <h1 style="margin:0;font-size:22px;font-weight:800;color:{_DARK};letter-spacing:-0.02em;">{title}</h1>
       <p style="margin:12px 0 0 0;font-size:15px;color:{_MUTED};line-height:1.5;">{message}</p>
       <a href="https://www.restocking.app/dashboard" style="display:inline-block;margin-top:24px;background:{_DARK};color:#fff;text-decoration:none;padding:12px 28px;border-radius:9999px;font-size:14px;font-weight:600;">Tableau de bord</a>

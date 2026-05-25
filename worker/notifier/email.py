@@ -128,16 +128,11 @@ def send_restock_email(
             dashboard_url = f"{_BASE_URL}/dashboard/watches/{watch_id}"
         unsubscribe_url = f"{_WORKER_URL}/unsubscribe?watch_id={watch_id}" if watch_id else dashboard_url
 
-        # ── Logo (inline SVG — target/ping icon) ─────────────────
-        logo_svg = (
-            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" '
-            f'width="32" height="32" style="vertical-align:middle;margin-right:8px;">'
-            f'<circle cx="50" cy="50" r="48" fill="{_CREAM}" stroke="{_INK}" stroke-width="4"/>'
-            f'<circle cx="50" cy="50" r="36" fill="{_ORANGE}" opacity="0.15"/>'
-            f'<circle cx="50" cy="50" r="12" fill="{_ORANGE}"/>'
-            f'<circle cx="50" cy="50" r="5" fill="{_CREAM}" opacity="0.4"/>'
-            f'<circle cx="50" cy="50" r="22" fill="none" stroke="{_ORANGE}" stroke-width="2.5" opacity="0.6"/>'
-            f'</svg>'
+        # ── Logo (PNG from restocking.app) ────────────────────────
+        logo_img = (
+            f'<img src="https://www.restocking.app/apple-touch-icon.png" '
+            f'width="32" height="32" alt="restocking" '
+            f'style="vertical-align:middle;margin-right:8px;border-radius:8px;" />'
         )
 
         # ── Build HTML ───────────────────────────────────────────
@@ -167,7 +162,7 @@ def send_restock_email(
                   <td style="text-align:left;vertical-align:middle;">
                     <p style="margin:0;font-size:20px;font-weight:800;color:{_CREAM};
                               letter-spacing:-0.02em;font-family:Georgia,serif;">
-                      {logo_svg}restocking
+                      {logo_img}restocking
                     </p>
                   </td>
                   {f'<td style="text-align:right;vertical-align:middle;">{brand_logo}</td>' if brand_logo else ""}
