@@ -1150,10 +1150,18 @@ def _extract_css_image(page, url: str = "") -> str | None:
             if second_http > 0:
                 src = src[second_http:]
             low = src.lower()
-            # Skip data: URIs (SVG placeholders, inline icons)
-            if low.startswith("data:"):
+            # Skip data: URIs (SVG placeholders, inline icons, 1x1 tracking pixels)
+            if low.startswith("data:") or low in ("data:image/gif;base64,r0lgodlhaqabaaaaaach5baekaaaealaaaaaaabaaaeaaaictaeaow==",):
                 continue
             if "transparent" in low:
+                continue
+            if _re.search(r"\.svg(\?|$)", low):
+                continue
+            # Skip 1x1 tracking pixels
+            if _re.search(r"1x1(?:\.gif|\.png|\.jpg)", low):
+                continue
+            if _re.search(r"spacer\.(?:gif|png)", low):
+                continue
                 continue
             if _re.search(r"\.svg(\?|$)", low):
                 continue
