@@ -12,6 +12,7 @@ interface Particle {
   size: number;
   rotation: number;
   delay: number;
+  duration: number;
   shape: "circle" | "square" | "triangle";
 }
 
@@ -34,6 +35,7 @@ function createParticles(count: number): Particle[] {
     size: 5 + Math.random() * 8,
     rotation: Math.random() * 360,
     delay: Math.random() * 2,
+    duration: 2.5 + Math.random() * 2,
     shape: (["circle", "square", "triangle"] as const)[Math.floor(Math.random() * 3)],
   }));
 }
@@ -41,8 +43,14 @@ function createParticles(count: number): Particle[] {
 export function UpgradeSuccessBanner() {
   const t = useTranslations();
   const [visible, setVisible] = useState(true);
-  const [particles] = useState(() => createParticles(60));
+  const [particles, setParticles] = useState<Particle[]>([]);
   const [fadeOut, setFadeOut] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setParticles(createParticles(60));
+    setMounted(true);
+  }, []);
 
   const dismiss = useCallback(() => {
     setFadeOut(true);
@@ -61,7 +69,8 @@ export function UpgradeSuccessBanner() {
 
   return (
     <>
-      {/* Confetti */}
+      {/* Confetti — only render after client mount to avoid hydration mismatch */}
+      {mounted && (
       <div
         aria-hidden
         className="pointer-events-none fixed inset-0 z-50 overflow-hidden"
@@ -91,11 +100,12 @@ export function UpgradeSuccessBanner() {
               borderRadius: p.shape === "circle" ? "50%" : p.shape === "square" ? "2px" : undefined,
               transform: `rotate(${p.rotation}deg)`,
               animationDelay: `${p.delay}s`,
-              animationDuration: `${2.5 + Math.random() * 2}s`,
+              animationDuration: `${p.duration}s`,
             }}
           />
         ))}
       </div>
+      )}
 
       {/* Banner */}
       <div
