@@ -27,7 +27,7 @@ export function BrandLogo({ retailer, className, wordmarkClassName }: Props) {
   const [state, setState] = useState<LogoState>({ kind: "loading" });
 
   useEffect(() => {
-    const cacheKey = `logo_${retailer.domain}`;
+    const cacheKey = `logo_v2_${retailer.domain}`;
     const cached = localStorage.getItem(cacheKey);
     
     if (cached) {

@@ -36,12 +36,18 @@ export async function GET(
     }
 
     const data = await res.json();
-    
-    // 1. Try to find the horizontal wordmark (logo)
-    // 2. Try to find the symbol/icon
-    // 3. Fallback to CDN URL
+
+    // Find a wordmark logo (type "logo"), falling back to any logo asset.
     const logoAsset = data.logos?.find((l: any) => l.type === "logo") || data.logos?.[0];
-    const bestUrl = logoAsset?.formats?.[0]?.src || cdnFallback;
+    const formats: any[] = logoAsset?.formats ?? [];
+
+    // Prefer a format made for light backgrounds so the logo is visible
+    // on our light/cream UI. "light" = logo is dark (for light bg),
+    // "transparent" = works anywhere, "dark" = logo is white (for dark bg).
+    const lightFormat = formats.find(
+      (f: any) => f.background === "light" || f.background === "transparent",
+    );
+    const bestUrl = lightFormat?.src || formats[0]?.src || cdnFallback;
 
     return NextResponse.json({ url: bestUrl });
   } catch (error) {
