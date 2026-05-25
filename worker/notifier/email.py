@@ -2,7 +2,6 @@
 
 import logging
 import os
-from urllib.parse import urlencode
 
 import resend
 from dotenv import load_dotenv
@@ -13,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 _FROM_EMAIL_DEFAULT = "alertes@restocking.app"
 _BASE_URL = os.getenv("FRONTEND_URL", "https://www.restocking.app")
+_WORKER_URL = os.getenv("WORKER_API_URL", "https://restocking-production.up.railway.app")
 _BRANDFETCH_CLIENT = "1idoVDqRtZmwOL9NXro"
 
 # Brand colours (hex for email client compatibility)
@@ -122,14 +122,11 @@ def send_restock_email(
             else ""
         )
 
-        # ── Unsubscribe link ─────────────────────────────────────
+        # ── Links ───────────────────────────────────────────────
         dashboard_url = f"{_BASE_URL}/dashboard"
         if watch_id:
             dashboard_url = f"{_BASE_URL}/dashboard/watches/{watch_id}"
-        unsubscribe_params = urlencode({"watch_id": watch_id}) if watch_id else ""
-        unsubscribe_url = (
-            f"{dashboard_url}?{unsubscribe_params}" if unsubscribe_params else dashboard_url
-        )
+        unsubscribe_url = f"{_WORKER_URL}/unsubscribe?watch_id={watch_id}" if watch_id else dashboard_url
 
         # ── Logo (inline SVG — target/ping icon) ─────────────────
         logo_svg = (

@@ -1292,6 +1292,21 @@ async def health():
         "twilio": bool(TWILIO_SID),
     }
 
+
+@app.get("/unsubscribe")
+async def unsubscribe(watch_id: str = Query(min_length=1)):
+    """Deactivate a watch by ID. Called from the unsubscribe link in emails."""
+    from db.client import supabase as _supabase
+
+    try:
+        _supabase.table("watches").update({"is_active": False}).eq("id", watch_id).execute()
+        return {
+            "ok": True,
+            "message": "Alerte désactivée. Tu ne recevras plus d'emails pour ce produit.",
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=str(exc)[:200])
+
 @app.get("/my-ip")
 async def my_ip():
     """Return the server's outbound IP — used to whitelist in proxy providers."""
