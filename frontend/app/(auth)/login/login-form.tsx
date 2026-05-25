@@ -5,7 +5,7 @@ import { useActionState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations, useLocale } from "next-intl";
 import { loginAction, type LoginState } from "./actions";
 import { signInWithAppleAction, signInWithGoogleAction } from "./oauth-actions";
 import { cn } from "@/lib/utils";
@@ -14,7 +14,7 @@ const initialState: LoginState = { status: "idle" };
 
 const ERROR_MAP: Record<string, { fr: string; en: string }> = {
   "auth-not-configured": {
-    fr: "L’authentification n’est pas configurée pour le moment.",
+    fr: "L'authentification n'est pas configurée pour le moment.",
     en: "Authentication is not configured right now.",
   },
   "oauth-callback-failed": {
@@ -26,7 +26,7 @@ const ERROR_MAP: Record<string, { fr: string; en: string }> = {
     en: "Could not start Google sign-in.",
   },
   "missing-oauth-code": {
-    fr: "Le retour Google n’a pas pu être validé.",
+    fr: "Le retour Google n'a pas pu être validé.",
     en: "Google callback could not be validated.",
   },
   "invalid-or-expired-link": {
@@ -36,7 +36,8 @@ const ERROR_MAP: Record<string, { fr: string; en: string }> = {
 };
 
 export function LoginForm({ isAuthConfigured }: { isAuthConfigured: boolean }) {
-  const { t, locale } = useLocale();
+  const t = useTranslations();
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") ?? "/dashboard";
   const errorCode = searchParams.get("error");
@@ -45,7 +46,7 @@ export function LoginForm({ isAuthConfigured }: { isAuthConfigured: boolean }) {
 
   useEffect(() => {
     if (errorCode && ERROR_MAP[errorCode]) {
-      toast.error(ERROR_MAP[errorCode][locale]);
+      toast.error(ERROR_MAP[errorCode][locale as "fr" | "en"]);
     }
   }, [errorCode, locale]);
 
@@ -58,9 +59,9 @@ export function LoginForm({ isAuthConfigured }: { isAuthConfigured: boolean }) {
   if (!isAuthConfigured) {
     return (
       <NotConfiguredCard
-        title={t.auth.notConfiguredTitle}
-        body={t.auth.notConfiguredBody}
-        ctaLabel={t.auth.notConfiguredCta}
+        title={t("auth.notConfiguredTitle")}
+        body={t("auth.notConfiguredBody")}
+        ctaLabel={t("auth.notConfiguredCta")}
       />
     );
   }
@@ -77,7 +78,7 @@ export function LoginForm({ isAuthConfigured }: { isAuthConfigured: boolean }) {
             className="group inline-flex h-12 w-full items-center justify-center gap-3 rounded-xl border-2 border-ink bg-paper px-4 font-display text-sm font-bold uppercase tracking-widest text-ink shadow-brutal hover-press"
           >
             <GoogleIcon className="h-5 w-5" />
-            {t.auth.continueGoogle}
+            {t("auth.continueGoogle")}
           </button>
         </form>
 
@@ -90,7 +91,7 @@ export function LoginForm({ isAuthConfigured }: { isAuthConfigured: boolean }) {
             className="group inline-flex h-12 w-full items-center justify-center gap-3 rounded-xl border-2 border-ink bg-ink px-4 font-display text-sm font-bold uppercase tracking-widest text-cream shadow-brutal hover-press"
           >
             <AppleIcon className="h-5 w-5" />
-            {t.auth.continueApple}
+            {t("auth.continueApple")}
           </button>
         </form>
       </div>
@@ -98,7 +99,7 @@ export function LoginForm({ isAuthConfigured }: { isAuthConfigured: boolean }) {
       <div className="flex items-center gap-3">
         <span className="h-px flex-1 bg-ink/20" />
         <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/50">
-          {t.auth.orContinue}
+          {t("auth.orContinue")}
         </span>
         <span className="h-px flex-1 bg-ink/20" />
       </div>
@@ -112,7 +113,7 @@ export function LoginForm({ isAuthConfigured }: { isAuthConfigured: boolean }) {
             htmlFor="login-email"
             className="block font-display text-xs font-bold uppercase tracking-[0.2em] text-ink"
           >
-            {t.auth.email}
+            {t("auth.email")}
           </label>
           <input
             id="login-email"
@@ -123,7 +124,7 @@ export function LoginForm({ isAuthConfigured }: { isAuthConfigured: boolean }) {
             autoComplete="email"
             required
             aria-invalid={Boolean(state.fieldErrors?.email)}
-            placeholder={t.auth.emailPlaceholder}
+            placeholder={t("auth.emailPlaceholder")}
             disabled={isPending}
             className={cn(
               "h-12 w-full rounded-xl border-2 border-ink bg-paper px-4 font-medium text-ink shadow-brutal-sm",
@@ -148,14 +149,14 @@ export function LoginForm({ isAuthConfigured }: { isAuthConfigured: boolean }) {
               htmlFor="login-password"
               className="block font-display text-xs font-bold uppercase tracking-[0.2em] text-ink"
             >
-              {t.auth.password}
+              {t("auth.password")}
             </label>
             <Link
               href="/forgot-password"
               data-testid="login-forgot-link"
               className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink/60 hover:text-ink"
             >
-              {t.auth.forgotPassword}
+              {t("auth.forgotPassword")}
             </Link>
           </div>
           <input
@@ -197,7 +198,7 @@ export function LoginForm({ isAuthConfigured }: { isAuthConfigured: boolean }) {
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <>
-              {t.auth.signInSubmit}
+              {t("auth.signInSubmit")}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </>
           )}
@@ -216,13 +217,13 @@ export function LoginForm({ isAuthConfigured }: { isAuthConfigured: boolean }) {
       </form>
 
       <p className="text-center text-sm text-ink/70">
-        {t.auth.noAccount}{" "}
+        {t("auth.noAccount")}{" "}
         <Link
           href="/signup"
           data-testid="login-to-signup-link"
           className="font-bold text-ink underline decoration-[var(--brand-orange)] decoration-2 underline-offset-4 hover:decoration-ink"
         >
-          {t.auth.signUp}
+          {t("auth.signUp")}
         </Link>
       </p>
     </div>
