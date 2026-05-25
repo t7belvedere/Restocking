@@ -1,10 +1,10 @@
 "use client";
 
 import { KeyRound } from "lucide-react";
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations } from "next-intl";
 
 export function ForgotPasswordHeading() {
-  const { t } = useLocale();
+  const t = useTranslations();
 
   return (
     <div className="max-w-lg space-y-5 text-center lg:text-left">
@@ -12,10 +12,10 @@ export function ForgotPasswordHeading() {
         <KeyRound className="h-6 w-6 text-ink" />
       </div>
       <h1 className="font-display text-4xl font-extrabold leading-[1.1] tracking-tight text-ink md:text-5xl lg:text-[4rem]">
-        {t.auth.forgotPasswordTitle}
+        {t("auth.forgotPasswordTitle")}
       </h1>
       <p className="text-lg leading-relaxed text-ink/70">
-        {t.auth.forgotPasswordSub}
+        {t("auth.forgotPasswordSub")}
       </p>
     </div>
   );

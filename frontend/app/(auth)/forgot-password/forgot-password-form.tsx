@@ -3,22 +3,23 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { ArrowLeft, ArrowRight, Loader2, MailCheck } from "lucide-react";
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations, useLocale } from "next-intl";
 import { forgotPasswordAction, type ForgotPasswordState } from "./actions";
 import { cn } from "@/lib/utils";
 
 const initialState: ForgotPasswordState = { status: "idle" };
 
 export function ForgotPasswordForm({ isAuthConfigured }: { isAuthConfigured: boolean }) {
-  const { t, locale } = useLocale();
+  const t = useTranslations();
+  const locale = useLocale();
   const [state, formAction, isPending] = useActionState(forgotPasswordAction, initialState);
 
   if (!isAuthConfigured) {
     return (
       <NotConfiguredCard
-        title={t.auth.notConfiguredTitle}
-        body={t.auth.notConfiguredBody}
-        ctaLabel={t.auth.notConfiguredCta}
+        title={t("auth.notConfiguredTitle")}
+        body={t("auth.notConfiguredBody")}
+        ctaLabel={t("auth.notConfiguredCta")}
       />
     );
   }
@@ -31,10 +32,10 @@ export function ForgotPasswordForm({ isAuthConfigured }: { isAuthConfigured: boo
         </div>
         <div>
           <h3 className="font-display text-xl font-bold tracking-tight text-ink">
-            {t.auth.forgotPasswordSuccessTitle}
+            {t("auth.forgotPasswordSuccessTitle")}
           </h3>
           <p className="mt-2 text-sm leading-relaxed text-ink/70">
-            {t.auth.forgotPasswordSuccessBody}
+            {t("auth.forgotPasswordSuccessBody")}
           </p>
         </div>
         <Link
@@ -43,7 +44,7 @@ export function ForgotPasswordForm({ isAuthConfigured }: { isAuthConfigured: boo
           className="inline-flex h-11 items-center gap-2 rounded-full border-2 border-ink bg-paper px-4 font-display text-xs font-bold uppercase tracking-widest text-ink shadow-brutal-sm hover-press"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          {t.auth.forgotPasswordBackToLogin}
+          {t("auth.forgotPasswordBackToLogin")}
         </Link>
       </div>
     );
@@ -59,7 +60,7 @@ export function ForgotPasswordForm({ isAuthConfigured }: { isAuthConfigured: boo
             htmlFor="forgot-email"
             className="block font-display text-xs font-bold uppercase tracking-[0.2em] text-ink"
           >
-            {t.auth.email}
+            {t("auth.email")}
           </label>
           <input
             id="forgot-email"
@@ -70,7 +71,7 @@ export function ForgotPasswordForm({ isAuthConfigured }: { isAuthConfigured: boo
             required
             autoFocus
             aria-invalid={Boolean(state.fieldErrors?.email)}
-            placeholder={t.auth.emailPlaceholder}
+            placeholder={t("auth.emailPlaceholder")}
             disabled={isPending}
             className={cn(
               "h-12 w-full rounded-xl border-2 border-ink bg-paper px-4 font-medium text-ink shadow-brutal-sm",
@@ -100,7 +101,7 @@ export function ForgotPasswordForm({ isAuthConfigured }: { isAuthConfigured: boo
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <>
-              {t.auth.forgotPasswordSubmit}
+              {t("auth.forgotPasswordSubmit")}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </>
           )}
@@ -121,7 +122,7 @@ export function ForgotPasswordForm({ isAuthConfigured }: { isAuthConfigured: boo
           data-testid="forgot-back-login-link"
           className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink/60 hover:text-ink"
         >
-          {t.auth.forgotPasswordBackToLogin}
+          {t("auth.forgotPasswordBackToLogin")}
         </Link>
       </p>
     </div>

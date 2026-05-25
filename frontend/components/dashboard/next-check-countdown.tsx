@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Clock, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useLocale } from "@/components/site/locale-provider";
+import { useLocale } from "next-intl";
 
 interface NextCheckCountdownProps {
   lastCheck: string | null;
@@ -12,7 +12,7 @@ interface NextCheckCountdownProps {
 }
 
 export function NextCheckCountdown({ lastCheck, intervalMinutes, plan }: NextCheckCountdownProps) {
-  const { locale } = useLocale();
+  const locale = useLocale();
   const [remaining, setRemaining] = useState<number | null>(null);
 
   useEffect(() => {

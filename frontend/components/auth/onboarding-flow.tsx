@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations, useLocale } from "next-intl";
 import { signupAction, type SignupState } from "@/app/(auth)/signup/actions";
 import { cn } from "@/lib/utils";
 import {
@@ -47,7 +47,8 @@ function clearAnswers() {
 
 export function OnboardingFlow() {
   const router = useRouter();
-  const { t, locale } = useLocale();
+  const t = useTranslations();
+  const locale = useLocale();
   const [step, setStep] = useState(1);
   const [answers, setAnswersState] = useState<OnboardingAnswers>(loadAnswers);
   const [isPending, startTransition] = useTransition();
@@ -156,7 +157,7 @@ export function OnboardingFlow() {
     );
   }
 
-  const stepLabel = t.auth.onboarding.stepLabel(step, TOTAL_STEPS);
+  const stepLabel = t("auth.onboarding.stepLabel", { current: step, total: TOTAL_STEPS });
 
   return (
     <div className="space-y-5">
@@ -182,27 +183,27 @@ export function OnboardingFlow() {
       <div className="min-h-[72px]">
         {step === 1 && (
           <h2 className="font-display text-3xl font-extrabold leading-[1.05] tracking-tighter text-ink">
-            {t.auth.onboarding.brandsTitle}
+            {t("auth.onboarding.brandsTitle")}
           </h2>
         )}
         {step === 2 && (
           <h2 className="font-display text-3xl font-extrabold leading-[1.05] tracking-tighter text-ink">
-            {t.auth.onboarding.sizeTitle}
+            {t("auth.onboarding.sizeTitle")}
           </h2>
         )}
         {step === 3 && (
           <h2 className="font-display text-3xl font-extrabold leading-[1.05] tracking-tighter text-ink">
-            {t.auth.onboarding.nameTitle}
+            {t("auth.onboarding.nameTitle")}
           </h2>
         )}
         {step === 4 && (
           <h2 className="font-display text-3xl font-extrabold leading-[1.05] tracking-tighter text-ink">
-            {t.auth.onboarding.productTitle}
+            {t("auth.onboarding.productTitle")}
           </h2>
         )}
         {step === 5 && (
           <h2 className="font-display text-3xl font-extrabold leading-[1.05] tracking-tighter text-ink">
-            {t.auth.onboarding.signupTitle}
+            {t("auth.onboarding.signupTitle")}
           </h2>
         )}
       </div>
@@ -250,12 +251,12 @@ export function OnboardingFlow() {
             )}
           >
             {step === 3
-              ? t.auth.onboarding.nameContinue
+              ? t("auth.onboarding.nameContinue")
               : step === 4
                 ? (answers.missed_product_url?.trim()
-                    ? t.auth.onboarding.productCta
-                    : t.auth.onboarding.productSkip)
-                : t.auth.onboarding.brandsContinue}
+                    ? t("auth.onboarding.productCta")
+                    : t("auth.onboarding.productSkip"))
+                : t("auth.onboarding.brandsContinue")}
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>
@@ -268,7 +269,7 @@ export function OnboardingFlow() {
           onClick={next}
           className="w-full text-center text-sm text-ink/50 underline underline-offset-4 hover:text-ink/80"
         >
-          {t.auth.onboarding.productSkip}
+          {t("auth.onboarding.productSkip")}
         </button>
       )}
     </div>

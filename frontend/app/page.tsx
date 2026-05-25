@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Quote, Sparkles } from "lucide-react";
-import { cookies } from "next/headers";
-import { messages, DEFAULT_LOCALE, type Locale } from "@/lib/i18n/messages";
+import { getTranslations, getMessages } from "next-intl/server";
 import { WaitlistForm } from "@/components/site/waitlist-form";
 import { LiveCounter } from "@/components/site/live-counter";
 import { RestockTicker } from "@/components/site/ticker";
@@ -16,9 +15,9 @@ import {
 } from "@/components/ui/scroll-reveal";
 
 export default async function HomePage() {
-  const cookieStore = await cookies();
-  const locale = (cookieStore.get("restocking.locale")?.value ?? DEFAULT_LOCALE) as Locale;
-  const t = messages[locale];
+  const t = await getTranslations();
+  const messages = await getMessages();
+  const home = (messages as any).home;
 
   return (
     <main data-testid="home-page" className="overflow-hidden">
@@ -41,7 +40,7 @@ export default async function HomePage() {
                 className="inline-flex items-center gap-2 rounded-full border-2 border-ink bg-paper px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.18em] shadow-brutal-sm"
               >
                 <Sparkles className="h-3.5 w-3.5 text-[var(--brand-orange)]" />
-                {t.home.eyebrow}
+                {t("home.eyebrow")}
               </span>
             </ScrollReveal>
 
@@ -50,16 +49,16 @@ export default async function HomePage() {
                 data-testid="hero-title"
                 className="mt-6 font-display text-[3.25rem] font-extrabold leading-[0.92] tracking-tighter text-ink md:text-[4.5rem] lg:text-[5.5rem]"
               >
-                <span className="block">{t.home.h1Top}</span>
+                <span className="block">{t("home.h1Top")}</span>
                 <span className="relative inline-block">
-                  <span className="relative z-10">{t.home.h1Mid}</span>
+                  <span className="relative z-10">{t("home.h1Mid")}</span>
                   <span
                     aria-hidden
                     className="absolute inset-x-[-6px] bottom-2 -z-0 block h-[0.38em] -rotate-1 bg-[var(--brand-lime)]"
                   />
                 </span>{" "}
                 <span className="text-[var(--brand-orange)]">
-                  {t.home.h1Bot}
+                  {t("home.h1Bot")}
                 </span>
               </h1>
             </ScrollReveal>
@@ -69,7 +68,7 @@ export default async function HomePage() {
                 data-testid="hero-sub"
                 className="mt-6 max-w-xl text-lg leading-relaxed text-ink/75"
               >
-                {t.home.sub}
+                {t("home.sub")}
               </p>
             </ScrollReveal>
 
@@ -87,7 +86,7 @@ export default async function HomePage() {
                   data-testid="hero-secondary-cta"
                   className="inline-flex h-12 items-center gap-2 rounded-full border-2 border-ink bg-paper px-5 font-display text-sm font-bold uppercase tracking-wide text-ink shadow-brutal-sm hover-press"
                 >
-                  {t.home.ctaSecondary}
+                  {t("home.ctaSecondary")}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
@@ -95,7 +94,7 @@ export default async function HomePage() {
                   data-testid="hero-pricing-cta"
                   className="text-sm font-semibold text-ink/70 underline decoration-ink/30 underline-offset-4 hover:text-ink"
                 >
-                  {t.nav.pricing} →
+                  {t("nav.pricing")} →
                 </Link>
               </div>
             </ScrollReveal>
@@ -132,11 +131,11 @@ export default async function HomePage() {
         className="border-b-2 border-ink bg-paper"
       >
         <StaggerContainer className="container mx-auto grid max-w-7xl grid-cols-2 gap-0 px-0 lg:grid-cols-4">
-          {t.home.stats.map((s, i) => (
+          {home.stats.map((s: any, i: number) => (
             <StaggerItem
               key={s.label}
               className={`flex flex-col gap-2 border-ink px-6 py-10 ${
-                i < t.home.stats.length - 1 ? "lg:border-r-2" : ""
+                i < home.stats.length - 1 ? "lg:border-r-2" : ""
               } ${i < 2 ? "border-b-2 lg:border-b-0" : ""} ${
                 i % 2 === 1 ? "" : "border-r-2 lg:border-r-2"
               }`}
@@ -160,16 +159,16 @@ export default async function HomePage() {
           <ScrollReveal>
             <div className="grid gap-4 lg:grid-cols-[1fr_2fr] lg:items-end">
               <h2 className="font-display text-4xl font-extrabold leading-tight tracking-tighter text-ink md:text-5xl">
-                {t.home.proofTitle}
+                {t("home.proofTitle")}
               </h2>
               <p className="max-w-xl text-base text-ink/70">
-                {t.home.bigCtaSub}
+                {t("home.bigCtaSub")}
               </p>
             </div>
           </ScrollReveal>
 
           <StaggerContainer className="mt-12 grid gap-5 md:grid-cols-2">
-            {t.home.proofItems.map((q, i) => {
+            {home.proofItems.map((q: any, i: number) => {
               const palette = [
                 "bg-[var(--brand-lime)]",
                 "bg-[var(--brand-blue)] text-ink",
@@ -219,13 +218,13 @@ export default async function HomePage() {
             <div>
               <span className="inline-flex items-center gap-2 rounded-full border-2 border-cream/40 px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.2em] text-cream/80">
                 <Sparkles className="h-3.5 w-3.5 text-[var(--brand-lime)]" />
-                {t.common.waitlist}
+                {t("common.waitlist")}
               </span>
               <h2 className="mt-5 font-display text-4xl font-extrabold leading-tight tracking-tighter text-cream md:text-6xl">
-                {t.home.bigCtaTitle}
+                {t("home.bigCtaTitle")}
               </h2>
               <p className="mt-5 max-w-xl text-base text-cream/70">
-                {t.home.bigCtaSub}
+                {t("home.bigCtaSub")}
               </p>
             </div>
           </ScrollReveal>
@@ -233,9 +232,9 @@ export default async function HomePage() {
             <div className="relative">
               <div className="rounded-3xl border-2 border-cream/30 bg-cream p-6 text-ink shadow-brutal-xl">
                 <h3 className="font-display text-xl font-bold text-ink">
-                  {t.common.joinWaitlist}
+                  {t("common.joinWaitlist")}
                 </h3>
-                <p className="mt-1 text-sm text-ink/60">{t.common.privacy}</p>
+                <p className="mt-1 text-sm text-ink/60">{t("common.privacy")}</p>
                 <div className="mt-5">
                   <WaitlistForm testIdPrefix="big-cta" />
                 </div>

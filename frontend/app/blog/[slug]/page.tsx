@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { messages, DEFAULT_LOCALE, type Locale } from "@/lib/i18n/messages";
+import { getLocale } from "next-intl/server";
 import { getPost, getAllSlugs, generatePostMetadata } from "@/lib/blog";
 import type { Metadata } from "next";
 
@@ -34,12 +33,12 @@ export default async function BlogPostPage({ params }: Props) {
   const post = getPost(slug);
   if (!post) notFound();
 
-  const cookieStore = await cookies();
-  const locale = (cookieStore.get("restocking.locale")?.value ?? DEFAULT_LOCALE) as Locale;
+  const locale = await getLocale();
+  const contentLocale = locale === "fr" ? "fr" : "en";
 
   const title = locale === "fr" ? post.title : post.titleEn;
   const description = locale === "fr" ? post.description : post.descriptionEn;
-  const content = post.content(locale);
+  const content = post.content(contentLocale);
 
   return (
     <main className="container mx-auto max-w-3xl px-5 py-16 lg:px-8">

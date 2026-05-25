@@ -9,19 +9,7 @@ import { LiveStatus } from "@/components/dashboard/live-status";
 import { AutoRefresh } from "@/components/dashboard/auto-refresh";
 import { getCheckLogs, getWatch } from "@/lib/data/watches";
 import { formatPrice, shortHost, cn } from "@/lib/utils";
-import { messages, type Locale } from "@/lib/i18n/messages";
-
-async function getLocale(): Promise<Locale> {
-  try {
-    const { cookies } = await import("next/headers");
-    const cookieStore = await cookies();
-    const cookieLocale = cookieStore.get("restocking.locale")?.value;
-    if (cookieLocale && ["fr", "en"].includes(cookieLocale)) {
-      return cookieLocale as Locale;
-    }
-  } catch {}
-  return "fr";
-}
+import { getLocale, getTranslations } from "next-intl/server";
 
 function priceTrend(logs: { price: number | null; checked_at: string }[]): "up" | "down" | "stable" | null {
   const withPrice = logs.filter((l) => l.price != null).slice(0, 5);
@@ -43,7 +31,7 @@ export default async function WatchDetailPage({
   if (!watch) notFound();
 
   const logs = await getCheckLogs(id);
-  const t = messages[locale].watchDetail;
+  const t = await getTranslations("watchDetail");
   const trend = priceTrend(logs);
   const isInStock = watch.last_status === "IN_STOCK" && watch.is_active;
 
@@ -56,7 +44,7 @@ export default async function WatchDetailPage({
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
-        {t.backToAlerts}
+        {t("backToAlerts")}
       </Link>
 
       {/* Product card — enhanced with urgency */}
@@ -89,7 +77,7 @@ export default async function WatchDetailPage({
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                {t.noImage}
+                {t("noImage")}
               </div>
             )}
             {isInStock && (
@@ -98,7 +86,7 @@ export default async function WatchDetailPage({
                   <span className="absolute inset-0 animate-ping rounded-full bg-emerald-500/60" />
                   <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
                 </span>
-                {t.inStock}
+                {t("inStock")}
               </span>
             )}
           </div>
@@ -113,7 +101,7 @@ export default async function WatchDetailPage({
                     isInStock && "text-emerald-900",
                   )}
                 >
-                  {watch.name ?? t.untitled}
+                  {watch.name ?? t("untitled")}
                 </h1>
                 <a
                   href={watch.url}
@@ -140,13 +128,13 @@ export default async function WatchDetailPage({
             <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-4">
               <div>
                 <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {t.variant}
+                  {t("variant")}
                 </dt>
                 <dd className="mt-0.5 font-medium">{watch.variant_label ?? "—"}</dd>
               </div>
               <div>
                 <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {t.price}
+                  {t("price")}
                 </dt>
                 <dd className="mt-0.5 flex items-center gap-1.5 font-medium">
                   {formatPrice(watch.price)}
@@ -164,7 +152,7 @@ export default async function WatchDetailPage({
               </div>
               <div>
                 <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {t.createdAt}
+                  {t("createdAt")}
                 </dt>
                 <dd className="mt-0.5 font-medium tabular-nums">
                   {new Date(watch.created_at).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US")}
@@ -190,10 +178,10 @@ export default async function WatchDetailPage({
         <div className="flex items-end justify-between">
           <div>
             <h2 className="font-display text-xl font-bold tracking-tight">
-              {t.checkHistory}
+              {t("checkHistory")}
             </h2>
             <p className="text-sm text-muted-foreground">
-              {t.checkHistoryDesc}
+              {t("checkHistoryDesc")}
             </p>
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink/20 bg-cream px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-ink/50">
@@ -201,7 +189,7 @@ export default async function WatchDetailPage({
               <span className="absolute inset-0 animate-ping rounded-full bg-emerald-400/50" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
             </span>
-            {t.live}
+            {t("live")}
           </span>
         </div>
         <CheckLogTable logs={logs} watchPrice={watch.price} />

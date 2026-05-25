@@ -3,7 +3,6 @@ import { Bell, Clock, Layers, Plus, Sparkles, TrendingUp, Zap } from "lucide-rea
 import { Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { WatchList, WatchListSkeleton } from "@/components/dashboard/watch-list";
 import { AutoRefresh } from "@/components/dashboard/auto-refresh";
 import { NextCheckCountdown } from "@/components/dashboard/next-check-countdown";
@@ -11,41 +10,29 @@ import { QuickAddBrand } from "@/components/dashboard/quick-add-brand";
 import { cn } from "@/lib/utils";
 import { getSubscription, getCurrentUser, getWatches } from "@/lib/data/watches";
 import { PLAN_LIMITS, type WatchStatus } from "@/lib/supabase/types";
-import { messages, type Locale, type DashboardMessages } from "@/lib/i18n/messages";
+import { getLocale, getTranslations } from "next-intl/server";
 
-function relativeTime(iso: string | null, t: DashboardMessages["relativeTime"]): string {
+function relativeTime(iso: string | null, t: any): string {
   if (!iso) return "—";
   const diff = Date.now() - new Date(iso).getTime();
   const sec = Math.floor(diff / 1000);
-  if (sec < 10) return t.now;
-  if (sec < 60) return t.sec(sec);
+  if (sec < 10) return t("dashboard.relativeTime.now");
+  if (sec < 60) return t("dashboard.relativeTime.sec", { n: sec });
   const min = Math.floor(sec / 60);
-  if (min < 60) return t.min(min);
+  if (min < 60) return t("dashboard.relativeTime.min", { n: min });
   const hours = Math.floor(min / 60);
-  if (hours < 24) return t.hour(hours);
-  return t.day(Math.floor(hours / 24));
+  if (hours < 24) return t("dashboard.relativeTime.hour", { n: hours });
+  return t("dashboard.relativeTime.day", { n: Math.floor(hours / 24) });
 }
 
 function inStockCount(watches: { last_status: WatchStatus; is_active: boolean }[]): number {
   return watches.filter((w) => w.is_active && w.last_status === "IN_STOCK").length;
 }
 
-async function getLocale(): Promise<Locale> {
-  try {
-    const { cookies } = await import("next/headers");
-    const cookieStore = await cookies();
-    const cookieLocale = cookieStore.get("restocking.locale")?.value;
-    if (cookieLocale && ["fr", "en"].includes(cookieLocale)) {
-      return cookieLocale as Locale;
-    }
-  } catch {}
-  return "fr";
-}
-
 export default async function DashboardPage() {
   const locale = await getLocale();
   return (
-    <Suspense fallback={<DashboardLoading locale={locale} />}>
+    <Suspense fallback={<DashboardLoading />}>
       <AutoRefresh intervalSeconds={60} />
       <div suppressHydrationWarning>
         <DashboardContent locale={locale} />
@@ -54,8 +41,7 @@ export default async function DashboardPage() {
   );
 }
 
-function DashboardLoading({ locale }: { locale: Locale }) {
-  const t: DashboardMessages = messages[locale].dashboard;
+function DashboardLoading() {
   return (
     <div className="space-y-8">
       <div className="space-y-2">
@@ -72,14 +58,14 @@ function DashboardLoading({ locale }: { locale: Locale }) {
   );
 }
 
-async function DashboardContent({ locale }: { locale: Locale }) {
+async function DashboardContent({ locale }: { locale: string }) {
   const [user, watches, subscription] = await Promise.all([
     getCurrentUser(),
     getWatches(),
     getSubscription(),
   ]);
 
-  const t: DashboardMessages = messages[locale].dashboard;
+  const t = await getTranslations();
   const firstName = (user?.user_metadata?.first_name as string) || null;
   const preferredBrands: string[] = (user?.user_metadata?.preferred_brands as string[]) ?? [];
   const max = PLAN_LIMITS[subscription.plan];
@@ -102,11 +88,18 @@ async function DashboardContent({ locale }: { locale: Locale }) {
     month: "long",
   });
 
+  const greetingText = firstName
+    ? t("dashboard.greeting.withParam", { name: firstName })
+    : t("dashboard.greeting.fallback");
+  const emptyTitleText = firstName
+    ? t("dashboard.emptyTitle.withParam", { name: firstName })
+    : t("dashboard.emptyTitle.fallback");
+
   const stats = [
     {
-      label: t.stats.activeAlerts,
+      label: t("dashboard.stats.activeAlerts"),
       value: `${activeCount} / ${max}`,
-      sub: pausedCount > 0 ? t.stats.paused(pausedCount) : undefined,
+      sub: pausedCount > 0 ? t("dashboard.stats.paused", { n: pausedCount }) : undefined,
       icon: Bell,
       color: "text-[var(--brand-orange)]",
       bg: "bg-[var(--brand-orange)]/10",
@@ -115,9 +108,9 @@ async function DashboardContent({ locale }: { locale: Locale }) {
       progressColor: "bg-[var(--brand-orange)]",
     },
     {
-      label: t.stats.inStock,
+      label: t("dashboard.stats.inStock"),
       value: String(stocked),
-      sub: stocked > 0 ? t.stats.inStockSub : t.stats.inStockSub,
+      sub: stocked > 0 ? t("dashboard.stats.inStockSub") : t("dashboard.stats.inStockSub"),
       icon: TrendingUp,
       color: stocked > 0 ? "text-emerald-600" : "text-ink/40",
       bg: stocked > 0 ? "bg-emerald-50" : "bg-muted/30",
@@ -125,9 +118,9 @@ async function DashboardContent({ locale }: { locale: Locale }) {
       alert: stocked > 0,
     },
     {
-      label: t.stats.lastCheck,
-      value: relativeTime(lastCheck, t.relativeTime),
-      sub: t.stats.workerActive,
+      label: t("dashboard.stats.lastCheck"),
+      value: relativeTime(lastCheck, t),
+      sub: t("dashboard.stats.workerActive"),
       icon: Clock,
       color: "text-[var(--brand-blue)]",
       bg: "bg-[var(--brand-blue)]/10",
@@ -135,9 +128,9 @@ async function DashboardContent({ locale }: { locale: Locale }) {
       live: true,
     },
     {
-      label: t.stats.plan,
+      label: t("dashboard.stats.plan"),
       value: isPro ? "Pro" : "Free",
-      sub: t.stats.manage,
+      sub: t("dashboard.stats.manage"),
       subHref: "/upgrade",
       icon: Layers,
       color: isPro ? "text-amber-600" : "text-ink/50",
@@ -158,7 +151,7 @@ async function DashboardContent({ locale }: { locale: Locale }) {
             {firstName ? (
               <>
                 <span className="relative inline-block">
-                  <span className="relative z-10">{t.greeting(firstName)}</span>
+                  <span className="relative z-10">{greetingText}</span>
                   <span
                     aria-hidden
                     className="absolute inset-x-[-4px] bottom-1 -z-0 block h-[0.25em] -rotate-1 bg-[var(--brand-lime)]"
@@ -169,13 +162,12 @@ async function DashboardContent({ locale }: { locale: Locale }) {
                 </span>
               </>
             ) : (
-              <span>{t.greeting(null)}</span>
+              <span>{greetingText}</span>
             )}
           </h1>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          {/* Next check countdown — builds anticipation */}
           <NextCheckCountdown
             lastCheck={lastCheck}
             intervalMinutes={checkIntervalMin}
@@ -192,7 +184,7 @@ async function DashboardContent({ locale }: { locale: Locale }) {
             >
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               <Plus className="relative h-4 w-4" />
-              <span className="relative">{t.addAlert}</span>
+              <span className="relative">{t("dashboard.addAlert")}</span>
             </Link>
           ) : (
             <Link
@@ -204,13 +196,13 @@ async function DashboardContent({ locale }: { locale: Locale }) {
             >
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               <Sparkles className="relative h-4 w-4" />
-              <span className="relative">{t.upgradeToPro}</span>
+              <span className="relative">{t("dashboard.upgradeToPro")}</span>
             </Link>
           )}
         </div>
       </header>
 
-      {/* Stats bar — enhanced with progress, rings, and live indicators */}
+      {/* Stats bar */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {stats.map((s) => {
           const card = (
@@ -222,7 +214,6 @@ async function DashboardContent({ locale }: { locale: Locale }) {
                 s.alert && "border-emerald-400/60 bg-emerald-50/30",
               )}
             >
-              {/* Progress bar at bottom */}
               {s.progress !== undefined && (
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted/50">
                   <div
@@ -282,7 +273,7 @@ async function DashboardContent({ locale }: { locale: Locale }) {
         <QuickAddBrand brands={preferredBrands} />
       )}
 
-      {/* Limit warning — more urgent feel */}
+      {/* Limit warning */}
       {isLimitReached && watches.length > 0 ? (
         <div className="flex flex-col gap-4 rounded-2xl border-2 border-[var(--brand-orange)]/40 bg-[var(--brand-orange)]/5 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-3">
@@ -291,10 +282,10 @@ async function DashboardContent({ locale }: { locale: Locale }) {
             </span>
             <div>
               <p className="font-display text-sm font-bold uppercase tracking-widest">
-                {t.limitReached}
+                {t("dashboard.limitReached")}
               </p>
               <p className="mt-0.5 text-sm text-ink/70">
-                {t.limitBody(activeCount, subscription.plan, max)}
+                {t("dashboard.limitBody", { active: activeCount, plan: subscription.plan, max })}
               </p>
             </div>
           </div>
@@ -306,14 +297,14 @@ async function DashboardContent({ locale }: { locale: Locale }) {
             )}
           >
             <Sparkles className="h-3.5 w-3.5" />
-            {t.upgradeToPro}
+            {t("dashboard.upgradeToPro")}
           </Link>
         </div>
       ) : null}
 
       {/* Watch list / empty state */}
       {watches.length === 0 ? (
-        <EmptyState firstName={firstName} t={t} />
+        <EmptyState firstName={firstName} emptyTitleText={emptyTitleText} emptyBody={t("dashboard.emptyBody")} emptyCta={t("dashboard.emptyCta")} emptyFooter={t("dashboard.emptyFooter")} />
       ) : (
         <WatchList watches={watches} />
       )}
@@ -321,7 +312,19 @@ async function DashboardContent({ locale }: { locale: Locale }) {
   );
 }
 
-function EmptyState({ firstName, t }: { firstName: string | null; t: DashboardMessages }) {
+function EmptyState({
+  firstName,
+  emptyTitleText,
+  emptyBody,
+  emptyCta,
+  emptyFooter,
+}: {
+  firstName: string | null;
+  emptyTitleText: string;
+  emptyBody: string;
+  emptyCta: string;
+  emptyFooter: string;
+}) {
   return (
     <Card className="rounded-3xl border-2 border-dashed border-ink/30 bg-cream/50">
       <CardContent className="flex flex-col items-center gap-6 p-8 text-center sm:p-14">
@@ -335,10 +338,10 @@ function EmptyState({ firstName, t }: { firstName: string | null; t: DashboardMe
         </div>
         <div className="space-y-2">
           <h2 className="font-display text-xl font-extrabold tracking-tight sm:text-2xl">
-            {t.emptyTitle(firstName)}
+            {emptyTitleText}
           </h2>
           <p className="mx-auto max-w-sm text-sm leading-relaxed text-ink/60">
-            {t.emptyBody}
+            {emptyBody}
           </p>
         </div>
         <Link
@@ -350,10 +353,10 @@ function EmptyState({ firstName, t }: { firstName: string | null; t: DashboardMe
         >
           <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
           <Plus className="relative h-4 w-4" />
-          <span className="relative">{t.emptyCta}</span>
+          <span className="relative">{emptyCta}</span>
         </Link>
         <p className="text-xs text-ink/30">
-          {t.emptyFooter}
+          {emptyFooter}
         </p>
       </CardContent>
     </Card>

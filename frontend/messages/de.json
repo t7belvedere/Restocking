@@ -1,68 +1,69 @@
 {
+  "_meta": { "status": "machine-translated", "date": "2026-05-25" },
   "nav": {
-    "home": "Home",
-    "how": "How it works",
-    "retailers": "Stores",
-    "pricing": "Pricing",
+    "home": "Startseite",
+    "how": "So funktioniert's",
+    "retailers": "Shops",
+    "pricing": "Preise",
     "faq": "FAQ",
-    "manifesto": "Manifesto",
-    "cta": "Join the list"
+    "manifesto": "Manifest",
+    "cta": "Auf die Liste"
   },
   "common": {
-    "backHome": "Back to home",
-    "waitlist": "Waitlist",
-    "joinWaitlist": "Join the waitlist",
-    "joining": "Adding you…",
-    "yourEmail": "Your email",
-    "placeholder": "alex@example.com",
-    "success": "Welcome to the list 🎉",
-    "already": "You are already on the list — your spot is saved 💌",
-    "invalid": "Invalid email address.",
-    "error": "Oops, please try again in a moment.",
-    "counterPre": "already",
-    "counterPost": "fashion victims™ waiting",
-    "counterFallback": "Be one of the first to break the sold-out curse.",
-    "privacy": "No spam. We only write to announce the launch.",
-    "free": "Free",
+    "backHome": "Zurück zur Startseite",
+    "waitlist": "Warteliste",
+    "joinWaitlist": "Auf die Warteliste",
+    "joining": "Wird hinzugefügt …",
+    "yourEmail": "Deine E-Mail",
+    "placeholder": "alex@beispiel.de",
+    "success": "Willkommen auf der Liste 🎉",
+    "already": "Du stehst bereits auf der Liste — dein Platz ist gesichert 💌",
+    "invalid": "Ungültige E-Mail-Adresse.",
+    "error": "Hoppla, bitte versuche es gleich noch einmal.",
+    "counterPre": "schon",
+    "counterPost": "Fashion Victims™ warten",
+    "counterFallback": "Sei einer der Ersten, die den Ausverkauft-Fluch brechen.",
+    "privacy": "Kein Spam. Wir schreiben nur, um den Launch anzukündigen.",
+    "free": "Kostenlos",
     "pro": "Pro",
-    "mostPopular": "Most loved 🔥",
-    "perMonth": "/ month",
-    "perYear": "/ year",
-    "monthly": "Monthly",
-    "annual": "Annual",
-    "saveBadge": "Save 30%",
-    "restocked": "RESTOCKED",
-    "soldOut": "SOLD OUT",
-    "notFoundTitle": "Lost in the wardrobe.",
-    "notFoundBody": "This page does not exist (anymore). Want us to take you home?"
+    "mostPopular": "Am beliebtesten 🔥",
+    "perMonth": "/ Monat",
+    "perYear": "/ Jahr",
+    "monthly": "Monatlich",
+    "annual": "Jährlich",
+    "saveBadge": "Spare 30 %",
+    "restocked": "NACHGEFÜLLT",
+    "soldOut": "AUSVERKAUFT",
+    "notFoundTitle": "Verlaufen im Kleiderschrank.",
+    "notFoundBody": "Diese Seite existiert nicht (mehr). Sollen wir dich nach Hause bringen?"
   },
   "home": {
-    "eyebrow": "Size-specific restock alerts · Europe",
-    "h1Top": "Your size,",
-    "h1Mid": "the moment",
-    "h1Bot": "it comes back.",
-    "sub": "We watch Zara, COS, Aritzia, Sézane, Uniqlo and 100+ other stores for you. We’ll let you know in under 5 minutes when your size is back. No more 12 tabs open, no more checking at 3am.",
-    "ctaPrimary": "Keep me posted",
-    "ctaSecondary": "How it works",
-    "proofTitle": "From shoppers who were tired of missing out",
+    "eyebrow": "Größenspezifische Nachschub-Benachrichtigungen · Europa",
+    "h1Top": "Deine Größe,",
+    "h1Mid": "in dem Moment,",
+    "h1Bot": "in dem sie zurückkommt.",
+    "sub": "Wir beobachten Zara, COS, Aritzia, Sézane, Uniqlo und über 100 weitere Shops für dich. Wir sagen dir in unter 5 Minuten Bescheid, wenn deine Größe wieder da ist. Keine 12 offenen Tabs mehr, kein Nachschauen um 3 Uhr nachts.",
+    "ctaPrimary": "Halt mich auf dem Laufenden",
+    "ctaSecondary": "So funktioniert's",
+    "proofTitle": "Von Käufern, die es satt hatten, leer auszugehen",
     "proofItems": [
       {
-        "quote": "I used to check Aritzia 30 times a day. The one time it restocked, I missed my size by 4 minutes.",
+        "quote": "Ich habe 30 Mal am Tag bei Aritzia nachgeschaut. Das eine Mal, als es nachgefüllt wurde, habe ich meine Größe um 4 Minuten verpasst.",
         "author": "u/sara_lovesoutfits",
         "source": "r/Aritzia"
       },
       {
-        "quote": "Zara’s alert reached me 3 days later. I’d already moved on.",
+        "quote": "Zaras Benachrichtigung kam 3 Tage zu spät. Da war ich schon längst weiter.",
         "author": "Camille, 28",
         "source": "Paris"
       },
       {
-        "quote": "I used to set alarms at night for COS. Restocking let me sleep again.",
+        "quote": "Ich habe mir nachts Wecker für COS gestellt. Restocking hat mich wieder schlafen lassen.",
         "author": "Tom, 26",
         "source": "Berlin"
       },
       {
-        "quote": "Honestly the other tools are a nightmare. None of them tell you about your exact size.",
+        "quote": "Ehrlich, die anderen Tools sind ein Albtraum. Keines sagt dir Bescheid, wenn es um deine exakte Größe geht.",
         "author": "u/dropwatcher",
         "source": "r/femalefashionadvice"
       }
@@ -70,529 +71,716 @@
     "stats": [
       {
         "value": "<5 min",
-        "label": "Average time to alert you"
+        "label": "Durchschnittliche Zeit bis zur Benachrichtigung"
       },
       {
         "value": "120+",
-        "label": "Stores watched"
+        "label": "Überwachte Shops"
       },
       {
         "value": "EU 34–50",
-        "label": "Every size covered"
+        "label": "Jede Größe abgedeckt"
       },
       {
         "value": "0",
-        "label": "False alerts — we check twice before messaging you"
+        "label": "Fehlalarme — wir prüfen doppelt, bevor wir dich benachrichtigen"
       }
     ],
-    "bigCtaTitle": "The second your size comes back, we’ll let you know.",
-    "bigCtaSub": "Join the waitlist. Get access on launch day, plus 3 months of Pro free for the first 100."
+    "bigCtaTitle": "In dem Moment, in dem deine Größe zurückkommt, sagen wir dir Bescheid.",
+    "bigCtaSub": "Trag dich auf die Warteliste ein. Erhalte Zugang am Launch-Tag, plus 3 Monate Pro kostenlos für die ersten 100."
   },
   "how": {
-    "eyebrow": "How it works",
-    "title": "Three steps. As simple as that.",
-    "sub": "No tech skills needed. You copy a link, pick your size, and we handle everything else.",
+    "eyebrow": "So funktioniert's",
+    "title": "Drei Schritte. So einfach ist das.",
+    "sub": "Keine Technikkenntnisse nötig. Du kopierst einen Link, wählst deine Größe, und wir kümmern uns um den Rest.",
     "steps": [
       {
         "n": "01",
-        "title": "Copy the product link",
-        "body": "Grab the link of the piece you want from the brand’s website (Zara, COS, Sézane…). We automatically pull the name, photo, price and all available sizes.",
-        "pill": "1 link = 1 alert active"
+        "title": "Kopiere den Produktlink",
+        "body": "Schnapp dir den Link des Teils, das du haben willst, von der Website der Marke (Zara, COS, Sézane …). Wir ziehen automatisch Name, Foto, Preis und alle verfügbaren Größen.",
+        "pill": "1 Link = 1 aktive Benachrichtigung"
       },
       {
         "n": "02",
-        "title": "Pick your size (and colour)",
-        "body": "Select YOUR size and YOUR colour. We’ll only let you know about that one — not some random size that isn’t yours.",
-        "pill": "Tailored to you"
+        "title": "Wähle deine Größe (und Farbe)",
+        "body": "Wähle DEINE Größe und DEINE Farbe. Wir sagen dir nur Bescheid, wenn genau diese Kombination zurückkommt — nicht irgendeine zufällige Größe, die nicht deine ist.",
+        "pill": "Maßgeschneidert für dich"
       },
       {
         "n": "03",
-        "title": "Get your alert in under 5 min",
-        "body": "Email straight to your inbox (and SMS on Pro) the moment it’s back. With a link that takes you right to the product page, in your size.",
-        "pill": "Faster than the brand’s own alert"
+        "title": "Erhalte deine Benachrichtigung in unter 5 Min.",
+        "body": "E-Mail direkt in dein Postfach (und SMS mit Pro), sobald es wieder da ist. Mit einem Link, der dich direkt zur Produktseite führt, in deiner Größe.",
+        "pill": "Schneller als die Benachrichtigung der Marke selbst"
       }
     ],
-    "detailsTitle": "Behind the scenes",
+    "detailsTitle": "Hinter den Kulissen",
     "details": [
       {
-        "title": "We check non-stop",
-        "body": "We look at the product page every 5 minutes (Pro) or 30 minutes (Free). We check the buy button and the stock info directly on the site — just like you would, but without you having to think about it."
+        "title": "Wir checken ununterbrochen",
+        "body": "Wir sehen uns die Produktseite alle 5 Minuten (Pro) oder 30 Minuten (Kostenlos) an. Wir prüfen den Kauf-Button und die Bestandsinformationen direkt auf der Seite — genau wie du es tun würdest, nur ohne dass du darüber nachdenken musst."
       },
       {
-        "title": "Two checks before we tell you",
-        "body": "We make sure it’s really back before we send anything. If an item reappears for 30 seconds because someone abandoned their cart, we don’t wake you up. No false hope."
+        "title": "Zwei Checks, bevor wir dich benachrichtigen",
+        "body": "Wir stellen sicher, dass es wirklich zurück ist, bevor wir irgendetwas senden. Wenn ein Artikel für 30 Sekunden wieder auftaucht, weil jemand seinen Warenkorb abgebrochen hat, wecken wir dich nicht auf. Keine falsche Hoffnung."
       },
       {
-        "title": "We respect the stores",
-        "body": "We only look at what’s publicly visible. No hacking, no auto-buying. We browse the same page you see, at human speed."
+        "title": "Wir respektieren die Shops",
+        "body": "Wir schauen nur auf das, was öffentlich sichtbar ist. Kein Hacking, kein automatischer Kauf. Wir durchsuchen dieselbe Seite, die du siehst, in menschlichem Tempo."
       },
       {
-        "title": "Data stored in Europe",
-        "body": "Everything is hosted in Frankfurt, encrypted and GDPR compliant. Your email and alerts belong to you. Export or delete them in one click. We never sell anything to anyone."
+        "title": "Daten in Europa gespeichert",
+        "body": "Alles wird in Frankfurt gehostet, verschlüsselt und DSGVO-konform. Deine E-Mail und Benachrichtigungen gehören dir. Exportiere oder lösche sie mit einem Klick. Wir verkaufen niemals etwas an irgendjemanden."
       },
       {
-        "title": "Email and SMS alerts",
-        "body": "As soon as your size is back, you get an email with a direct link to the product page, in your size. On Pro, we also text you for items that sell out fast. No hidden newsletter."
+        "title": "E-Mail- und SMS-Benachrichtigungen",
+        "body": "Sobald deine Größe zurück ist, erhältst du eine E-Mail mit einem direkten Link zur Produktseite, in deiner Größe. Mit Pro schicken wir dir auch eine SMS für Artikel, die schnell ausverkauft sind. Kein versteckter Newsletter."
       }
     ],
-    "whyTitle": "Why is this better than the brand’s own alerts?",
+    "whyTitle": "Warum ist das besser als die Benachrichtigungen der Marken selbst?",
     "whyItems": [
       {
-        "title": "Faster",
-        "body": "Brands send their alerts in batches — sometimes 2 to 24 hours late. We check each product live, no queue. On average, you’ll know in under 3 minutes."
+        "title": "Schneller",
+        "body": "Marken versenden ihre Benachrichtigungen in Stapeln — manchmal 2 bis 24 Stunden zu spät. Wir checken jedes Produkt live, ohne Warteschlange. Im Durchschnitt erfährst du es in unter 3 Minuten."
       },
       {
-        "title": "Your exact size",
-        "body": "Brands send a generic alert for the product. If size S comes back and you wear M, you get a notification for nothing. We only let you know about the size you’re watching."
+        "title": "Deine exakte Größe",
+        "body": "Marken senden eine generische Benachrichtigung für das Produkt. Wenn Größe S zurückkommt und du M trägst, bekommst du eine Benachrichtigung für nichts. Wir sagen dir nur Bescheid über die Größe, die du beobachtest."
       },
       {
-        "title": "All your brands, one place",
-        "body": "No need to create accounts at Zara, COS, Sézane and cross your fingers that each one’s alerts work. One place, every brand, every size."
+        "title": "Alle deine Marken, ein Ort",
+        "body": "Keine Notwendigkeit, Konten bei Zara, COS, Sézane zu erstellen und zu hoffen, dass deren Benachrichtigungen alle funktionieren. Ein Ort, jede Marke, jede Größe."
       }
     ]
   },
   "retailers": {
-    "eyebrow": "All stores",
-    "title": "Any store. We’ve got it.",
-    "sub": "We watch every fashion store in Europe. The ones below are just the ones we know best — the rest work too.",
-    "legendInStock": "Ultra-fast",
-    "legendBeta": "Also works",
-    "filterAll": "All stores",
-    "filterLive": "Ultra-fast",
+    "eyebrow": "Alle Shops",
+    "title": "Jeder Shop. Wir haben ihn.",
+    "sub": "Wir beobachten jeden Modeshop in Europa. Die unten sind nur die, die wir am besten kennen — der Rest funktioniert auch.",
+    "legendInStock": "Ultraschnell",
+    "legendBeta": "Funktioniert auch",
+    "filterAll": "Alle Shops",
+    "filterLive": "Ultraschnell",
     "filterBeta": "Universal",
-    "tileCta": "Watch",
-    "requestTitle": "A store we missed?",
-    "requestBody": "We add stores all the time. Tell us which one you need and we’ll get on it.",
-    "requestCta": "Suggest a store",
-    "noResultsTitle": "No match.",
-    "noResultsBody": "But remember: every store works!",
-    "universalCardTitle": "All stores",
-    "universalCardBody": "Paste any link. We’ll find your size automatically.",
-    "fadeMore": "And hundreds of other brands..."
+    "tileCta": "Beobachten",
+    "requestTitle": "Ein Shop, den wir vergessen haben?",
+    "requestBody": "Wir fügen ständig Shops hinzu. Sag uns, welchen du brauchst, und wir kümmern uns darum.",
+    "requestCta": "Shop vorschlagen",
+    "noResultsTitle": "Kein Treffer.",
+    "noResultsBody": "Aber denk dran: Jeder Shop funktioniert!",
+    "universalCardTitle": "Alle Shops",
+    "universalCardBody": "Füge einen beliebigen Link ein. Wir finden deine Größe automatisch.",
+    "fadeMore": "Und Hunderte weiterer Marken …"
   },
   "pricing": {
-    "eyebrow": "Pricing",
-    "title": "Simple. Start free.",
-    "sub": "Stay on Free to test it out. Upgrade when you want faster alerts.",
-    "toggleMonthly": "Monthly",
-    "toggleAnnual": "Annual · -30%",
+    "eyebrow": "Preise",
+    "heroTitle": "Wähle deinen Plan.",
+    "heroSub": "Starte kostenlos mit 3 Artikeln. Upgrade auf Pro an dem Tag, an dem du einen Drop verpasst, der dir wichtig ist.",
+    "planLabel": "Plan",
+    "toggleMonthly": "Monatlich",
+    "toggleAnnual": "Jährlich · −30 %",
     "plans": {
       "free": {
-        "name": "Free",
-        "tagline": "To try it out.",
+        "name": "Kostenlos",
+        "tagline": "Zum Ausprobieren.",
         "price": "€0",
-        "unit": "/ forever",
-        "features": [
-          "3 items watched",
-          "Checked every 30 min",
-          "Email alerts",
-          "All stores supported",
-          "Live tracking"
-        ],
-        "cta": "Start free"
+        "unit": "/ für immer",
+        "cta": "Kostenlos starten"
       },
       "pro": {
         "name": "Pro",
-        "tagline": "For never missing out.",
-        "priceMonthly": "€7.99",
+        "tagline": "Um nie wieder etwas zu verpassen.",
+        "priceMonthly": "€7,99",
         "priceAnnual": "€59",
-        "unitMonthly": "/ month",
-        "unitAnnual": "/ year · that’s €4.90/mo",
-        "features": [
-          "20 items watched",
-          "Checked every 5 min",
-          "Email + SMS alerts",
-          "Works on every site, even tricky ones",
-          "Price history",
-          "Priority support"
-        ],
-        "cta": "Go Pro"
+        "unitMonthlyShort": "/ Monat",
+        "unitAnnualShort": "/ Jahr",
+        "subMonthly": "oder €59/Jahr (zwei Monate geschenkt)",
+        "subAnnual": "das sind €4,90/Monat",
+        "cta": "Pro werden"
       }
     },
-    "faqLink": "Questions about payment?",
-    "faqLinkCta": "Read the FAQ →"
+    "features": {
+      "items": "Überwachte Artikel",
+      "freeItems": "3 max.",
+      "proItems": "20 max.",
+      "frequency": "Check-Intervall",
+      "freeFrequency": "Alle 30 Min.",
+      "proFrequency": "Alle 5 Min.",
+      "emailNotifs": "E-Mail-Benachrichtigungen",
+      "smsNotifs": "SMS-Benachrichtigungen",
+      "optimizedStores": "Optimierte Shops",
+      "playwright": "Playwright-Fallback",
+      "liveDashboard": "Live-Dashboard",
+      "checkHistory": "Check-Verlauf",
+      "freeHistory": "7 Tage",
+      "proHistory": "Unbegrenzt",
+      "support": "Priority-Support"
+    },
+    "compareTitle": "Pläne vergleichen",
+    "compareSub": "Alles, was du brauchst, um in 30 Sekunden zu entscheiden.",
+    "compareFeature": "Funktion",
+    "testimonialsTitle": "Diejenigen, die Pro gewählt haben",
+    "testimonialsSub": "Sie würden nie zurückgehen.",
+    "testimonials": {
+      "0": {
+        "quote": "Ich bin auf Pro umgestiegen, an dem Tag, an dem ich einen COS-Nachschub verpasst habe. Seitdem habe ich 4 Teile ergattert, von denen ich dachte, sie wären für immer weg.",
+        "author": "Léa, 29",
+        "source": "Paris"
+      },
+      "1": {
+        "quote": "Der kostenlose Plan hat mich bei Sézane gerettet. Danach bin ich direkt auf Pro gewechselt. Die 5-Minuten-Checks ändern alles.",
+        "author": "Marine, 32",
+        "source": "Lyon"
+      },
+      "2": {
+        "quote": "Ehrlich, €7,99, um nicht mehr 20 Mal am Tag nachzuschauen, ist ein Geschenk. Ich habe Distill gelöscht.",
+        "author": "Thomas, 26",
+        "source": "Berlin"
+      }
+    },
+    "faqTitle": "Häufig gestellte Fragen",
+    "faqSub": "Alles, was du wissen willst, bevor du auf Pro wechselst.",
+    "faq": {
+      "switchPlansQ": "Kann ich jederzeit den Plan wechseln?",
+      "switchPlansA": "Ja, keine Bindung. Upgrade auf Pro wann immer du willst, genauso einfach wieder zurück auf Kostenlos — direkt aus deinem Dashboard.",
+      "cancelProQ": "Wie kündige ich Pro?",
+      "cancelProA": "Zwei Klicks von deinem Konto aus (Stripe-Portal). Keine Bindung, keine E-Mail nötig, keine versteckten Buttons.",
+      "annualOfferQ": "Bietet ihr einen jährlichen Plan an?",
+      "annualOfferA": "Ja! Der Pro-Jahresplan kostet €59/Jahr, das sind €4,90/Monat. Zwei Monate geschenkt im Vergleich zum monatlichen Plan.",
+      "tryBeforePayQ": "Kann ich es vor dem Bezahlen ausprobieren?",
+      "tryBeforePayA": "Natürlich. Der kostenlose Plan gibt dir 3 überwachte Artikel mit Checks alle 30 Minuten. Genug, um zu sehen, ob dir der Service gefällt."
+    },
+    "bottomCtaEyebrow": "Bereit, nie wieder etwas zu verpassen?",
+    "bottomCtaTitle": "Hol dir Pro. Deine Größe wartet nicht.",
+    "bottomCtaSub": "€7,99/Monat, keine Bindung. Jederzeit in zwei Klicks kündbar. Und wenn du unter den ersten 100 bist, 3 Monate kostenlos.",
+    "redirecting": "Weiterleitung …",
+    "faqLink": "Fragen zur Zahlung?",
+    "faqLinkCta": "Lies die FAQ →"
   },
   "faq": {
     "eyebrow": "FAQ",
-    "title": "Everything you’re wondering.",
-    "sub": "Something missing? Email us at hello@restocking.app — there are three real humans here.",
+    "title": "Alles, was du dich fragst.",
+    "sub": "Etwas fehlt? Schreib uns an hello@restocking.app — hier sind drei echte Menschen.",
     "items": [
       {
-        "q": "Is this data theft?",
-        "a": "No. We just look at the product page, like you do. No hacking, no auto-buying. We only watch what’s publicly visible to everyone."
+        "q": "Ist das Datendiebstahl?",
+        "a": "Nein. Wir schauen uns nur die Produktseite an, genau wie du. Kein Hacking, kein automatischer Kauf. Wir beobachten nur das, was für jeden öffentlich sichtbar ist."
       },
       {
-        "q": "Is it legal in Europe?",
-        "a": "Yes. We only look at prices and stock that are already public. Your data is stored in Germany (Frankfurt), and you can delete everything in one click."
+        "q": "Ist das legal in Europa?",
+        "a": "Ja. Wir schauen nur auf Preise und Bestände, die bereits öffentlich sind. Deine Daten werden in Deutschland (Frankfurt) gespeichert, und du kannst alles mit einem Klick löschen."
       },
       {
-        "q": "How fast will I know?",
-        "a": "Free: within 30 minutes. Pro: under 5 minutes. And we always check twice before sending you anything — just to be sure it’s really back."
+        "q": "Wie schnell erfahre ich es?",
+        "a": "Kostenlos: innerhalb von 30 Minuten. Pro: unter 5 Minuten. Und wir checken immer doppelt, bevor wir dir etwas senden — nur um sicherzugehen, dass es wirklich zurück ist."
       },
       {
-        "q": "Is my favourite store covered?",
-        "a": "We’re launching with Zara, COS, Aritzia, Uniqlo, Sézane, Mango, Arket and ASOS. Missing yours? Tell us on the Stores page and we’ll add it within 2 weeks."
+        "q": "Ist mein Lieblingsshop abgedeckt?",
+        "a": "Wir starten mit Zara, COS, Aritzia, Uniqlo, Sézane, Mango, Arket und ASOS. Deiner fehlt? Sag es uns auf der Shop-Seite und wir fügen ihn innerhalb von 2 Wochen hinzu."
       },
       {
-        "q": "Can I change my size later?",
-        "a": "Anytime. You can also track several sizes of the same item — each size counts as one alert."
+        "q": "Kann ich meine Größe später ändern?",
+        "a": "Jederzeit. Du kannst auch mehrere Größen desselben Artikels verfolgen — jede Größe zählt als eine Benachrichtigung."
       },
       {
-        "q": "How do I cancel Pro?",
-        "a": "Two clicks from your account. No commitment, no email needed, no hidden buttons."
+        "q": "Wie kündige ich Pro?",
+        "a": "Zwei Klicks von deinem Konto aus. Keine Bindung, keine E-Mail nötig, keine versteckten Buttons."
       },
       {
-        "q": "Do you sell my data?",
-        "a": "Never. We make money from the Pro plan, not from your info. Your email stays with us."
+        "q": "Verkauft ihr meine Daten?",
+        "a": "Niemals. Wir verdienen Geld mit dem Pro-Plan, nicht mit deinen Daten. Deine E-Mail bleibt bei uns."
       },
       {
-        "q": "Which stores do you watch?",
-        "a": "Zara, COS, Aritzia, Uniqlo, Sézane, Mango, Arket, ASOS, Ganni, Massimo Dutti, & Other Stories and 50+ more. The full list is on the Stores page."
+        "q": "Welche Shops beobachtet ihr?",
+        "a": "Zara, COS, Aritzia, Uniqlo, Sézane, Mango, Arket, ASOS, Ganni, Massimo Dutti, & Other Stories und über 50 weitere. Die vollständige Liste findest du auf der Shop-Seite."
       },
       {
-        "q": "How does it work behind the scenes?",
-        "a": "We check the product page every 5 minutes (Pro) or 30 minutes (Free). We look at the buy button, we read the stock info. If the page is tricky, we open it like a normal browser and look. Nothing magical."
+        "q": "Wie funktioniert es hinter den Kulissen?",
+        "a": "Wir checken die Produktseite alle 5 Minuten (Pro) oder 30 Minuten (Kostenlos). Wir schauen auf den Kauf-Button, wir lesen die Bestandsinformationen. Wenn die Seite knifflig ist, öffnen wir sie wie ein normaler Browser und schauen nach. Nichts Magisches."
       },
       {
-        "q": "Why are you faster than the brands?",
-        "a": "Brands send their alerts in batches — sometimes 24 hours late. We check your product live, all the time. Simple: we don’t wait in their email queue."
+        "q": "Warum seid ihr schneller als die Marken?",
+        "a": "Marken versenden ihre Benachrichtigungen in Stapeln — manchmal 24 Stunden zu spät. Wir checken dein Produkt live, die ganze Zeit. Ganz einfach: Wir warten nicht in ihrer E-Mail-Warteschlange."
       },
       {
-        "q": "How many items can I track?",
-        "a": "3 on Free, 20 on Pro. Each size+colour counts as 1. If you want a t-shirt in S and M, that’s 2 alerts. Swap anytime."
+        "q": "Wie viele Artikel kann ich verfolgen?",
+        "a": "3 mit Kostenlos, 20 mit Pro. Jede Größe+Farbe zählt als 1. Wenn du ein T-Shirt in S und M willst, sind das 2 Benachrichtigungen. Jederzeit austauschbar."
       },
       {
-        "q": "What about non-European stores?",
-        "a": "Our focus is Europe, but we already cover Aritzia, Reformation, Khaite. If the site is in English or French, it should work. Tell us which one you need."
+        "q": "Was ist mit nicht-europäischen Shops?",
+        "a": "Unser Fokus ist Europa, aber wir decken bereits Aritzia, Reformation, Khaite ab. Wenn die Seite auf Englisch oder Französisch ist, sollte es funktionieren. Sag uns, welchen du brauchst."
       }
     ]
   },
   "manifesto": {
-    "eyebrow": "Manifesto",
-    "title": "Because there are enough sold-out signs already.",
+    "eyebrow": "Manifest",
+    "title": "Weil es schon genug Ausverkauft-Schilder gibt.",
     "paragraphs": [
-      "We’re tired of checking. Tired of alerts arriving after it’s already gone. Tired of tools that make no sense.",
-      "Restocking is what we always wanted. One link, one size, one alert. That’s it.",
-      "Three people between Paris, Lyon and Berlin. No fundraising, no AI bullshit, no selling data. Just a service that makes fashion a little less frustrating.",
-      "We started this after missing a COS coat for the third time. Size S, navy blue. Restocked at 4am, gone by 4:07. Not a single alert. That’s when we knew.",
-      "Today we watch 120+ brands every 5 minutes. We check product pages like you would — just without you having to think about it. Nothing magical, just good work.",
-      "We don’t spam you. We don’t sell you. We let you know when it’s really back, in your size, for the item you want. Full stop.",
-      "We do this so you wear what you love — not what’s left."
+      "Wir haben es satt, nachzuschauen. Satt von Benachrichtigungen, die ankommen, wenn es schon weg ist. Satt von Tools, die keinen Sinn ergeben.",
+      "Restocking ist das, was wir immer wollten. Ein Link, eine Größe, eine Benachrichtigung. Das war's.",
+      "Drei Leute zwischen Paris, Lyon und Berlin. Kein Fundraising, kein KI-Bullshit, kein Datenverkauf. Nur ein Service, der Mode ein bisschen weniger frustrierend macht.",
+      "Wir haben das angefangen, nachdem wir zum dritten Mal einen COS-Mantel verpasst haben. Größe S, marineblau. Um 4 Uhr nachts nachgefüllt, um 4:07 Uhr weg. Keine einzige Benachrichtigung. Da wussten wir es.",
+      "Heute beobachten wir über 120 Marken alle 5 Minuten. Wir checken Produktseiten wie du es tun würdest — nur ohne dass du darüber nachdenken musst. Nichts Magisches, nur gute Arbeit.",
+      "Wir spammen dich nicht zu. Wir verkaufen dich nicht. Wir sagen dir Bescheid, wenn es wirklich zurück ist, in deiner Größe, für den Artikel, den du willst. Punkt.",
+      "Wir tun das, damit du trägst, was du liebst — nicht das, was übrig bleibt."
     ],
-    "signature": "— the restocking team"
+    "signature": "— das restocking-team"
   },
   "footer": {
-    "tagline": "Size-specific restock alerts for European fashion.",
-    "product": "Product",
-    "legal": "Legal",
+    "tagline": "Größenspezifische Nachschub-Benachrichtigungen für europäische Mode.",
+    "product": "Produkt",
+    "legal": "Rechtliches",
     "links": {
-      "privacy": "Privacy",
-      "terms": "Terms",
+      "privacy": "Datenschutz",
+      "terms": "AGB",
       "cookies": "Cookies",
+      "mentionsLegales": "Impressum",
       "contact": "hello@restocking.app"
     },
-    "madeIn": "Made with ❤️ between Paris, Lyon & Berlin.",
-    "rights": "All rights reserved."
+    "madeIn": "Gemacht mit ❤️ zwischen Paris, Lyon & Berlin.",
+    "rights": "Alle Rechte vorbehalten."
   },
   "legal": {
     "privacy": {
-      "title": "Privacy Policy",
-      "lastUpdated": "Updated May 24, 2026",
-      "intro": "At Restocking, we hate spam as much as you do. Your data is used only to notify you when your favorite item comes back in stock.",
+      "title": "Datenschutzerklärung",
+      "lastUpdated": "Zuletzt aktualisiert: 25. Mai 2026",
+      "intro": "Datenschutz steht im Mittelpunkt von Restocking. Diese Richtlinie beschreibt, wie wir deine personenbezogenen Daten erfassen, nutzen und schützen, in Übereinstimmung mit der Datenschutz-Grundverordnung (DSGVO) und den geltenden Datenschutzgesetzen.",
       "sections": [
         {
-          "title": "Data Collected",
-          "content": "We keep your email, your language preference, and the product URLs you watch. That's all."
+          "title": "Verantwortlicher",
+          "content": "Der Verantwortliche für die Datenverarbeitung ist Oscar Albert, erreichbar unter hello@restocking.app. Restocking ist ein in Frankreich eingetragenes Einzelunternehmen. Bei Fragen zu deinen Daten kannst du uns jederzeit schreiben."
         },
         {
-          "title": "Data Usage",
-          "content": "Your email is only used to send alerts and important service updates. We will NEVER sell your data to third parties."
+          "title": "Welche Daten wir erfassen",
+          "content": "Wir erfassen nur Daten, die für den Service unbedingt notwendig sind: deine E-Mail-Adresse (für Authentifizierung und Benachrichtigungen), deine Spracheinstellung (Englisch oder Französisch), die von dir überwachten Produkt-URLs, die Größe und Farbe, die du für jedes Produkt verfolgst, deinen Tarif (Kostenlos oder Pro) und den Benachrichtigungsverlauf. Wir erfassen nicht deinen vollständigen Namen, deine Postanschrift oder Zahlungsdaten (Zahlungen werden von Stripe abgewickelt)."
         },
         {
-          "title": "Hosting",
-          "content": "Your data is stored in Europe (Frankfurt region) on Supabase's secure servers."
+          "title": "Zwecke und Rechtsgrundlagen",
+          "content": "Wir verarbeiten deine Daten, um: (1) dein Konto zu erstellen und zu verwalten (Rechtsgrundlage: Vertragserfüllung), (2) den Bestand für von dir verfolgte Produkte zu überwachen und Benachrichtigungen zu senden (Rechtsgrundlage: Vertragserfüllung), (3) wesentliche Service-Informationen zu senden (Rechtsgrundlage: berechtigtes Interesse), (4) den Service durch anonymisierte Analysen zu verbessern (Rechtsgrundlage: berechtigtes Interesse). Wir betreiben kein Profiling, keine automatisierten Entscheidungen und keine Werbeausrichtung."
+        },
+        {
+          "title": "Datenempfänger",
+          "content": "Deine Daten werden nur mit unbedingt notwendigen Auftragsverarbeitern geteilt: Supabase (Datenbank und Authentifizierung, Server in Frankfurt), Resend (Transaktions-E-Mail-Versand) und Stripe (Zahlungsabwicklung, nur wenn du auf Pro upgradest). Jeder Auftragsverarbeiter ist DSGVO-konform. Wir verkaufen, vermieten oder teilen deine Daten nicht mit Dritten für kommerzielle oder sonstige Zwecke."
+        },
+        {
+          "title": "Übermittlungen außerhalb der Europäischen Union",
+          "content": "Deine Daten werden in Europa gehostet (Supabase, Region Frankfurt). Einige Auftragsverarbeiter operieren aus den Vereinigten Staaten (Resend, Stripe). Sie halten sich an das EU-US Data Privacy Framework (DPF) oder haben die von der Europäischen Kommission genehmigten Standardvertragsklauseln unterzeichnet, die ein gleichwertiges Schutzniveau gewährleisten."
+        },
+        {
+          "title": "Datenspeicherung",
+          "content": "Kontodaten werden so lange gespeichert, wie dein Konto aktiv ist. Wenn du dein Konto löschst, werden alle personenbezogenen Daten innerhalb von 30 Tagen gelöscht. Technische Protokolle (Zeitstempel der Bestandsprüfungen, Statusmeldungen) werden nach 90 Tagen anonymisiert. Zahlungsdaten werden von Stripe gemäß deren Aufbewahrungsrichtlinie gespeichert (gesetzliche Aufbewahrungsfrist von 10 Jahren für Rechnungen)."
+        },
+        {
+          "title": "Sicherheit",
+          "content": "Wir setzen angemessene technische und organisatorische Maßnahmen um: Verschlüsselung bei der Übertragung (TLS 1.3) und im Ruhezustand (AES-256), starke Authentifizierung über Supabase Auth, Serverzugang nur mit SSH-Schlüsseln und VPN, kontinuierliche Überwachung von Zugriffen und Anomalien sowie automatisierte Sicherheitsupdates. Im Falle einer Datenschutzverletzung benachrichtigen wir dich innerhalb von 72 Stunden, gemäß der DSGVO."
+        },
+        {
+          "title": "Deine DSGVO-Rechte",
+          "content": "Du hast folgende Rechte in Bezug auf deine Daten, die du jederzeit durch eine E-Mail an hello@restocking.app ausüben kannst: Recht auf Auskunft (zu erfahren, welche Daten wir speichern, und eine Kopie zu erhalten), Recht auf Berichtigung (unrichtige Daten korrigieren zu lassen), Recht auf Löschung (dein Konto und alle Daten löschen zu lassen), Recht auf Einschränkung (die Verarbeitung vorübergehend einzufrieren), Recht auf Datenübertragbarkeit (deine Daten in einem lesbaren Format zu erhalten) und Widerspruchsrecht (die Verarbeitung auf Basis berechtigter Interessen abzulehnen). Wir beantworten alle Anfragen innerhalb von 30 Tagen."
+        },
+        {
+          "title": "Cookies und Tracker",
+          "content": "Wir verwenden nur Cookies, die für den Betrieb der Website unbedingt erforderlich sind: ein Authentifizierungs-Session-Cookie und ein Cookie für die Spracheinstellung. Keine Werbe-Cookies, keine Tracking-Cookies von Drittanbietern. Unsere vollständige Cookie-Richtlinie ist auf der entsprechenden Seite beschrieben."
+        },
+        {
+          "title": "Minderjährige",
+          "content": "Der Service ist nicht für Personen unter 16 Jahren bestimmt. Wir erfassen wissentlich keine personenbezogenen Daten von Minderjährigen. Wenn du ein Elternteil bist und feststellst, dass dein Kind den Service nutzt, kontaktiere uns, damit wir die Daten löschen können."
+        },
+        {
+          "title": "Beschwerderecht",
+          "content": "Wenn du glaubst, dass die Verarbeitung deiner Daten nicht DSGVO-konform ist, hast du das Recht, eine Beschwerde bei deiner nationalen Datenschutzbehörde einzureichen (in Frankreich: CNIL, cnil.fr; in Deutschland: BfDI; in Großbritannien: ICO). Wir empfehlen dir, dich zuerst an uns zu wenden, damit wir das Problem direkt lösen können."
+        },
+        {
+          "title": "Änderungen der Richtlinie",
+          "content": "Wir können diese Richtlinie aktualisieren, um rechtlichen oder technischen Änderungen Rechnung zu tragen. Bei wesentlichen Änderungen benachrichtigen wir dich mindestens 14 Tage vor Inkrafttreten per E-Mail. Das Datum der letzten Aktualisierung wird oben auf dieser Seite angezeigt."
         }
       ]
     },
     "terms": {
-      "title": "Terms of Service",
-      "lastUpdated": "Updated May 24, 2026",
-      "intro": "By using Restocking, you agree to these simple rules.",
+      "title": "Allgemeine Geschäftsbedingungen",
+      "lastUpdated": "Zuletzt aktualisiert: 25. Mai 2026",
+      "intro": "Diese Allgemeinen Geschäftsbedingungen (AGB) regeln deine Beziehung zu Restocking. Durch die Nutzung des Dienstes akzeptierst du diese Bedingungen in vollem Umfang. Wenn du mit einem Teil nicht einverstanden bist, darfst du den Dienst nicht nutzen.",
       "sections": [
         {
-          "title": "The Service",
-          "content": "Restocking is a monitoring tool. We do our best to be the fastest, but we cannot guarantee that you will succeed in buying the product before others."
+          "title": "Definitionen",
+          "content": "„Restocking\" bezeichnet den von Oscar Albert betriebenen Dienst, erreichbar unter restocking.app. „Nutzer\" oder „du\" bezeichnet jede Person, die ein Konto erstellt und den Dienst nutzt. „Benachrichtigung\" bezeichnet die Überwachung eines bestimmten Produkts (Größe + Farbe). „Kostenloser Plan\" bezeichnet das kostenlose Abonnement mit 3 Benachrichtigungen und 30-Minuten-Checks. „Pro-Plan\" bezeichnet das kostenpflichtige Abonnement mit bis zu 20 Benachrichtigungen und 5-Minuten-Checks."
+        },
+        {
+          "title": "Zweck des Dienstes",
+          "content": "Restocking ist ein Bestandsüberwachungstool für Online-Modeshops. Der Dienst prüft automatisch die Produktseiten, die du ihm anvertraust, und sendet dir eine Benachrichtigung (E-Mail, und SMS im Pro-Plan), sobald die von dir verfolgte Größe und Farbe wieder zum Kauf verfügbar ist. Restocking ist ein Informationsdienst: Wir verkaufen nichts, wir sind mit keiner Marke verbunden, und wir garantieren nicht, dass du das Produkt kaufen kannst."
+        },
+        {
+          "title": "Kontoerstellung",
+          "content": "Um den Dienst nutzen zu können, musst du ein Konto mit einer gültigen E-Mail-Adresse erstellen. Du verpflichtest dich, korrekte Informationen bereitzustellen und diese aktuell zu halten. Du bist verantwortlich für die Vertraulichkeit deines Passworts und für alle Aktivitäten in deinem Konto. Ein Konto darf nur von einer Person genutzt werden."
+        },
+        {
+          "title": "Abonnement-Pläne",
+          "content": "Der kostenlose Plan ist kostenlos und erlaubt bis zu 3 gleichzeitige Benachrichtigungen mit Checks alle 30 Minuten. Der Pro-Plan ist kostenpflichtig und erlaubt bis zu 20 gleichzeitige Benachrichtigungen mit Checks alle 5 Minuten und beinhaltet SMS-Benachrichtigungen. Die Preise werden in Euro inklusive Mehrwertsteuer auf der Preisseite angezeigt und können mit einer Frist von 30 Tagen angepasst werden."
+        },
+        {
+          "title": "Zahlung und Abrechnung",
+          "content": "Zahlungen für den Pro-Plan werden von Stripe, unserem PCI-DSS-zertifizierten Zahlungsanbieter, abgewickelt. Restocking speichert niemals deine Kartendaten. Die Abrechnung erfolgt im Voraus, monatlich oder jährlich, je nach gewähltem Plan. Die Verlängerung erfolgt automatisch. Du erhältst nach jeder Zahlung eine Rechnung per E-Mail."
+        },
+        {
+          "title": "Widerrufsrecht",
+          "content": "Gemäß dem EU-Verbraucherschutzrecht hast du ein 14-tägiges Widerrufsrecht ab dem Datum des Pro-Abonnements. Um dieses Recht auszuüben, schreibe an hello@restocking.app. Rückerstattungen erfolgen innerhalb von 14 Tagen über dieselbe Zahlungsmethode. Wenn du den Dienst während dieser 14 Tage genutzt hast, kann die Rückerstattung anteilig berechnet werden."
+        },
+        {
+          "title": "Pflichten des Nutzers",
+          "content": "Du verpflichtest dich: den Dienst ausschließlich für persönliche, nicht-kommerzielle Zwecke zu nutzen, die technischen Grenzen des Dienstes nicht zu umgehen (mehrere Konten, Automatisierung), Benachrichtigungen oder über den Dienst erhaltene Informationen nicht weiterzuverkaufen oder weiterzugeben, den Dienst nicht zur Überwachung illegaler oder gefälschter Produkte zu nutzen und die geistigen Eigentumsrechte der überwachten Marken zu respektieren."
         },
         {
           "title": "Fair Use",
-          "content": "The service is intended for personal use. Any attempt at massive automation or degradation of the service may result in a ban."
+          "content": "Wir behalten uns das Recht vor, ein Konto bei missbräuchlicher Nutzung zu sperren oder zu kündigen, einschließlich: Massenerstellung von Konten, Versuche, Benachrichtigungslimits zu umgehen, Einsatz von Bots oder Skripten, jegliche Handlungen mit dem Ziel, die Servicequalität für andere Nutzer zu verschlechtern, oder Nutzung des Dienstes für Weiterverkauf oder unlauteren Wettbewerb. Bei Verdacht auf Missbrauch informieren wir dich und geben dir Gelegenheit zur Stellungnahme, bevor eine Sanktion verhängt wird."
         },
         {
-          "title": "Pro Subscription",
-          "content": "The Pro plan is no-commitment. You can cancel at any time from your dashboard."
+          "title": "Geistiges Eigentum",
+          "content": "Restocking ist eine eingetragene Marke. Der Quellcode, das Design, die Originaltexte und die grafischen Elemente der Website sind das ausschließliche Eigentum von Restocking. Die Logos, Marken und Produktnamen der überwachten Shops (Zara, COS, Sézane, Gucci, Prada usw.) bleiben Eigentum ihrer jeweiligen Inhaber. Ihre Anzeige auf Restocking dient ausschließlich Informationszwecken und stellt keine Zugehörigkeit, Billigung oder Lizenz dar. Wenn du Markeninhaber bist und die Anzeige deines Logos einstellen möchtest, kontaktiere uns unter hello@restocking.app."
+        },
+        {
+          "title": "Personenbezogene Daten",
+          "content": "Die Verarbeitung deiner personenbezogenen Daten erfolgt gemäß unserer Datenschutzerklärung, verfügbar unter restocking.app/privacy, die integraler Bestandteil dieser AGB ist. Mit der Annahme dieser AGB bestätigst du, unsere Datenschutzerklärung gelesen zu haben."
+        },
+        {
+          "title": "Haftung und Haftungsbeschränkungen",
+          "content": "Restocking bemüht sich nach besten Kräften, einen zuverlässigen und schnellen Dienst bereitzustellen. Wir können jedoch nicht garantieren: dass der Dienst ununterbrochen oder fehlerfrei ist, dass Benachrichtigungen immer ankommen, bevor das Produkt wieder ausverkauft ist, dass du das Produkt nach Erhalt einer Benachrichtigung kaufen kannst, oder dass die von den Shops angezeigten Bestandsinformationen korrekt sind (wir geben das wieder, was öffentlich sichtbar ist, ohne Änderungen). Unter keinen Umständen haftet Restocking für indirekte Schäden, entgangene Chancen oder entgangenen Gewinn im Zusammenhang mit der Nutzung des Dienstes. Unsere Haftung ist auf den in den letzten 12 Monaten gezahlten Abonnementbetrag begrenzt."
+        },
+        {
+          "title": "Dienstverfügbarkeit",
+          "content": "Wir streben eine Verfügbarkeit von 99,5 % an. Geplante Wartungsarbeiten werden Pro-Nutzern mindestens 24 Stunden im Voraus per E-Mail angekündigt. Bei ungeplanten Unterbrechungen bemühen wir uns, den Dienst so schnell wie möglich wiederherzustellen. Verpasste Checks während einer Unterbrechung werden bei Wiederherstellung des Dienstes automatisch nachgeholt."
+        },
+        {
+          "title": "Websites Dritter und externe Links",
+          "content": "Benachrichtigungen enthalten Links zu den Produktseiten der überwachten Shops. Restocking übt keine Kontrolle über diese Drittanbieter-Websites aus und lehnt jegliche Verantwortung für deren Inhalte, Geschäftspraktiken oder Verfügbarkeit ab. Für Käufe, die über diese Links getätigt werden, gelten die eigenen AGB des jeweiligen Shops."
+        },
+        {
+          "title": "Kündigung",
+          "content": "Du kannst dein Konto jederzeit über dein Dashboard schließen, ohne Vorankündigung oder Begründung. Alle deine Daten werden innerhalb von 30 Tagen gelöscht. Wir können dein Konto bei schwerwiegendem Verstoß gegen diese AGB mit einer Frist von 7 Tagen per E-Mail kündigen und dich zur Behebung des Verstoßes auffordern. Die Kündigung wird bei betrügerischen oder illegalen Aktivitäten sofort wirksam."
+        },
+        {
+          "title": "Änderungen der AGB",
+          "content": "Wir können diese AGB ändern, um Service-Entwicklungen oder rechtlichen Verpflichtungen Rechnung zu tragen. Bei wesentlichen Änderungen benachrichtigen wir dich mindestens 14 Tage vor Inkrafttreten per E-Mail. Wenn du mit den Änderungen nicht einverstanden bist, kannst du dein Konto vor diesem Datum schließen. Die fortgesetzte Nutzung des Dienstes nach dem Inkrafttreten gilt als Annahme der neuen AGB."
+        },
+        {
+          "title": "Anwendbares Recht und Gerichtsstand",
+          "content": "Diese AGB unterliegen französischem Recht. Bei Streitigkeiten sind die französischen Gerichte zuständig. Gemäß den EU-Verbraucherschutzvorschriften kannst du die Online-Streitbeilegungsplattform der Europäischen Kommission unter ec.europa.eu/consumers/odr nutzen. Du kannst die Angelegenheit auch an eine Verbraucherschlichtungsstelle wie CMAP (cmap.fr) verweisen."
+        },
+        {
+          "title": "Kontakt",
+          "content": "Bei Fragen zu diesen AGB oder zum Dienst kannst du uns jederzeit per E-Mail an hello@restocking.app kontaktieren. Wir bemühen uns, innerhalb von 48 Geschäftsstunden zu antworten."
         }
       ]
     },
     "cookies": {
-      "title": "Cookie Policy",
-      "lastUpdated": "Updated May 24, 2026",
-      "intro": "We use the strict minimum to keep the site running.",
+      "title": "Cookie-Richtlinie",
+      "lastUpdated": "Zuletzt aktualisiert: 25. Mai 2026",
+      "intro": "Diese Richtlinie erklärt, wie und warum wir Cookies auf restocking.app verwenden. Wir tun das absolute Minimum — keine Werbe-Tracker, keine Spionage-Pixel.",
       "sections": [
         {
-          "title": "Essential Cookies",
-          "content": "These cookies are used to remember your authentication session and language preference. Without them, the site won't work."
+          "title": "Was ist ein Cookie?",
+          "content": "Ein Cookie ist eine kleine Textdatei, die von der von dir besuchten Website auf deinem Gerät (Computer, Telefon) abgelegt wird. Es ermöglicht, Informationen zwischen Besuchen zu speichern, wie deine Anmeldesitzung oder Einstellungen. Cookies können „Session-Cookies\" sein (gelöscht, wenn du deinen Browser schließt) oder „persistente\" Cookies (bleiben für Tage oder Monate gespeichert)."
         },
         {
-          "title": "Analytics",
-          "content": "We use privacy-friendly tools to understand how the site is used, without tracking you personally."
+          "title": "Unbedingt erforderliche Cookies",
+          "content": "Diese Cookies sind für den Betrieb der Website unerlässlich. Sie können nicht deaktiviert werden. Dazu gehören: das Supabase-Session-Cookie (sb-access-token / sb-refresh-token), das dich während deines Besuchs eingeloggt hält, und das Spracheinstellungs-Cookie (NEXT_LOCALE), das deine Wahl von Englisch oder Französisch speichert. Diese Cookies sammeln keine personenbezogenen Daten und werden niemals an Dritte weitergegeben."
+        },
+        {
+          "title": "Analyse-Cookies",
+          "content": "Wir können in Zukunft ein datenschutzfreundliches Analysetool (wie Plausible oder Matomo, ohne Drittanbieter-Cookies oder standortübergreifendes Tracking) verwenden, um zu verstehen, wie viele Personen die Website besuchen und welche Seiten angesehen werden. Diese Daten sind vollständig anonymisiert. Derzeit werden keine Analyse-Cookies gesetzt."
+        },
+        {
+          "title": "Drittanbieter-Cookies",
+          "content": "Zahlungen für den Pro-Plan werden von Stripe abgewickelt, das eigene, für die Transaktion unbedingt erforderliche Cookies setzen kann. Diese Cookies unterliegen der Datenschutzerklärung von Stripe. Wir binden keine Social-Media-Widgets, Werbenetzwerke oder Tracking-Pixel von Drittanbietern ein."
+        },
+        {
+          "title": "Lebensdauer von Cookies",
+          "content": "Session-Cookies verfallen, wenn du deinen Browser schließt. Das Sprach-Cookie bleibt 1 Jahr lang bestehen. Zahlungsbezogene Cookies von Stripe haben eine von Stripe festgelegte Lebensdauer (in der Regel 30 Minuten für die Zahlungssitzung)."
+        },
+        {
+          "title": "Cookies verwalten",
+          "content": "Du kannst von restocking.app gesetzte Cookies jederzeit über deine Browsereinstellungen löschen (Einstellungen > Datenschutz & Sicherheit > Cookies und Websitedaten). Die meisten Browser erlauben es auch, Cookies standardmäßig zu blockieren. Hinweis: Das Blockieren notwendiger Cookies verhindert, dass die Website ordnungsgemäß funktioniert (du kannst dann nicht eingeloggt bleiben)."
+        }
+      ]
+    },
+    "mentionsLegales": {
+      "title": "Impressum",
+      "lastUpdated": "Zuletzt aktualisiert: 25. Mai 2026",
+      "intro": "Gemäß dem französischen Gesetz Nr. 2004-575 vom 21. Juni 2004 über das Vertrauen in die digitale Wirtschaft (LCEN) veröffentlichen wir die rechtlichen Informationen zur Veröffentlichung und zum Hosting der Website restocking.app.",
+      "sections": [
+        {
+          "title": "Herausgeber der Website",
+          "content": "Die Website restocking.app wird von Oscar Albert herausgegeben, Einzelunternehmer (Kleinstunternehmen) unter dem Handelsnamen Belvédère, eingetragen im französischen nationalen Unternehmensregister (RNE) am 2. März 2026. SIREN: 101 279 628. SIRET: 101 279 628 00016. APE-Code: 6201Z (Programmierung). Adresse: 8 Rue des Acacias, 68870 Bartenheim, Frankreich. Telefon: +33 6 22 73 96 62. E-Mail: contact@belvedere-group.fr. Kein Mehrwertsteuerausweis — Mehrwertsteuerbefreiung (Artikel 293 B des französischen Steuergesetzbuchs). Die Website wird unter dem Handelsnamen „Restocking\" betrieben."
+        },
+        {
+          "title": "Veröffentlichungsleiter",
+          "content": "Der Veröffentlichungsleiter ist Oscar Albert, als Gründer und Herausgeber der Website. Kontakt: hello@restocking.app."
+        },
+        {
+          "title": "Hosting-Anbieter",
+          "content": "Die Website restocking.app wird von Vercel Inc. gehostet, einem in Delaware (Vereinigte Staaten) eingetragenen Unternehmen mit Sitz in 440 N Barranca Ave #4133, Covina, CA 91723, USA. Website: vercel.com. Die europäische Infrastruktur (Compute) befindet sich in Frankfurt (Deutschland). Nutzerdaten werden auf Supabase (Friedrichstraße 114, 10117 Berlin, Deutschland), Region Frankfurt, ISO 27001- und SOC 2-zertifiziert, gespeichert."
+        },
+        {
+          "title": "Geistiges Eigentum",
+          "content": "Die gesamte Website restocking.app (Struktur, Quellcode, Design, Originaltexte, grafische Elemente) ist das ausschließliche Eigentum ihres Herausgebers und durch Urheber- und Markenrecht geschützt. Jegliche vollständige oder teilweise Vervielfältigung, Darstellung oder Bearbeitung der Website ohne vorherige schriftliche Genehmigung ist untersagt. Die auf der Website angezeigten Marken, Logos und Handelsnamen von Modeshops (Zara, COS, Sézane, Gucci, Prada usw.) sind das ausschließliche Eigentum ihrer jeweiligen Inhaber. Ihre Präsenz auf restocking.app dient ausschließlich Informationszwecken und stellt keine Zugehörigkeit, Partnerschaft oder Lizenz dar."
+        },
+        {
+          "title": "Schutz personenbezogener Daten",
+          "content": "Restocking verpflichtet sich, deine Datenschutzrechte zu respektieren, in Übereinstimmung mit der DSGVO und den geltenden Datenschutzgesetzen. Unsere ausführliche Datenschutzerklärung ist unter restocking.app/privacy verfügbar. Um deine Rechte auszuüben (Auskunft, Berichtigung, Löschung, Datenübertragbarkeit), schreibe an hello@restocking.app."
+        },
+        {
+          "title": "Haftungsbeschränkung",
+          "content": "Der Herausgeber bemüht sich, möglichst genaue Informationen auf der Website bereitzustellen. Wir können jedoch nicht die Genauigkeit, Vollständigkeit oder Aktualität der von Drittanbieter-Websites weitergeleiteten Bestandsinformationen garantieren. Hyperlinks auf der Website führen zu Websites Dritter, auf die der Herausgeber keinen Einfluss hat. Der Herausgeber lehnt jegliche Haftung für den Inhalt dieser Websites und für Schäden, die aus deren Nutzung entstehen, ab."
+        },
+        {
+          "title": "Anwendbares Recht",
+          "content": "Dieses Impressum unterliegt französischem Recht. Für alle Streitigkeiten im Zusammenhang mit der Website restocking.app sind die französischen Gerichte zuständig. Schlichtung: Gemäß den geltenden Verbraucherschutzvorschriften kannst du die Angelegenheit nach einem Versuch, den Streit direkt mit uns zu lösen, an eine Verbraucherschlichtungsstelle wie CMAP (cmap.fr) verweisen."
         }
       ]
     }
   },
   "profile": {
-    "settingsTitle": "Account settings",
-    "settingsSub": "Email, password and notifications.",
-    "preferencesTitle": "Preferences",
-    "preferencesSub": "Your favourite brands and size so we can help you better.",
-    "changeEmailTitle": "Change email",
-    "changeEmailDesc": "We'll send a confirmation link to your new address.",
-    "newEmailLabel": "New email",
-    "changeEmailButton": "Change",
-    "changeEmailPending": "Sending…",
-    "changeEmailSuccess": "Link sent. Check your new inbox.",
-    "changePasswordTitle": "Change password",
-    "changePasswordDesc": "At least 8 characters.",
-    "currentPasswordLabel": "Current password",
-    "newPasswordLabel": "New password",
-    "confirmPasswordLabel": "Confirm new password",
-    "changePasswordButton": "Change",
-    "changePasswordPending": "Changing…",
-    "changePasswordSuccess": "Password updated.",
-    "passwordMismatch": "Passwords don't match.",
-    "passwordTooShort": "At least 8 characters.",
-    "saveButton": "Save",
-    "saving": "Saving…",
-    "saved": "Saved!",
-    "saveError": "Couldn't save."
+    "settingsTitle": "Kontoeinstellungen",
+    "settingsSub": "E-Mail, Passwort und Benachrichtigungen.",
+    "preferencesTitle": "Einstellungen",
+    "preferencesSub": "Deine Lieblingsmarken und Größe, damit wir dir besser helfen können.",
+    "changeEmailTitle": "E-Mail ändern",
+    "changeEmailDesc": "Wir senden einen Bestätigungslink an deine neue Adresse.",
+    "newEmailLabel": "Neue E-Mail",
+    "changeEmailButton": "Ändern",
+    "changeEmailPending": "Wird gesendet …",
+    "changeEmailSuccess": "Link gesendet. Bitte prüfe deinen neuen Posteingang.",
+    "changePasswordTitle": "Passwort ändern",
+    "changePasswordDesc": "Mindestens 8 Zeichen.",
+    "currentPasswordLabel": "Aktuelles Passwort",
+    "newPasswordLabel": "Neues Passwort",
+    "confirmPasswordLabel": "Neues Passwort bestätigen",
+    "changePasswordButton": "Ändern",
+    "changePasswordPending": "Wird geändert …",
+    "changePasswordSuccess": "Passwort aktualisiert.",
+    "passwordMismatch": "Passwörter stimmen nicht überein.",
+    "passwordTooShort": "Mindestens 8 Zeichen.",
+    "saveButton": "Speichern",
+    "saving": "Wird gespeichert …",
+    "saved": "Gespeichert!",
+    "saveError": "Konnte nicht gespeichert werden."
   },
   "addWatch": {
-    "pageTitle": "New alert",
-    "pageSub": "Paste a product URL, pick your size — we'll handle the rest.",
-    "urlLabel": "Product URL",
-    "urlHelp": "Paste the direct link to the product page. We read the public tags to pre-fill the form.",
+    "pageTitle": "Neue Benachrichtigung",
+    "pageSub": "Füge eine Produkt-URL ein, wähle deine Größe — wir kümmern uns um den Rest.",
+    "urlLabel": "Produkt-URL",
+    "urlHelp": "Füge den direkten Link zur Produktseite ein. Wir lesen die öffentlichen Tags, um das Formular vorauszufüllen.",
     "urlPlaceholder": "https://www.cos.com/...",
-    "analyze": "Analyze product",
-    "analyzing": "Analyzing…",
-    "blockedWarning": "{brand} is not compatible with our automatic analysis. You can create the alert manually, but product info detection won't work on this site.",
-    "limitedWarning": "{brand} uses anti-bot protection that may limit detection. Analysis still works but variants or images may be incomplete.",
-    "modifyUrl": "Edit URL",
-    "noImage": "No image",
-    "productName": "Product name",
-    "productNamePlaceholder": "e.g. Oversized wool coat",
-    "size": "Size",
-    "color": "Color",
-    "oosBadge": "sold out",
-    "selectVariant": "Select your size / color",
-    "selectVariantHelp": "Select the exact variant you want to track.",
-    "manualVariantPlaceholder": "e.g. Size S / Navy blue",
-    "noVariantsHelp": "No variants detected — enter the size / color manually.",
-    "cancel": "Cancel",
-    "activate": "Activate alert",
-    "activating": "Activating…",
-    "enrichmentPending": "The site is blocking our automatic reading. You can create the alert and our worker will enrich the listing in a few minutes.",
-    "partialAnalysis": "Partial analysis — the page took too long to respond.",
-    "couldNotRead": "We couldn't read the product page. You can fill in the details manually.",
-    "networkError": "Network error. Please try again shortly.",
-    "selectSizeColor": "Select a size and color before activating.",
-    "chooseVariant": "Choose a size / color before activating.",
-    "limitReached": "Plan limit reached. Upgrade to Pro to track more.",
-    "invalidUrl": "Invalid URL.",
-    "createFailed": "Couldn't create alert.",
-    "activated": "Alert activated ✓",
-    "progressHttp": "Connecting to site..."
+    "analyze": "Produkt analysieren",
+    "analyzing": "Wird analysiert …",
+    "blockedWarning": "{brand} ist nicht mit unserer automatischen Analyse kompatibel. Du kannst die Benachrichtigung manuell erstellen, aber die Erkennung von Produktinformationen funktioniert auf dieser Seite nicht.",
+    "limitedWarning": "{brand} verwendet Anti-Bot-Schutz, der die Erkennung einschränken kann. Die Analyse funktioniert, aber Varianten oder Bilder können unvollständig sein.",
+    "modifyUrl": "URL bearbeiten",
+    "noImage": "Kein Bild",
+    "productName": "Produktname",
+    "productNamePlaceholder": "z. B. Oversized Wollmantel",
+    "size": "Größe",
+    "color": "Farbe",
+    "oosBadge": "ausverkauft",
+    "selectVariant": "Wähle deine Größe / Farbe",
+    "selectVariantHelp": "Wähle die exakte Variante, die du verfolgen möchtest.",
+    "manualVariantPlaceholder": "z. B. Größe S / Marineblau",
+    "noVariantsHelp": "Keine Varianten erkannt — gib die Größe / Farbe manuell ein.",
+    "cancel": "Abbrechen",
+    "activate": "Benachrichtigung aktivieren",
+    "activating": "Wird aktiviert …",
+    "enrichmentPending": "Die Website blockiert unser automatisches Auslesen. Du kannst die Benachrichtigung erstellen und unser Worker wird den Eintrag in wenigen Minuten anreichern.",
+    "partialAnalysis": "Teilweise Analyse — die Seite hat zu lange zum Antworten gebraucht.",
+    "couldNotRead": "Wir konnten die Produktseite nicht lesen. Du kannst die Details manuell ausfüllen.",
+    "networkError": "Netzwerkfehler. Bitte versuche es in Kürze erneut.",
+    "selectSizeColor": "Wähle eine Größe und Farbe, bevor du aktivierst.",
+    "chooseVariant": "Wähle eine Größe / Farbe, bevor du aktivierst.",
+    "limitReached": "Plan-Limit erreicht. Upgrade auf Pro, um mehr zu verfolgen.",
+    "invalidUrl": "Ungültige URL.",
+    "createFailed": "Benachrichtigung konnte nicht erstellt werden.",
+    "activated": "Benachrichtigung aktiviert ✓",
+    "progressHttp": "Verbinde mit Website …"
   },
   "dashboard": {
     "greeting": {
       "withParam": "Hey {name}",
-      "fallback": "My alerts"
+      "fallback": "Meine Benachrichtigungen"
     },
-    "addAlert": "Add an alert",
-    "upgradeToPro": "Go Pro",
-    "upgradeCta": "Unlock everything",
-    "myPlan": "Your plan",
-    "upgradeTitle": "Go Pro, never miss your size again",
-    "managePlan": "Manage your subscription",
-    "upgradeSub": "More products, faster checks, SMS alerts. Cancel anytime in two clicks.",
-    "manageSub": "Modify, pause or cancel your Pro plan from the Stripe portal.",
-    "securePayment": "Secure payment via Stripe. Cancel anytime, no commitment.",
+    "addAlert": "Benachrichtigung hinzufügen",
+    "upgradeToPro": "Pro holen",
+    "upgradeCta": "Alles freischalten",
+    "myPlan": "Dein Plan",
+    "upgradeTitle": "Hol dir Pro, verpasse nie wieder deine Größe",
+    "managePlan": "Abonnement verwalten",
+    "upgradeSub": "Mehr Produkte, schnellere Checks, SMS-Benachrichtigungen. Jederzeit in zwei Klicks kündbar.",
+    "manageSub": "Ändere, pausiere oder kündige deinen Pro-Plan über das Stripe-Portal.",
+    "securePayment": "Sichere Zahlung via Stripe. Jederzeit kündbar, keine Bindung.",
     "upgradeCards": {
-      "freeTitle": "To get started.",
+      "freeTitle": "Zum Einstieg.",
       "freePrice": "€0",
-      "freeUnit": "/ forever",
+      "freeUnit": "/ für immer",
       "freeFeatures": [
-        "3 items tracked",
-        "Checked every 30 min",
-        "Email notifications",
-        "Live dashboard"
+        "3 Artikel verfolgt",
+        "Check alle 30 Min.",
+        "E-Mail-Benachrichtigungen",
+        "Live-Dashboard"
       ],
-      "currentPlan": "Current plan",
+      "currentPlan": "Aktueller Plan",
       "downgrade": "Downgrade",
-      "proTitle": "To never miss out.",
-      "proPrice": "€7.99",
-      "proUnit": "/ month",
-      "proAnnual": "or €59/year (two months free)",
-      "recommended": "Recommended",
+      "proTitle": "Um nie wieder etwas zu verpassen.",
+      "proPrice": "€7,99",
+      "proUnit": "/ Monat",
+      "proAnnual": "oder €59/Jahr (zwei Monate geschenkt)",
+      "recommended": "Empfohlen",
       "proFeatures": [
-        "20 items tracked instead of 3",
-        "Checks every 5 minutes",
-        "Instant email + SMS notifications",
-        "Playwright fallback for tricky sites",
-        "Unlimited check history",
-        "Priority support"
+        "20 statt 3 Artikel verfolgt",
+        "Checks alle 5 Minuten",
+        "Sofortige E-Mail- + SMS-Benachrichtigungen",
+        "Playwright-Fallback für knifflige Seiten",
+        "Unbegrenzter Check-Verlauf",
+        "Priority-Support"
       ],
-      "manageStripe": "Manage subscription (Stripe)",
-      "monthlyCta": "Pro monthly — €7.99/mo",
-      "annualCta": "Pro annual — €59/yr (2 months free)",
-      "redirectingStripe": "Redirecting to Stripe…",
-      "redirecting": "Redirecting…"
+      "manageStripe": "Abonnement verwalten (Stripe)",
+      "monthlyCta": "Pro monatlich — €7,99/Monat",
+      "annualCta": "Pro jährlich — €59/Jahr (2 Monate geschenkt)",
+      "redirectingStripe": "Weiterleitung zu Stripe …",
+      "redirecting": "Weiterleitung …"
     },
     "stats": {
-      "activeAlerts": "Active alerts",
-      "paused": "{n} paused",
-      "inStock": "In stock",
-      "inStockSub": "Available now",
-      "lastCheck": "Last check",
-      "workerActive": "Watching now",
-      "plan": "My plan",
-      "manage": "Manage →"
+      "activeAlerts": "Aktive Benachrichtigungen",
+      "paused": "{n} pausiert",
+      "inStock": "Auf Lager",
+      "inStockSub": "Jetzt verfügbar",
+      "lastCheck": "Letzter Check",
+      "workerActive": "Überwacht jetzt",
+      "plan": "Mein Plan",
+      "manage": "Verwalten →"
     },
-    "limitReached": "Limit reached",
-    "limitBody": "You have {active} alerts on your {plan} plan (max {max}). Upgrade to Pro for 20 alerts and checks every 5 minutes.",
+    "limitReached": "Limit erreicht",
+    "limitBody": "Du hast {active} Benachrichtigungen in deinem {plan}-Plan (max. {max}). Upgrade auf Pro für 20 Benachrichtigungen und Checks alle 5 Minuten.",
     "emptyTitle": {
-      "withParam": "Ready to hunt, {name}?",
-      "fallback": "Ready to start?"
+      "withParam": "Bereit zum Jagen, {name}?",
+      "fallback": "Bereit zum Starten?"
     },
-    "emptyBody": "Paste the link of an item you missed, pick your size, and we'll take care of the rest.",
-    "emptyCta": "Add my first alert",
-    "emptyFooter": "Zara, COS, Aritzia, Sézane, Uniqlo and 120+ other brands",
+    "emptyBody": "Füge den Link eines Artikels ein, den du verpasst hast, wähle deine Größe, und wir kümmern uns um den Rest.",
+    "emptyCta": "Meine erste Benachrichtigung hinzufügen",
+    "emptyFooter": "Zara, COS, Aritzia, Sézane, Uniqlo und über 120 weitere Marken",
     "relativeTime": {
-      "now": "just now",
-      "sec": "{n}s ago",
-      "min": "{n} min ago",
-      "hour": "{n}h ago",
-      "day": "{n}d ago"
+      "now": "gerade eben",
+      "sec": "vor {n}s",
+      "min": "vor {n} Min.",
+      "hour": "vor {n} Std.",
+      "day": "vor {n} T."
     }
   },
   "watchDetail": {
-    "backToAlerts": "My alerts",
-    "noImage": "No photo",
-    "untitled": "Untitled product",
-    "variant": "Variant",
-    "price": "Price",
-    "createdAt": "Added",
-    "checkHistory": "Check history",
-    "checkHistoryDesc": "Last 20 checks — updates automatically.",
+    "backToAlerts": "Meine Benachrichtigungen",
+    "noImage": "Kein Foto",
+    "untitled": "Unbenanntes Produkt",
+    "variant": "Variante",
+    "price": "Preis",
+    "createdAt": "Hinzugefügt",
+    "checkHistory": "Check-Verlauf",
+    "checkHistoryDesc": "Letzte 20 Checks — aktualisiert sich automatisch.",
     "live": "Live",
-    "neverChecked": "not checked yet",
+    "neverChecked": "noch nicht geprüft",
     "relativeTime": {
-      "now": "just now",
-      "sec": "{n}s ago",
-      "min": "{n} min ago",
-      "hour": "{n}h ago",
-      "day": "{n}d ago"
+      "now": "gerade eben",
+      "sec": "vor {n}s",
+      "min": "vor {n} Min.",
+      "hour": "vor {n} Std.",
+      "day": "vor {n} T."
     },
-    "tableDate": "When",
+    "tableDate": "Wann",
     "tableStatus": "Status",
-    "tableSource": "Method",
-    "tablePrice": "Price",
-    "sourceDataLayer": "Site info",
-    "sourceAddToCart": "Buy button",
-    "sourceVariant": "Size detail",
-    "sourcePlaywright": "Full analysis",
-    "emptyCheckTitle": "Waiting for first check…",
-    "emptyCheckBody": "We'll check this product soon. Results will show up here.",
-    "lastCheck": "Checked",
-    "paused": "Paused",
-    "inStock": "In stock",
-    "outOfStock": "Out of stock",
-    "pending": "Pending",
-    "reactivated": "Alert back on",
-    "pausedToast": "Alert paused",
-    "actionFailed": "Couldn't do that",
-    "pause": "Pause",
-    "reactivate": "Resume",
-    "delete": "Delete",
-    "deleteTitle": "Delete this alert?",
-    "deleteDesc": "This is permanent. Your check history will be deleted too.",
-    "cancel": "Cancel",
-    "deleteForever": "Delete forever"
+    "tableSource": "Methode",
+    "tablePrice": "Preis",
+    "sourceDataLayer": "Seiten-Info",
+    "sourceAddToCart": "Kauf-Button",
+    "sourceVariant": "Größen-Detail",
+    "sourcePlaywright": "Vollanalyse",
+    "emptyCheckTitle": "Warte auf ersten Check …",
+    "emptyCheckBody": "Wir werden dieses Produkt bald prüfen. Ergebnisse erscheinen dann hier.",
+    "lastCheck": "Geprüft",
+    "paused": "Pausiert",
+    "inStock": "Auf Lager",
+    "outOfStock": "Ausverkauft",
+    "pending": "Ausstehend",
+    "reactivated": "Benachrichtigung wieder aktiv",
+    "pausedToast": "Benachrichtigung pausiert",
+    "actionFailed": "Konnte nicht ausgeführt werden",
+    "pause": "Pausieren",
+    "reactivate": "Fortsetzen",
+    "delete": "Löschen",
+    "deleteTitle": "Diese Benachrichtigung löschen?",
+    "deleteDesc": "Das ist endgültig. Dein Check-Verlauf wird ebenfalls gelöscht.",
+    "cancel": "Abbrechen",
+    "deleteForever": "Endgültig löschen"
   },
   "auth": {
-    "signIn": "Sign in",
-    "signUp": "Sign up",
-    "logout": "Sign out",
-    "orContinue": "or continue with",
-    "continueGoogle": "Continue with Google",
-    "continueApple": "Continue with Apple",
-    "email": "Email",
-    "password": "Password",
-    "passwordHint": "8 characters minimum.",
-    "emailPlaceholder": "alex@example.com",
-    "noAccount": "Don’t have an account yet?",
-    "haveAccount": "Already have an account?",
-    "forgotPassword": "Forgot your password?",
-    "forgotPasswordTitle": "Forgot your password",
-    "forgotPasswordSub": "Enter your email and we'll send you a reset link.",
-    "forgotPasswordSubmit": "Send reset link",
-    "forgotPasswordPending": "Sending…",
-    "forgotPasswordSuccessTitle": "Link sent",
-    "forgotPasswordSuccessBody": "If an account exists for this email, you'll receive a password reset link. Check your spam folder if you don't see it.",
-    "forgotPasswordBackToLogin": "Back to sign in",
-    "resetPasswordTitle": "New password",
-    "resetPasswordSub": "Choose a new password for your account.",
-    "resetPasswordNewPassword": "New password",
-    "resetPasswordSubmit": "Update password",
-    "resetPasswordPending": "Updating…",
-    "resetPasswordSuccess": "Password updated. Redirecting to sign in…",
-    "resetPasswordError": "This link is expired or already used. Request a new one.",
-    "signInTitle": "Welcome back.",
-    "signInSub": "Pick up the stock hunt where you left off.",
-    "signInSubmit": "Sign in",
-    "signInPending": "Signing in…",
-    "signUpTitle": "Create your account.",
-    "signUpSub": "Three minutes to never miss your size again.",
-    "signUpSubmit": "Create my account",
-    "signUpPending": "Creating…",
-    "checkEmailTitle": "Check your inbox",
-    "checkEmailBody": "We just sent a confirmation link to",
-    "checkEmailHint": "The link expires in 24h. Don’t forget to check spam.",
-    "notConfiguredTitle": "Opening soon",
-    "notConfiguredBody": "We’re putting on the finishing touches. Join the waitlist — we’ll let you know the moment we launch.",
-    "notConfiguredCta": "Join the waitlist",
-    "legalBlurb": "By continuing, you accept our terms and privacy policy.",
+    "signIn": "Anmelden",
+    "signUp": "Registrieren",
+    "logout": "Abmelden",
+    "orContinue": "oder weiter mit",
+    "continueGoogle": "Mit Google fortfahren",
+    "continueApple": "Mit Apple fortfahren",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "passwordHint": "Mindestens 8 Zeichen.",
+    "emailPlaceholder": "alex@beispiel.de",
+    "noAccount": "Noch kein Konto?",
+    "haveAccount": "Bereits ein Konto?",
+    "forgotPassword": "Passwort vergessen?",
+    "forgotPasswordTitle": "Passwort vergessen",
+    "forgotPasswordSub": "Gib deine E-Mail ein und wir senden dir einen Link zum Zurücksetzen.",
+    "forgotPasswordSubmit": "Zurücksetzungslink senden",
+    "forgotPasswordPending": "Wird gesendet …",
+    "forgotPasswordSuccessTitle": "Link gesendet",
+    "forgotPasswordSuccessBody": "Falls ein Konto für diese E-Mail existiert, erhältst du einen Link zum Zurücksetzen des Passworts. Prüfe deinen Spam-Ordner, falls du ihn nicht siehst.",
+    "forgotPasswordBackToLogin": "Zurück zur Anmeldung",
+    "resetPasswordTitle": "Neues Passwort",
+    "resetPasswordSub": "Wähle ein neues Passwort für dein Konto.",
+    "resetPasswordNewPassword": "Neues Passwort",
+    "resetPasswordSubmit": "Passwort aktualisieren",
+    "resetPasswordPending": "Wird aktualisiert …",
+    "resetPasswordSuccess": "Passwort aktualisiert. Weiterleitung zur Anmeldung …",
+    "resetPasswordError": "Dieser Link ist abgelaufen oder wurde bereits verwendet. Fordere einen neuen an.",
+    "signInTitle": "Willkommen zurück.",
+    "signInSub": "Setze die Jagd dort fort, wo du aufgehört hast.",
+    "signInSubmit": "Anmelden",
+    "signInPending": "Wird angemeldet …",
+    "signUpTitle": "Erstelle dein Konto.",
+    "signUpSub": "Drei Minuten, um deine Größe nie wieder zu verpassen.",
+    "signUpSubmit": "Konto erstellen",
+    "signUpPending": "Wird erstellt …",
+    "checkEmailTitle": "Prüfe deinen Posteingang",
+    "checkEmailBody": "Wir haben gerade einen Bestätigungslink gesendet an",
+    "checkEmailHint": "Der Link läuft in 24 Std. ab. Vergiss nicht, den Spam-Ordner zu prüfen.",
+    "notConfiguredTitle": "Eröffnung demnächst",
+    "notConfiguredBody": "Wir legen gerade den letzten Schliff an. Trag dich auf die Warteliste ein — wir sagen dir Bescheid, sobald wir starten.",
+    "notConfiguredCta": "Auf die Warteliste",
+    "legalBlurb": "Durch die Fortsetzung akzeptierst du unsere AGB und Datenschutzerklärung.",
     "onboarding": {
-      "stepLabel": "Step {current}/{total}",
-      "brandsTitle": "Which brands do you love?",
-      "brandsSub": "We'll watch their restocks for you",
-      "brandsContinue": "Continue",
-      "sizeTitle": "Your usual size?",
-      "sizeSub": "We'll pre-fill your alerts with it",
-      "sizeContinue": "Continue",
-      "nameTitle": "What should we call you?",
-      "nameSub": "To personalise your alerts",
-      "namePlaceholder": "Your first name",
-      "nameContinue": "Almost there",
-      "productTitle": "Got an item in mind?",
-      "productSub": "Paste the link of the one you missed — we'll set up your first alert",
+      "stepLabel": "Schritt {current}/{total}",
+      "brandsTitle": "Welche Marken liebst du?",
+      "brandsSub": "Wir beobachten ihre Nachschübe für dich",
+      "brandsContinue": "Weiter",
+      "sizeTitle": "Deine übliche Größe?",
+      "sizeSub": "Wir befüllen deine Benachrichtigungen damit vor",
+      "sizeContinue": "Weiter",
+      "nameTitle": "Wie sollen wir dich nennen?",
+      "nameSub": "Um deine Benachrichtigungen zu personalisieren",
+      "namePlaceholder": "Dein Vorname",
+      "nameContinue": "Fast geschafft",
+      "productTitle": "Hast du ein Teil im Sinn?",
+      "productSub": "Füge den Link des Teils ein, das du verpasst hast — wir richten deine erste Benachrichtigung ein",
       "productPlaceholder": "https://www.zara.com/...",
-      "productSkip": "Skip for now",
-      "productInvalidUrl": "That link doesn't look right.",
-      "productCta": "Create alert",
-      "signupTitle": "Let's save this",
-      "signupSub": "So you don't lose your picks",
-      "successTitle": "All set!",
-      "successBody": "Check your inbox to confirm. Your first alert is waiting.",
-      "successCta": "Add my first alert"
+      "productSkip": "Erstmal überspringen",
+      "productInvalidUrl": "Dieser Link sieht nicht richtig aus.",
+      "productCta": "Benachrichtigung erstellen",
+      "signupTitle": "Lass uns das speichern",
+      "signupSub": "Damit du deine Auswahl nicht verlierst",
+      "successTitle": "Alles bereit!",
+      "successBody": "Prüfe deinen Posteingang zur Bestätigung. Deine erste Benachrichtigung wartet.",
+      "successCta": "Meine erste Benachrichtigung hinzufügen"
     }
   }
 }

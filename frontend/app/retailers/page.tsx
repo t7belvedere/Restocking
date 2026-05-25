@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { CircleDot, Sparkles, ArrowUpRight } from "lucide-react";
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations, useLocale } from "next-intl";
 import { RestockTicker } from "@/components/site/ticker";
 import { WaitlistForm } from "@/components/site/waitlist-form";
 import { BrandLogo } from "@/components/site/brand-logo";
@@ -27,7 +27,8 @@ const STATUS_STYLES = {
 type FilterValue = "all" | RetailerStatus;
 
 export default function RetailersPage() {
-  const { t, locale } = useLocale();
+  const t = useTranslations();
+  const locale = useLocale();
   const [filter, setFilter] = useState<FilterValue>("all");
 
   const filtered = useMemo(() => {
@@ -38,17 +39,17 @@ export default function RetailersPage() {
   const filterTabs: { value: FilterValue; label: string; count: number }[] = [
     {
       value: "all",
-      label: t.retailers.filterAll,
+      label: t("retailers.filterAll"),
       count: RETAILER_COUNTS.total,
     },
     {
       value: "optimized",
-      label: t.retailers.filterLive,
+      label: t("retailers.filterLive"),
       count: RETAILER_COUNTS.optimized,
     },
     {
       value: "beta",
-      label: t.retailers.filterBeta,
+      label: t("retailers.filterBeta"),
       count: RETAILER_COUNTS.beta,
     },
   ];
@@ -62,18 +63,18 @@ export default function RetailersPage() {
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border-2 border-ink bg-cream px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.18em] shadow-brutal-sm">
               <Sparkles className="h-3.5 w-3.5 text-[var(--brand-orange)]" />
-              {t.retailers.eyebrow}
+              {t("retailers.eyebrow")}
             </span>
             <h1 className="mt-6 font-display text-5xl font-extrabold leading-[0.9] tracking-tighter md:text-8xl">
-              {t.retailers.title}
+              {t("retailers.title")}
             </h1>
             <p className="mt-8 max-w-xl text-xl leading-relaxed text-ink/70">
-              {t.retailers.sub}
+              {t("retailers.sub")}
             </p>
 
             <div className="mt-10 max-w-md">
               <p className="mb-4 font-display text-sm font-bold uppercase tracking-widest text-ink/40">
-                {t.retailers.tileCta}
+                {t("retailers.tileCta")}
               </p>
               <WaitlistForm testIdPrefix="retailers-hero" />
             </div>
@@ -85,10 +86,10 @@ export default function RetailersPage() {
                 <CircleDot className="h-7 w-7 animate-pulse text-ink" />
               </div>
               <h3 className="mt-6 font-display text-3xl font-extrabold tracking-tight">
-                {t.retailers.universalCardTitle}
+                {t("retailers.universalCardTitle")}
               </h3>
               <p className="mt-3 text-lg font-medium leading-snug text-ink/80">
-                {t.retailers.universalCardBody}
+                {t("retailers.universalCardBody")}
               </p>
               <div className="mt-6 flex gap-2">
                 <span className="rounded-full border-2 border-ink bg-paper px-3 py-1 text-xs font-bold uppercase">
@@ -155,12 +156,12 @@ export default function RetailersPage() {
 
             <div className="flex flex-wrap gap-4">
               <LegendItem
-                label={t.retailers.legendInStock}
+                label={t("retailers.legendInStock")}
                 status="optimized"
                 testId="legend-optimized"
               />
               <LegendItem
-                label={t.retailers.legendBeta}
+                label={t("retailers.legendBeta")}
                 status="beta"
                 testId="legend-universal"
               />
@@ -232,7 +233,7 @@ export default function RetailersPage() {
       {/* Many more hint */}
       <section className="border-b-2 border-ink bg-cream py-7 text-center">
         <p className="font-display text-sm font-bold uppercase tracking-[0.2em] text-ink/30">
-          {t.retailers.fadeMore}
+          {t("retailers.fadeMore")}
         </p>
       </section>
 
@@ -241,24 +242,24 @@ export default function RetailersPage() {
         <div className="container mx-auto grid max-w-6xl gap-10 px-5 py-20 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:px-8">
           <div>
             <h2 className="font-display text-4xl font-extrabold leading-tight tracking-tighter text-ink md:text-5xl">
-              {t.retailers.requestTitle}
+              {t("retailers.requestTitle")}
             </h2>
             <p className="mt-4 max-w-xl text-base text-ink/80">
-              {t.retailers.requestBody}
+              {t("retailers.requestBody")}
             </p>
             <Link
               href="mailto:hello@restocking.app?subject=Suggest%20a%20site"
               data-testid="suggest-retailer-cta"
               className="mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-full border-2 border-ink bg-ink px-5 font-display text-sm font-bold uppercase tracking-wide text-cream shadow-brutal hover-press"
             >
-              {t.retailers.requestCta}
+              {t("retailers.requestCta")}
             </Link>
           </div>
           <div className="rounded-3xl border-2 border-ink bg-paper p-6 shadow-brutal-lg">
             <h3 className="font-display text-xl font-bold">
-              {t.common.joinWaitlist}
+              {t("common.joinWaitlist")}
             </h3>
-            <p className="mt-1 text-sm text-ink/60">{t.common.privacy}</p>
+            <p className="mt-1 text-sm text-ink/60">{t("common.privacy")}</p>
             <div className="mt-4">
               <WaitlistForm testIdPrefix="retailers" />
             </div>

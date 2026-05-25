@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { Loader2, Pause, Play, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -24,8 +24,7 @@ interface WatchActionsProps {
 }
 
 export function WatchActions({ id, isActive }: WatchActionsProps) {
-  const { t } = useLocale();
-  const td = t.watchDetail;
+  const t = useTranslations();
   const [pending, startTransition] = useTransition();
   const [deleting, startDelete] = useTransition();
 
@@ -34,9 +33,9 @@ export function WatchActions({ id, isActive }: WatchActionsProps) {
       const next = !isActive;
       const res = await toggleWatch(id, next);
       if (res.ok) {
-        toast.success(next ? td.reactivated : td.pausedToast);
+        toast.success(next ? t("watchDetail.reactivated") : t("watchDetail.pausedToast"));
       } else {
-        toast.error(td.actionFailed);
+        toast.error(t("watchDetail.actionFailed"));
       }
     });
   }
@@ -67,7 +66,7 @@ export function WatchActions({ id, isActive }: WatchActionsProps) {
         ) : (
           <Play className="h-4 w-4" />
         )}
-        {isActive ? td.pause : td.reactivate}
+        {isActive ? t("watchDetail.pause") : t("watchDetail.reactivate")}
       </Button>
 
       <AlertDialog>
@@ -79,20 +78,20 @@ export function WatchActions({ id, isActive }: WatchActionsProps) {
             className="text-destructive hover:bg-destructive/10 hover:text-destructive"
           >
             <Trash2 className="h-4 w-4" />
-            {td.delete}
+            {t("watchDetail.delete")}
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{td.deleteTitle}</AlertDialogTitle>
+            <AlertDialogTitle>{t("watchDetail.deleteTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              {td.deleteDesc}
+              {t("watchDetail.deleteDesc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel asChild>
               <Button type="button" variant="outline">
-                {td.cancel}
+                {t("watchDetail.cancel")}
               </Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
@@ -107,7 +106,7 @@ export function WatchActions({ id, isActive }: WatchActionsProps) {
                 ) : (
                   <Trash2 className="h-4 w-4" />
                 )}
-                {td.deleteForever}
+                {t("watchDetail.deleteForever")}
               </Button>
             </AlertDialogAction>
           </AlertDialogFooter>

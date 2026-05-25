@@ -6,7 +6,7 @@ import {
   Loader2,
   Trophy,
 } from "lucide-react";
-import { useLocale } from "@/components/site/locale-provider";
+import { useTranslations, useLocale } from "next-intl";
 import { type SignupState } from "@/app/(auth)/signup/actions";
 import { signInWithGoogleAction } from "@/app/(auth)/login/oauth-actions";
 import { cn } from "@/lib/utils";
@@ -76,7 +76,7 @@ export function BrandStep({
   answers: OnboardingAnswers;
   setAnswers: (a: OnboardingAnswers) => void;
 }) {
-  const { t, locale } = useLocale();
+  const locale = useLocale();
   const [custom, setCustom] = useState("");
 
   const toggle = (brand: string) => {
@@ -202,14 +202,14 @@ export function NameStep({
   answers: OnboardingAnswers;
   setAnswers: (a: OnboardingAnswers) => void;
 }) {
-  const { t } = useLocale();
+  const t = useTranslations();
 
   return (
     <input
       type="text"
       autoFocus
       autoComplete="given-name"
-      placeholder={t.auth.onboarding.namePlaceholder}
+      placeholder={t("auth.onboarding.namePlaceholder")}
       value={answers.first_name}
       onChange={(e) =>
         setAnswers({ ...answers, first_name: e.target.value })
@@ -232,7 +232,7 @@ export function ProductStep({
   setAnswers: (a: OnboardingAnswers) => void;
   busy?: boolean;
 }) {
-  const { t } = useLocale();
+  const t = useTranslations();
   const [error, setError] = useState<string | null>(null);
 
   const handleBlur = () => {
@@ -246,10 +246,10 @@ export function ProductStep({
       if (parsed.protocol === "http:" || parsed.protocol === "https:") {
         setError(null);
       } else {
-        setError(t.auth.onboarding.productInvalidUrl);
+        setError(t("auth.onboarding.productInvalidUrl"));
       }
     } catch {
-      setError(t.auth.onboarding.productInvalidUrl);
+      setError(t("auth.onboarding.productInvalidUrl"));
     }
   };
 
@@ -259,7 +259,7 @@ export function ProductStep({
         type="url"
         autoFocus
         autoComplete="url"
-        placeholder={t.auth.onboarding.productPlaceholder}
+        placeholder={t("auth.onboarding.productPlaceholder")}
         value={answers.missed_product_url ?? ""}
         disabled={busy}
         onChange={(e) =>
@@ -402,7 +402,7 @@ function GoogleIcon({ className }: { className?: string }) {
 // SignupStep
 // ---------------------------------------------------------------------------
 
-export type Locale = "fr" | "en";
+export type Locale = string;
 
 export function SignupStep({
   answers,
@@ -423,7 +423,7 @@ export function SignupStep({
   onGoogleSignIn: () => void;
   onEmailSignUp: (formData: FormData) => void;
 }) {
-  const { t } = useLocale();
+  const t = useTranslations();
 
   return (
     <div className="space-y-5">
@@ -435,7 +435,7 @@ export function SignupStep({
           className="group inline-flex h-12 w-full items-center justify-center gap-3 rounded-xl border-2 border-ink bg-paper px-4 font-display text-sm font-bold uppercase tracking-widest text-ink shadow-brutal hover-press"
         >
           <GoogleIcon className="h-5 w-5" />
-          {t.auth.continueGoogle}
+          {t("auth.continueGoogle")}
         </button>
       </form>
 
@@ -443,7 +443,7 @@ export function SignupStep({
       <div className="flex items-center gap-3">
         <span className="h-px flex-1 bg-ink/20" />
         <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/50">
-          {t.auth.orContinue}
+          {t("auth.orContinue")}
         </span>
         <span className="h-px flex-1 bg-ink/20" />
       </div>
@@ -457,7 +457,7 @@ export function SignupStep({
             htmlFor="onboarding-signup-email"
             className="block font-display text-xs font-bold uppercase tracking-[0.2em] text-ink"
           >
-            {t.auth.email}
+            {t("auth.email")}
           </label>
           <input
             id="onboarding-signup-email"
@@ -467,7 +467,7 @@ export function SignupStep({
             autoComplete="email"
             required
             aria-invalid={Boolean(state.fieldErrors?.email)}
-            placeholder={t.auth.emailPlaceholder}
+            placeholder={t("auth.emailPlaceholder")}
             disabled={isPending}
             className={cn(
               "h-12 w-full rounded-xl border-2 border-ink bg-paper px-4 font-medium text-ink shadow-brutal-sm",
@@ -486,12 +486,12 @@ export function SignupStep({
         <PasswordField
           id="onboarding-signup-password"
           name="password"
-          label={t.auth.password}
+          label={t("auth.password")}
           autoComplete="new-password"
           ariaInvalid={Boolean(state.fieldErrors?.password)}
           disabled={isPending}
           error={state.fieldErrors?.password}
-          hint={t.auth.passwordHint}
+          hint={t("auth.passwordHint")}
           locale={locale}
         />
 
@@ -518,7 +518,7 @@ export function SignupStep({
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <>
-              {t.auth.signUpSubmit}
+              {t("auth.signUpSubmit")}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </>
           )}
@@ -532,7 +532,7 @@ export function SignupStep({
           </div>
         ) : null}
 
-        <p className="text-center text-xs text-ink/55">{t.auth.legalBlurb}</p>
+        <p className="text-center text-xs text-ink/55">{t("auth.legalBlurb")}</p>
       </form>
     </div>
   );
@@ -547,17 +547,17 @@ export function SuccessStep({
 }: {
   onGoToAdd: () => void;
 }) {
-  const { t } = useLocale();
+  const t = useTranslations();
 
   return (
     <div className="flex flex-col items-center gap-6 py-6 text-center">
       <Trophy className="h-16 w-16 text-[var(--brand-orange)]" strokeWidth={1.5} />
       <div className="space-y-2">
         <h2 className="font-display text-3xl font-extrabold tracking-tight text-ink">
-          {t.auth.onboarding.successTitle}
+          {t("auth.onboarding.successTitle")}
         </h2>
         <p className="text-sm text-ink/70 max-w-sm">
-          {t.auth.onboarding.successBody}
+          {t("auth.onboarding.successBody")}
         </p>
       </div>
       <button
@@ -568,7 +568,7 @@ export function SuccessStep({
           "bg-[var(--brand-orange)] px-6 font-display text-sm font-bold uppercase tracking-widest text-ink shadow-brutal hover-press",
         )}
       >
-        {t.auth.onboarding.successCta}
+        {t("auth.onboarding.successCta")}
         <ArrowRight className="h-4 w-4" />
       </button>
     </div>

@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { messages, DEFAULT_LOCALE, type Locale } from "@/lib/i18n/messages";
+import { getLocale } from "next-intl/server";
 import { blogPosts } from "@/lib/blog";
 import type { Metadata } from "next";
 
@@ -18,9 +17,7 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogPage() {
-  const cookieStore = await cookies();
-  const locale = (cookieStore.get("restocking.locale")?.value ?? DEFAULT_LOCALE) as Locale;
-  const t = messages[locale];
+  const locale = await getLocale();
 
   return (
     <main className="container mx-auto max-w-4xl px-5 py-16 lg:px-8">
