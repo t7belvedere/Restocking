@@ -62,10 +62,15 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(rest, request.url));
   }
 
-  // No locale prefix — detect locale, set cookie, pass through
+  // No locale prefix — detect locale, pass through
   const locale = negotiateLocale(request);
   const res = NextResponse.next();
-  res.cookies.set("NEXT_LOCALE", locale, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
+
+  // Only set cookie if it changed or doesn't exist (skip for POST/Server Actions)
+  const existingCookie = request.cookies.get("NEXT_LOCALE")?.value;
+  if (request.method !== "POST" && existingCookie !== locale) {
+    res.cookies.set("NEXT_LOCALE", locale, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
+  }
 
   if (request.cookies.get("restocking.locale")) {
     res.cookies.delete("restocking.locale");
