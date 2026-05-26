@@ -1801,6 +1801,7 @@ async def _analyze_scrape(url: str, proxy_url: str | None = None, pw_proxy: dict
     logger.debug("Post-extract: sizes=%s colors=%s was_playwright=%s needs_pw=%s",
                  result.get("sizes"), result.get("colors"), _was_playwright, _needs_pw)
     if _needs_pw and page is not None and not _was_playwright:
+        yield _sse_event("progress", {"step": "playwright", "message": "Ouverture du navigateur..."})
         try:
             pw_page = await _asyncio.to_thread(
                 PlayWrightFetcher.fetch,
