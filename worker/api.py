@@ -858,6 +858,14 @@ def _extract_dom_variants(page) -> list[str]:
                 for lab in labels[:30]:
                     txt = "".join(lab.get_all_text()).strip() if hasattr(lab, "get_all_text") else ""
                     txt = txt.strip()
+                    # Fallback to aria-label (Shopify swatch spans)
+                    if not txt or len(txt) < 3:
+                        txt = lab.attrib.get("aria-label", "").strip()
+                        if not txt:
+                            for child in lab.css("span[aria-label]"):
+                                txt = child.attrib.get("aria-label", "").strip()
+                                if txt:
+                                    break
                     if not txt or len(txt) > 30:
                         continue
                     low = txt.lower()
@@ -1210,20 +1218,37 @@ def _extract_shopify_colors(page, html: str) -> list[str]:
     This strips the common product-name prefix to isolate the color.
     """
     labels: list[str] = []
-    # Collect all labels that look like product option switches
+    # Collect variant labels from the rendered product page.
+    # Shopify Prestige/Dawn themes use <span role="img" aria-label="COLOR">
+    # inside swatches — textContent is empty so we must read aria-label.
     for sel in (
         "fieldset[class*=product] label",
         "[class*=product-form] fieldset label",
         ".variant-picker label",
         "[data-option-name] label",
+        # Shopify swatch spans (Prestige, Dawn themes)
+        "[class*=swatch] span[aria-label]",
+        ".product span[aria-label]",
     ):
         try:
             for el in page.css(sel):
                 txt = getattr(el, "get_all_text", lambda: "")()
                 if isinstance(txt, str):
                     txt = txt.strip()
-                    if 10 < len(txt) < 60:
-                        labels.append(txt)
+                # Fall back to aria-label on the element or its children
+                if not txt or len(txt) < 3:
+                    aria = el.attrib.get("aria-label", "").strip()
+                    if aria:
+                        txt = aria
+                    else:
+                        # Check child spans with aria-label
+                        for child in el.css("span[aria-label]"):
+                            child_aria = child.attrib.get("aria-label", "").strip()
+                            if child_aria:
+                                txt = child_aria
+                                break
+                if txt and 4 < len(txt) < 80:
+                    labels.append(txt)
         except Exception:
             pass
 
