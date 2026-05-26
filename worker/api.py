@@ -157,7 +157,13 @@ def _extract_variants(html: str) -> list[str]:
 
     # 3. data-color attributes
     for m in re.finditer(r'data-color=["\']([^"\']{1,32})["\']', html, re.IGNORECASE):
-        found.add(m.group(1).strip())
+        val = m.group(1).strip()
+        # Skip hex codes and pure numeric RGB values
+        if re.match(r"^#[0-9a-fA-F]{3,8}$", val):
+            continue
+        if re.fullmatch(r"[\d\s,]+", val):
+            continue
+        found.add(val)
         if len(found) > 24:
             break
 
@@ -181,7 +187,9 @@ def _extract_variants(html: str) -> list[str]:
                  # Badges / flags
                  "drapeau", "flag", "paiement", "payment", "livraison", "delivery",
                  "réduction", "discount", "solde", "sale", "nouveau", "new",
-                 "promo", "promotion", "cadeau", "gift"}
+                 "promo", "promotion", "cadeau", "gift",
+                 # Carousel / gallery navigation
+                 "next", "previous", "suivant", "précédent", "precedent"}
     for m in re.finditer(
         r'<img[^>]+alt=["\']([^"\']{1,30})["\'][^>]*>',
         html, re.IGNORECASE,
@@ -191,6 +199,17 @@ def _extract_variants(html: str) -> list[str]:
             continue
         low = alt.lower()
         if low in _CSS_VALUES:
+            continue
+        # Skip hex codes and pure numeric RGB sequences
+        if re.match(r"^#[0-9a-fA-F]{3,8}$", alt):
+            continue
+        if re.fullmatch(r"[\d\s,]+", alt):
+            continue
+        # Skip long alt texts (product names, not color swatches)
+        if len(alt.split()) > 3:
+            continue
+        # Skip SVG/UI icon alt texts
+        if any(w in low for w in ("icon", "minus", "plus", "transparent", "sound", "loading", "spinner")):
             continue
         if any(w in low for w in _ALT_SKIP):
             continue
@@ -208,9 +227,13 @@ def _extract_variants(html: str) -> list[str]:
         low = val.lower()
         if not val or len(val) > 25 or low in _CSS_JUNK:
             continue
+        # Skip CSS variable values: "--text-color: 28 28 28" etc.
+        # Look back 80 chars for CSS-like context without an HTML tag boundary
+        pre = html[max(0, m.start() - 80):m.start()]
+        if re.search(r'(?:--|[{};])\s*$', pre) and ">" not in pre.rsplit("<", 1)[-1]:
+            continue
         # Skip if we're inside a <style> tag (CSS, not HTML content)
-        # Check: is there an unclosed <style> before this match?
-        before = html[max(0, m.start() - 2000):m.start()]
+        before = html[max(0, m.start() - 4000):m.start()]
         if before.rfind("<style") > before.rfind("</style>"):
             continue
         found.add(val)
@@ -898,6 +921,18 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
         low = t.lower()
         # UI garbage
         if low in _UI_GARBAGE:
+            return None
+        # Hex color codes: #000000, #fff, #a1b2c3
+        if re.match(r"^#[0-9a-fA-F]{3,8}$", t):
+            return None
+        # Pure numeric tokens (with optional spaces): "0 0 0", "18 18 18", "255 255 255"
+        if re.fullmatch(r"[\d\s]+", t):
+            return None
+        # SVG / UI icon noise
+        _ICON_NOISE = {"icon", "view all icon", "minus icon", "plus icon",
+                       "sound", "transparent", "loading", "spinner", "arrow",
+                       "chevron", "hamburger", "search icon", "cart icon"}
+        if low in _ICON_NOISE or any(w in low for w in ["icon", "transparent"]):
             return None
         # Vue/Angular template expressions: ${...}
         if "${" in t:
