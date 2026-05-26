@@ -215,6 +215,28 @@ def _extract_variants(html: str) -> list[str]:
             continue
         found.add(alt)
 
+    # 4b. aria-label on swatch spans (Shopify Prestige/Dawn — rendered HTML)
+    #      <span role="img" aria-label="HEART ASHTRAY TEE BLACK">
+    for m in re.finditer(
+        r'<span[^>]+aria-label=["\']([^"\']{3,60})["\'][^>]*>',
+        html, re.IGNORECASE,
+    ):
+        aria = m.group(1).strip()
+        # Skip hex codes and pure numeric RGB sequences
+        if re.match(r"^#[0-9a-fA-F]{3,8}$", aria):
+            continue
+        if re.fullmatch(r"[\d\s,]+", aria):
+            continue
+        low = aria.lower()
+        # Skip long descriptions and UI labels
+        if len(aria.split()) > 5:
+            continue
+        if any(w in low for w in ("icon", "menu", "search", "cart", "close", "previous", "next")):
+            continue
+        found.add(aria)
+        if len(found) > 24:
+            break
+
     # 5. "Couleur : X" / "Color : X" text nodes (Pimkie, general)
     _CSS_JUNK = {"auto", "none", "inherit", "initial", "unset", "currentcolor",
                  "transparent", "rgb", "rgba", "hsl", "hsla", "var", "black", "white",
