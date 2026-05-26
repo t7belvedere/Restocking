@@ -769,6 +769,32 @@ async def _universal_extract(page, html: str, url: str) -> dict:
                     variants.append(c)
 
     sizes, colors = _classify_variants(variants)
+
+    # Fallback: extract color from product name when no colors found
+    # e.g. "DEMON TEE WHITE" → color is "WHITE"
+    if not colors and result["name"]:
+        _COLOR_WORDS = {
+            "BLANC", "NOIR", "ROUGE", "BLEU", "VERT", "ROSE", "GRIS", "JAUNE",
+            "MARRON", "BRUN", "BEIGE", "VIOLET", "ORANGE", "TURQUOISE", "KHAKI",
+            "KAKI", "IVOIRE", "CRÈME", "CREME", "ECRU", "ÉCRU", "ARGENT", "OR",
+            "WHITE", "BLACK", "RED", "BLUE", "GREEN", "PINK", "GREY", "GRAY",
+            "YELLOW", "BROWN", "PURPLE", "SILVER", "GOLD", "NAVY", "CREAM",
+            "CAMEL", "BURGUNDY", "CORAL", "TEAL", "MINT", "LAVENDER", "INDIGO",
+            "COPPER", "BRONZE", "MAUVE", "OLIVE", "MUSTARD", "CRIMSON", "AQUA",
+            "MAROON", "TAN", "DENIM", "COBALT", "SLATE", "CHARCOAL", "MAGENTA",
+            "CYAN", "LILAC", "RUST", "SAGE", "TAUPE", "OCHRE", "JADE", "PLUM",
+        }
+        name_words = result["name"].upper().split()
+        # Extract trailing color words (most product names end with the color)
+        name_colors: list[str] = []
+        for w in reversed(name_words):
+            if w in _COLOR_WORDS:
+                name_colors.insert(0, w.capitalize())
+            else:
+                break
+        if name_colors:
+            colors = name_colors
+
     result["variants"] = variants
     result["sizes"] = sizes
     result["colors"] = colors
