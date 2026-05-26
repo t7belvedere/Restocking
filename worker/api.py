@@ -739,6 +739,12 @@ async def _universal_extract(page, html: str, url: str) -> dict:
         for v in dom_variants:
             if v not in variants:
                 variants.append(v)
+        # Shopify: extract colors from option labels (client-side rendered)
+        if _is_shopify(url, html):
+            shopify_colors = _extract_shopify_colors(page, html)
+            for c in shopify_colors:
+                if c not in variants:
+                    variants.append(c)
 
     sizes, colors = _classify_variants(variants)
     result["variants"] = variants
@@ -1165,9 +1171,9 @@ def _extract_css_sizes(page) -> list[str]:
 
 
 def _extract_css_colors(page) -> list[str]:
-    """Extract color variants from a rendered page (Zara, COS, etc.).
+    """Extract color variants from a rendered page (Zara, COS, Shopify etc.).
 
-    Targets elements with data-qa-action='select-color' or class '*color-item*'.
+    Targets data-qa attributes, swatch classes, and Shopify variant selectors.
     """
     found: set[str] = set()
     for sel in (
@@ -1175,6 +1181,11 @@ def _extract_css_colors(page) -> list[str]:
         "[class*=color-item] button",
         "[class*=color-selector] button",
         "[class*=swatch]",
+        # Shopify color options — labels on radio/option selectors
+        "fieldset[class*=product] label",
+        "[data-option-name*='olor'] label",
+        "[data-option-name*='olor'] option",
+        "input[type='radio'][name*='olor' i] + label",
     ):
         try:
             els = page.css(sel)
@@ -1189,6 +1200,69 @@ def _extract_css_colors(page) -> list[str]:
         if len(found) >= 12:
             break
     return list(found)
+
+
+def _extract_shopify_colors(page, html: str) -> list[str]:
+    """Extract color names from Shopify product option labels.
+
+    Shopify themes label color options with the full product title
+    (e.g. \"DEMON TEE WHITE\", \"DEMON TEE WIND GREY\").
+    This strips the common product-name prefix to isolate the color.
+    """
+    labels: list[str] = []
+    # Collect all labels that look like product option switches
+    for sel in (
+        "fieldset[class*=product] label",
+        "[class*=product-form] fieldset label",
+        ".variant-picker label",
+        "[data-option-name] label",
+    ):
+        try:
+            for el in page.css(sel):
+                txt = getattr(el, "get_all_text", lambda: "")()
+                if isinstance(txt, str):
+                    txt = txt.strip()
+                    if 10 < len(txt) < 60:
+                        labels.append(txt)
+        except Exception:
+            pass
+
+    if not labels:
+        return []
+
+    # Find the product base name — the part shared across all labels
+    # or extract it from og:title / <title>
+    base = _pick_meta(html, "og:title") or _extract_title(html) or ""
+    # Try to strip the base product name without its last color word
+    # e.g. "DEMON TEE WHITE" → "DEMON TEE" (strip last word if it's a color)
+    _COLOR_WORDS = {
+        "BLANC", "NOIR", "ROUGE", "BLEU", "VERT", "ROSE", "GRIS", "JAUNE",
+        "MARRON", "BRUN", "BEIGE", "VIOLET", "ORANGE", "TURQUOISE", "KHAKI",
+        "KAKI", "IVOIRE", "CRÈME", "CREME", "ECRU", "ÉCRU", "ARGENT", "OR",
+        "WHITE", "BLACK", "RED", "BLUE", "GREEN", "PINK", "GREY", "GRAY",
+        "YELLOW", "BROWN", "PURPLE", "SILVER", "GOLD", "NAVY", "CREAM",
+        "CAMEL", "BURGUNDY", "CORAL", "TEAL", "MINT", "LAVENDER", "INDIGO",
+        "COPPER", "BRONZE", "MAUVE", "OLIVE", "MUSTARD", "CRIMSON", "AQUA",
+        "MAROON", "TAN", "DENIM", "COBALT", "SLATE", "CHARCOAL", "MAGENTA",
+        "CYAN", "LILAC", "RUST", "SAGE", "TAUPE", "OCHRE", "JADE", "PLUM",
+    }
+    base_words = base.upper().split()
+    if base_words and base_words[-1] in _COLOR_WORDS:
+        base = " ".join(base_words[:-1])
+
+    colors: list[str] = []
+    _seen: set[str] = set()
+    for label in labels:
+        # Remove the base product name prefix
+        if base and label.upper().startswith(base.upper()):
+            color = label[len(base):].strip()
+        else:
+            color = label
+        if color and color.lower() not in _seen:
+            _seen.add(color.lower())
+            colors.append(color)
+
+    return colors
 
 
 def _extract_css_image(page, url: str = "") -> str | None:
@@ -1594,6 +1668,23 @@ async def debug_playwright():
         }
 
 
+def _is_shopify(url: str, html: str) -> bool:
+    """Detect whether a page is running on Shopify."""
+    # URL-based: myshopify.com admin or cname
+    if "myshopify.com" in url or "/products/" not in url:
+        return "myshopify.com" in url
+    # HTML-based: Shopify CDN, checkout domain, or platform signatures
+    indicators = (
+        "cdn.shopify.com",
+        "checkout.shopify.com",
+        "shopify.shop",
+        "Shopify.shop",
+        "shopify.com",
+        "myshopify.com",
+    )
+    return any(indicator in html for indicator in indicators)
+
+
 def _sse_event(event: str, data: dict) -> str:
     """Format a Server-Sent Event line."""
     return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
@@ -1702,8 +1793,14 @@ async def _analyze_scrape(url: str, proxy_url: str | None = None, pw_proxy: dict
 
     # If no sizes found and we only did Level 1 HTTP, try Playwright
     # for JS-rendered size selectors (COS, other SPA retailers).
-    logger.debug("Post-extract: sizes=%s was_playwright=%s", result.get("sizes"), _was_playwright)
-    if not result.get("sizes") and page is not None and not _was_playwright:
+    # Also trigger if colors are missing on Shopify — theme variants are
+    # rendered client-side and static HTML can't see them.
+    _needs_pw = not result.get("sizes")
+    if not _needs_pw and not result.get("colors") and _is_shopify(url, html):
+        _needs_pw = True
+    logger.debug("Post-extract: sizes=%s colors=%s was_playwright=%s needs_pw=%s",
+                 result.get("sizes"), result.get("colors"), _was_playwright, _needs_pw)
+    if _needs_pw and page is not None and not _was_playwright:
         try:
             pw_page = await _asyncio.to_thread(
                 PlayWrightFetcher.fetch,
