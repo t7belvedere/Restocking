@@ -405,16 +405,16 @@ export function AddWatchForm() {
 
 type PhaseKey = "http" | "playwright" | "extracting";
 
-const PHASES: { key: PhaseKey; label: string }[] = [
-  { key: "http", label: "Connexion" },
-  { key: "playwright", label: "Navigateur" },
-  { key: "extracting", label: "Extraction" },
-];
-
-const STEP_ORDER: string[] = ["http", "playwright", "playwright_retry", "extracting"];
-
 function AnalyzeProgress({ current, message }: { current: string; message: string }) {
+  const t = useTranslations();
+  const STEP_ORDER: string[] = ["http", "playwright", "playwright_retry", "extracting"];
   const currentIdx = STEP_ORDER.indexOf(current);
+
+  const phases: { key: PhaseKey; label: string }[] = [
+    { key: "http", label: t("addWatch.progressPhaseHttp") },
+    { key: "playwright", label: t("addWatch.progressPhasePlaywright") },
+    { key: "extracting", label: t("addWatch.progressPhaseExtracting") },
+  ];
   // Map "playwright_retry" to the "playwright" phase for display
   const activeKey: PhaseKey = current === "playwright_retry" ? "playwright" : current as PhaseKey;
 
@@ -423,7 +423,7 @@ function AnalyzeProgress({ current, message }: { current: string; message: strin
       <CardContent className="p-5">
         {/* Dots + connectors */}
         <div className="flex items-center justify-center">
-          {PHASES.map((phase, i) => {
+          {phases.map((phase, i) => {
             const phaseIdx = STEP_ORDER.indexOf(phase.key);
             const isDone = phase.key !== activeKey && currentIdx > phaseIdx;
             const isActive = phase.key === activeKey;
@@ -465,7 +465,7 @@ function AnalyzeProgress({ current, message }: { current: string; message: strin
                 </div>
 
                 {/* Connector line */}
-                {i < PHASES.length - 1 && (
+                {i < phases.length - 1 && (
                   <div className="mx-2 mb-5 h-0.5 w-8 rounded-full overflow-hidden">
                     <motion.div
                       initial={false}

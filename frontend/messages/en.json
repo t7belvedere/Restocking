@@ -596,7 +596,10 @@
     "invalidUrl": "Invalid URL.",
     "createFailed": "Couldn't create alert.",
     "activated": "Alert activated ✓",
-    "progressHttp": "Connecting to site..."
+    "progressHttp": "Connecting to site...",
+    "progressPhaseHttp": "Connection",
+    "progressPhasePlaywright": "Browser",
+    "progressPhaseExtracting": "Extraction"
   },
   "dashboard": {
     "greeting": {

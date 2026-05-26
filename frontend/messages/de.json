@@ -600,7 +600,10 @@
     "invalidUrl": "Ungültige URL.",
     "createFailed": "Benachrichtigung konnte nicht erstellt werden.",
     "activated": "Benachrichtigung aktiviert ✓",
-    "progressHttp": "Verbinde mit Website …"
+    "progressHttp": "Verbinde mit Website …",
+    "progressPhaseHttp": "Verbindung",
+    "progressPhasePlaywright": "Browser",
+    "progressPhaseExtracting": "Extraktion"
   },
   "dashboard": {
     "greeting": {

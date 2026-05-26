@@ -600,7 +600,10 @@
     "invalidUrl": "URL no válida.",
     "createFailed": "No se pudo crear la alerta.",
     "activated": "Alerta activada ✓",
-    "progressHttp": "Conectando con el sitio..."
+    "progressHttp": "Conectando con el sitio...",
+    "progressPhaseHttp": "Conexión",
+    "progressPhasePlaywright": "Navegador",
+    "progressPhaseExtracting": "Extracción"
   },
   "dashboard": {
     "greeting": {

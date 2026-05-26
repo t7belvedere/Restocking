@@ -600,7 +600,10 @@
     "invalidUrl": "URL non valido.",
     "createFailed": "Impossibile creare l'avviso.",
     "activated": "Avviso attivato ✓",
-    "progressHttp": "Connessione al sito..."
+    "progressHttp": "Connessione al sito...",
+    "progressPhaseHttp": "Connessione",
+    "progressPhasePlaywright": "Browser",
+    "progressPhaseExtracting": "Estrazione"
   },
   "dashboard": {
     "greeting": {
