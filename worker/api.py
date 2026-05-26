@@ -1856,9 +1856,9 @@ async def _analyze_scrape(url: str, proxy_url: str | None = None, pw_proxy: dict
                 headless=True,
                 stealth=True,
                 hide_canvas=True,
-                disable_resources=True,
-                timeout=20000,
-                wait=2000,
+                disable_resources=False,
+                timeout=25000,
+                wait=4000,
             )
             pw_html = getattr(pw_page, "html_content", "")
             if pw_html:
