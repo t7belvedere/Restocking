@@ -13,7 +13,6 @@ import { getLocale, getMessages } from "next-intl/server";
 import { SiteHeader } from "@/components/site/header";
 import { SiteFooter } from "@/components/site/footer";
 import { OrganizationJsonLd } from "@/components/site/json-ld";
-import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -100,17 +99,6 @@ export const metadata: Metadata = {
   },
 };
 
-async function getAuthState(): Promise<boolean> {
-  try {
-    const supabase = await createClient();
-    if (!supabase) return false;
-    const { data } = await supabase.auth.getClaims();
-    return Boolean(data?.claims?.sub);
-  } catch {
-    return false;
-  }
-}
-
 export default async function RootLayout({
   children,
 }: {
@@ -118,7 +106,7 @@ export default async function RootLayout({
 }) {
   const locale = await getLocale();
   const messages = await getMessages();
-  const isAuthenticated = await getAuthState();
+  const isAuthenticated = false;
 
   return (
     <html

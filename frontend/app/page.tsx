@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Quote, Sparkles } from "lucide-react";
+import { ArrowRight, Quote, Sparkles, CalendarCheck, Rocket, Users } from "lucide-react";
 import { getTranslations, getMessages } from "next-intl/server";
 import { WaitlistForm } from "@/components/site/waitlist-form";
 import { LiveCounter } from "@/components/site/live-counter";
@@ -124,6 +124,82 @@ export default async function HomePage() {
 
       {/* TICKER */}
       <RestockTicker variant="lime" />
+
+      {/* LAUNCH TIMELINE */}
+      <section className="border-b-2 border-ink bg-paper">
+        <div className="container mx-auto max-w-7xl px-5 py-14 lg:px-8 lg:py-16">
+          <ScrollReveal>
+            <div className="mb-10 flex flex-col items-center gap-3 text-center">
+              <span className="inline-flex items-center gap-2 rounded-full border-2 border-ink bg-[var(--brand-lime)] px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.18em] shadow-brutal-sm">
+                <Rocket className="h-3.5 w-3.5" />
+                {t("home.eyebrow")}
+              </span>
+              <h2 className="font-display text-3xl font-extrabold tracking-tighter text-ink md:text-4xl">
+                Lancement le <span className="text-[var(--brand-orange)]">1er juillet 2026</span>
+              </h2>
+              <p className="max-w-md text-sm text-ink/60">
+                Inscris-toi maintenant pour être parmi les premiers à accéder à l'application.
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <div className="relative mx-auto max-w-3xl">
+            {/* connector line */}
+            <div aria-hidden className="absolute left-[calc(50%-1px)] top-6 hidden h-[calc(100%-3rem)] w-0.5 border-l-2 border-dashed border-ink/20 md:block" />
+
+            <StaggerContainer className="grid gap-6 md:grid-cols-3">
+              {[
+                {
+                  icon: <Users className="h-5 w-5" />,
+                  color: "bg-[var(--brand-blue)]",
+                  label: "Maintenant",
+                  title: "Liste d'attente",
+                  desc: "Inscris ton email pour réserver ta place en priorité.",
+                  done: true,
+                },
+                {
+                  icon: <Sparkles className="h-5 w-5" />,
+                  color: "bg-[var(--brand-lime)]",
+                  label: "Juin 2026",
+                  title: "Bêta fermée",
+                  desc: "Les premiers inscrits testent l'appli en avant-première.",
+                  done: false,
+                },
+                {
+                  icon: <Rocket className="h-5 w-5" />,
+                  color: "bg-[var(--brand-orange)]",
+                  label: "1er juillet 2026",
+                  title: "Lancement",
+                  desc: "Ouverture au public. Alertes en temps réel, taille par taille.",
+                  done: false,
+                },
+              ].map((step, i) => (
+                <StaggerItem key={i}>
+                  <div className="flex flex-col items-center text-center">
+                    <div
+                      className={`relative inline-flex h-12 w-12 items-center justify-center rounded-full border-2 border-ink ${step.color} shadow-brutal-sm`}
+                    >
+                      {step.icon}
+                      {step.done && (
+                        <span className="absolute -right-1 -top-1 inline-flex h-4 w-4 items-center justify-center rounded-full border-2 border-ink bg-paper text-[9px] font-black text-ink">
+                          ✓
+                        </span>
+                      )}
+                    </div>
+                    <span className="mt-3 font-display text-[10px] font-bold uppercase tracking-[0.18em] text-ink/50">
+                      {step.label}
+                    </span>
+                    <h3 className="mt-1 font-display text-lg font-extrabold tracking-tight text-ink">
+                      {step.title}
+                    </h3>
+                    <p className="mt-1 text-sm text-ink/60">{step.desc}</p>
+                  </div>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          </div>
+        </div>
+      </section>
 
       {/* STATS */}
       <section
