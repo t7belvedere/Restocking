@@ -1,25 +1,27 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { CheckLog, Subscription, Watch } from "@/lib/supabase/types";
 
-async function getAuthedClient() {
+// Deduplicates auth.getUser() across the entire render tree — one network call per request.
+const getSessionUser = cache(async () => {
   const supabase = await createClient();
-  if (!supabase) redirect("/login");
-
+  if (!supabase) return { supabase: null, user: null };
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  return { supabase, user };
+});
+
+async function getAuthedClient() {
+  const { supabase, user } = await getSessionUser();
+  if (!supabase) redirect("/");
+  if (!user) redirect("/");
   return { supabase, user };
 }
 
 export async function getCurrentUser() {
-  const supabase = await createClient();
-  if (!supabase) return null;
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user } = await getSessionUser();
   return user;
 }
 

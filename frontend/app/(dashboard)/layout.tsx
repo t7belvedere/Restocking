@@ -7,10 +7,11 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getCurrentUser();
+  const [user, subscription] = await Promise.all([
+    getCurrentUser(),
+    getSubscription(),
+  ]);
   if (!user) redirect("/");
-
-  const subscription = await getSubscription();
 
   return (
     <div className="relative min-h-dvh">

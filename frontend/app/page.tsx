@@ -1,3 +1,5 @@
+export const revalidate = 3600;
+
 import Link from "next/link";
 import { ArrowRight, Quote, Sparkles, CalendarCheck, Rocket, Users } from "lucide-react";
 import { getTranslations, getMessages } from "next-intl/server";
