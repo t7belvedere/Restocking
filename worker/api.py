@@ -2023,12 +2023,13 @@ async def _analyze_scrape(url: str, proxy_url: str | None = None, pw_proxy: dict
                 # Image: LLM as fallback for missing images
                 if not result.get("image_url") and llm_result.get("image_url"):
                     result["image_url"] = llm_result["image_url"]
-                # Colors/Sizes: LLM overrides only when we don't have structured
-                # JSON-LD status data (Shopify ProductGroup already provides clean stock info).
-                _has_structured_stock = bool(
+                # Colors/Sizes: LLM overrides except when we have Shopify JSON-LD
+                # stock data (which is reliably perfect). For all other sites, the
+                # LLM cross-check is essential to filter DOM extraction noise.
+                _has_shopify_stock = _is_shopify(url, html) and bool(
                     result.get("sizes_status") or result.get("colors_status")
                 )
-                if not _has_structured_stock:
+                if not _has_shopify_stock:
                     llm_colors = llm_result.get("colors") or []
                     if llm_colors:
                         result["colors"] = llm_colors
