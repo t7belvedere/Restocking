@@ -800,8 +800,10 @@ async def _universal_extract(page, html: str, url: str) -> dict:
     result["sizes"] = sizes
     result["colors"] = colors
 
-    # Shopify: ProductGroup JSON-LD has perfect data. Use it as ground truth.
-    shopify_jsonld = _extract_shopify_product_group(html) if _is_shopify(url, html) else None
+    # Shopify: JSON-LD is ground truth. If no ProductGroup exists (single variant),
+    # clear any DOM extraction noise — there are no variants to select.
+    _is_shop = _is_shopify(url, html)
+    shopify_jsonld = _extract_shopify_product_group(html) if _is_shop else None
     if shopify_jsonld:
         if shopify_jsonld["name"] and shopify_jsonld["name"] != result["name"]:
             # Only override if JSON-LD name is more specific (longer)
@@ -821,8 +823,14 @@ async def _universal_extract(page, html: str, url: str) -> dict:
         if shopify_jsonld["prices"]:
             result["price_map"] = shopify_jsonld["prices"]
 
+    # Shopify without ProductGroup (single product, no variants): clear noise
+    if _is_shop and not shopify_jsonld:
+        result["sizes"] = []
+        result["colors"] = []
+        result["variants"] = []
+
     # Detect which sizes/colors are out of stock from DOM (fallback for non-Shopify)
-    if not shopify_jsonld:
+    if not shopify_jsonld and not _is_shop:
         oos, combinations = _detect_oos_variants(page, variants, sizes, colors)
         for s in sizes:
             result["sizes_status"][s] = s not in oos
