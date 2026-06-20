@@ -2123,3 +2123,71 @@ async def analyze(request: Request, url: str = Query(min_length=1)):
     if result is None:
         raise HTTPException(status_code=502, detail="All fetch levels failed")
     return result
+
+
+@app.get("/test-discord")
+async def test_discord(url: str = Query(min_length=1)):
+    """Scrape a product and force-send a Discord test notification."""
+    from notifier.discord import send_discord_notification
+
+    import asyncio as _asyncio
+    from scraper.fetcher import Fetcher
+
+    def _fetch():
+        kwargs: dict = {"stealthy_headers": True, "timeout": 15}
+        page = Fetcher.get(url, **kwargs)
+        html = getattr(page, "html_content", "")
+        name = None
+        price = None
+        image = None
+        # Extract basic metadata from meta tags
+        import re as _re
+        for key, attr in [("og:title", "name"), ("og:image", "image_url"), ("og:price:amount", "price")]:
+            m = _re.search(
+                rf'<meta[^>]+(?:property|name)=["\']{key}["\'][^>]+content=["\']([^"\']+)["\']',
+                html, _re.IGNORECASE,
+            )
+            if m:
+                if attr == "name":
+                    name = m.group(1)
+                elif attr == "image_url":
+                    image = m.group(1)
+                elif attr == "price":
+                    try:
+                        price = float(m.group(1).replace(",", "."))
+                    except (ValueError, TypeError):
+                        pass
+        return name, price, image
+
+    try:
+        name, price, image = await _asyncio.to_thread(_fetch)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Fetch failed: {e}")
+
+    brand = "velixirparfums"
+    try:
+        from urllib.parse import urlparse as _urlparse
+        host = _urlparse(url).hostname or ""
+        parts = host.replace("www.", "").split(".")[0]
+        brand = " ".join(w.capitalize() for w in parts.replace("-", " ").split())
+    except Exception:
+        pass
+
+    ok = send_discord_notification(
+        product_name=name or "Produit test",
+        variant_label="100 ml",
+        product_url=url,
+        brand_name=brand,
+        price=price,
+        image_url=image,
+        watch_id="test",
+    )
+
+    return {
+        "ok": ok,
+        "name": name,
+        "price": price,
+        "image_url": image,
+        "brand": brand,
+        "discord_sent": ok,
+    }
