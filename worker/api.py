@@ -1951,9 +1951,9 @@ async def debug_playwright():
 
 def _is_shopify(url: str, html: str) -> bool:
     """Detect whether a page is running on Shopify."""
-    # URL-based: myshopify.com admin or cname
-    if "myshopify.com" in url or "/products/" not in url:
-        return "myshopify.com" in url
+    # URL-based: direct myshopify.com domain
+    if "myshopify.com" in url:
+        return True
     # HTML-based: Shopify CDN, checkout domain, or platform signatures
     indicators = (
         "cdn.shopify.com",
@@ -1962,6 +1962,8 @@ def _is_shopify(url: str, html: str) -> bool:
         "Shopify.shop",
         "shopify.com",
         "myshopify.com",
+        "shopify-digital-wallet",
+        "shopify-checkout",
     )
     return any(indicator in html for indicator in indicators)
 
