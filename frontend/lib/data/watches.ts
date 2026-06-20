@@ -15,8 +15,8 @@ const getSessionUser = cache(async () => {
 
 async function getAuthedClient() {
   const { supabase, user } = await getSessionUser();
-  if (!supabase) redirect("/");
-  if (!user) redirect("/");
+  if (!supabase) redirect("/login");
+  if (!user) redirect("/login");
   return { supabase, user };
 }
 
