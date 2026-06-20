@@ -404,18 +404,15 @@ def _process_watch(watch: dict) -> None:
     # --- Update watch metadata (price + variant if enriched) ---
     update_watch_status(watch_id, status)
 
-    # Store variant_label on watch if newly discovered
+    # Store variant_label + price on watch if newly discovered
     if check_variant and not variant_label:
         try:
-            supabase.table("watches").update({
-                "variant_label": check_variant,
-                "price": check_price,
-            }).eq("id", watch_id).execute()
+            update_watch_metadata(watch_id, price=check_price, variant_label=check_variant)
         except Exception:
             pass
     elif check_price is not None:
         try:
-            supabase.table("watches").update({"price": check_price}).eq("id", watch_id).execute()
+            update_watch_metadata(watch_id, price=check_price)
         except Exception:
             pass
 

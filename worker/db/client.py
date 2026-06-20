@@ -109,6 +109,7 @@ def update_watch_metadata(
     name: str | None = None,
     image_url: str | None = None,
     price: float | None = None,
+    variant_label: str | None = None,
 ) -> None:
     """Update product metadata on a watch (called after enrichment scrape)."""
     patch: dict = {}
@@ -118,6 +119,8 @@ def update_watch_metadata(
         patch["image_url"] = image_url
     if price is not None:
         patch["price"] = price
+    if variant_label is not None:
+        patch["variant_label"] = variant_label
     if patch:
         supabase.table("watches").update(patch).eq("id", watch_id).execute()
 
