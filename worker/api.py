@@ -2046,8 +2046,24 @@ async def _analyze_scrape(url: str, proxy_url: str | None = None, pw_proxy: dict
     # for JS-rendered size selectors (COS, other SPA retailers).
     # Also trigger if colors are missing on Shopify AND we don't have
     # structured JSON-LD stock data yet.
+    # Also always trigger on non-Shopify sites with likely noisy extraction
+    # (product names in sizes, HTML fragments in colors).
     _needs_pw = not result.get("sizes")
     _has_jsonld_stock = bool(result.get("sizes_status") or result.get("colors_status"))
+
+    # Non-Shopify sites: Level 1 often misses JS-rendered variant selectors.
+    # If colors contain HTML or sizes look like product names, force Playwright.
+    if not _needs_pw and not _is_shopify(url, html) and not _has_jsonld_stock:
+        _colors_suspicious = any(
+            "<" in c or c.isupper() for c in (result.get("colors") or [])
+        )
+        _sizes_suspicious = any(
+            not re.search(r'\d', s) for s in (result.get("sizes") or [])
+        )
+        if _colors_suspicious or _sizes_suspicious:
+            _needs_pw = True
+            logger.debug("Non-Shopify extraction looks noisy — escalating to Playwright")
+
     if (
         not _needs_pw
         and not result.get("colors")
