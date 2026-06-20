@@ -43,7 +43,7 @@ def send_discord_notification(
             fields.append({"name": "Prix", "value": f"{price:.2f} €", "inline": True})
 
         embed = {
-            "title": product_name,
+            "title": f"🟢↗ EN STOCK — {product_name}",
             "url": product_url,
             "color": _COLOR_IN_STOCK,
             "fields": fields,
