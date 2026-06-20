@@ -1208,8 +1208,18 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
         # Alphanumeric with letters: sizes like "W32", "US4", "UK8", "EU36"
         if re.fullmatch(r"[A-Z]?\s*\d{1,2}", t) and 2 <= len(t) <= 5:
             return ("size", t)
+        # Measurement pattern: "75ml", "125ml", "200ml", "50cl", "100g", "1kg"
+        if re.fullmatch(r"\d{1,4}\s*(ml|l|oz|gr?|kg|cl|mm|cm|m)", low):
+            return ("size", t)
         # Short uppercase alphanumeric with at least one letter (XS, XL, XXL variants)
         if re.fullmatch(r"[A-Z0-9 .\-]{1,6}", t) and len(t) <= 8 and re.search(r"[A-Z]", t):
+            # Skip known perfume brands and product names leaking into variants
+            _PERFUME_NAMES = {"CARIOUS", "LAYTON", "HEROD", "VALAYA", "VALERO", "DEE6FF",
+                              "ERAGON", "CASTLEY", "HALTANE", "PEGASUS", "PERSEUS",
+                              "PEGASUS EXCLUSIF", "LAYTON EXCLUSIF", "ALTHAÏR",
+                              "ATHÉNAÏS"}
+            if t.upper() in _PERFUME_NAMES:
+                return None
             return ("size", t)
         # Multi-word: check if it contains a known color or size
         words = t.upper().split()
