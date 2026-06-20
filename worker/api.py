@@ -1212,13 +1212,11 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
         if re.fullmatch(r"\d{1,4}\s*(ml|l|oz|gr?|kg|cl|mm|cm|m)", low):
             return ("size", t)
         # Short uppercase alphanumeric with at least one letter (XS, XL, XXL variants)
+        # Skip product names that leak from related/recommendation sections:
+        # all-caps strings without digits are more likely brand/product names than sizes.
         if re.fullmatch(r"[A-Z0-9 .\-]{1,6}", t) and len(t) <= 8 and re.search(r"[A-Z]", t):
-            # Skip known perfume brands and product names leaking into variants
-            _PERFUME_NAMES = {"CARIOUS", "LAYTON", "HEROD", "VALAYA", "VALERO", "DEE6FF",
-                              "ERAGON", "CASTLEY", "HALTANE", "PEGASUS", "PERSEUS",
-                              "PEGASUS EXCLUSIF", "LAYTON EXCLUSIF", "ALTHAÏR",
-                              "ATHÉNAÏS"}
-            if t.upper() in _PERFUME_NAMES:
+            # No digits + all uppercase + ≥5 chars → likely a product name, not a size
+            if not re.search(r"\d", t) and t == t.upper() and len(t) >= 5:
                 return None
             return ("size", t)
         # Multi-word: check if it contains a known color or size
@@ -1333,6 +1331,13 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
             return None
         # Must look like a color name: 1-3 words, max 25 chars per word
         if len(t) <= 30 and all(len(w) <= 25 for w in words_lower) and len(words_lower) <= 4:
+            # Reject all-caps proper names without digits (product/brand names leaking in)
+            # Exception: known color words like WHITE, BLACK, NAVY, CREAM, etc.
+            if t == t.upper() and len(t) >= 5 and not re.search(r"\d", t) and t.upper() not in _COLOR_WORDS:
+                return None
+            # Reject HTML fragments
+            if "<" in t or ">" in t:
+                return None
             return ("color", t)
         return None
 
