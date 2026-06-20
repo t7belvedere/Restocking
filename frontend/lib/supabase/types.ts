@@ -33,6 +33,7 @@ export type CheckLog = {
     | "playwright"
     | null;
   raw_signal: string | null;
+  variant_label: string | null;
   checked_at: string;
 };
 

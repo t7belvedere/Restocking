@@ -193,15 +193,22 @@ export function CheckLogTable({ logs, watchPrice }: { logs: CheckLog[]; watchPri
                     <RelativeTimeCell iso={log.checked_at} />
                   </div>
 
-                  {/* Source + price row */}
+                  {/* Source + variant + price row */}
                   <div className="mt-1.5 flex items-center justify-between gap-3">
-                    <span className="inline-flex items-center gap-1 text-[10px] text-ink/40">
-                      <span className="font-mono text-[9px] opacity-60">
-                        {sourceIcon(log.signal_source)}
+                    <span className="inline-flex items-center gap-2 text-[10px] text-ink/40 min-w-0">
+                      <span className="inline-flex items-center gap-1 shrink-0">
+                        <span className="font-mono text-[9px] opacity-60">
+                          {sourceIcon(log.signal_source)}
+                        </span>
+                        {sourceLabel(log.signal_source, SOURCE_LABEL)}
                       </span>
-                      {sourceLabel(log.signal_source, SOURCE_LABEL)}
+                      {log.variant_label && (
+                        <span className="inline-flex items-center gap-0.5 rounded-full bg-[var(--brand-blue)]/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[var(--brand-blue)] truncate">
+                          {log.variant_label}
+                        </span>
+                      )}
                     </span>
-                    <span className="font-mono text-xs font-medium tabular-nums text-ink/70">
+                    <span className="font-mono text-xs font-medium tabular-nums text-ink/70 shrink-0">
                       {formatPrice(log.price ?? watchPrice)}
                     </span>
                   </div>

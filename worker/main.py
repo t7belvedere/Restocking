@@ -15,6 +15,7 @@ Flow (every LOOP_SLEEP seconds):
   4. Repeat
 """
 
+import json
 import logging
 import os
 import random
@@ -169,6 +170,71 @@ def _extract_price(html: str) -> float | None:
     return None
 
 
+def _extract_jsonld_variant_data(html: str, url: str) -> tuple[float | None, str | None]:
+    """Extract variant-specific price and label from Shopify ProductGroup JSON-LD.
+
+    Matches the ?variant= query param to a hasVariant @id in the JSON-LD.
+    Returns (price, variant_label) — both can be None.
+    """
+    from urllib.parse import parse_qs, urlparse as _urlparse
+
+    variant_qp = None
+    try:
+        qs = parse_qs(_urlparse(url).query)
+        variant_qp = qs.get("variant", [None])[0]
+    except Exception:
+        pass
+
+    for m in re.finditer(
+        r'<script type="application/ld\+json"[^>]*>(.*?)</script>',
+        html, re.DOTALL,
+    ):
+        try:
+            data = json.loads(m.group(1))
+        except Exception:
+            continue
+        if not isinstance(data, dict):
+            continue
+        items = data.get("@graph") or [data]
+        for item in items:
+            if item.get("@type") != "ProductGroup":
+                continue
+            variants_raw = item.get("hasVariant") or []
+            base_name = item.get("name", "")
+            for v in variants_raw:
+                v_id = v.get("@id", "")
+                v_name = v.get("name", "")
+                offers = v.get("offers") or {}
+                v_price = offers.get("price")
+                # Match by variant query param
+                if variant_qp and variant_qp in v_id:
+                    label = v_name
+                    if base_name and v_name.startswith(base_name):
+                        label = v_name[len(base_name):].strip(" -–\xa0")
+                    elif " - " in v_name:
+                        label = v_name.rsplit(" - ", 1)[-1].strip()
+                    try:
+                        return (float(v_price) if v_price else None), label
+                    except (ValueError, TypeError):
+                        return None, label
+            # Fallback: return first variant's price
+            if variants_raw:
+                v0 = variants_raw[0]
+                v0_price = (v0.get("offers") or {}).get("price")
+                v0_name = v0.get("name", "")
+                label = v0_name
+                if base_name and v0_name.startswith(base_name):
+                    label = v0_name[len(base_name):].strip(" -–\xa0")
+                elif " - " in v0_name:
+                    label = v0_name.rsplit(" - ", 1)[-1].strip()
+                try:
+                    return (float(v0_price) if v0_price else None), label
+                except (ValueError, TypeError):
+                    return None, label
+            return None, None
+    return None, None
+
+
 def _enrich_watch(watch_id: str, page) -> None:
     """Extract product metadata from a Scrapling page and update the watch row.
 
@@ -315,18 +381,45 @@ def _process_watch(watch: dict) -> None:
         logger.debug("watch %s: generic detector → %s (source: %s)", watch_id, status, signal_source)
 
     # --- Log the check ---
-    check_price = _extract_price(getattr(page, "html_content", ""))
+    html = getattr(page, "html_content", "")
+    check_price = _extract_price(html)
+    check_variant = variant_label
+
+    # Shopify: get variant-specific price + label from JSON-LD
+    jld_price, jld_variant = _extract_jsonld_variant_data(html, url)
+    if jld_price is not None:
+        check_price = jld_price
+    if not check_variant:
+        check_variant = jld_variant
+
     insert_check_log(
         watch_id=watch_id,
         status=status,
         signal_source=signal_source,
         raw_signal=method,
         price=check_price,
+        variant_label=check_variant,
     )
 
-    # --- Update watch last_status + last_check ---
+    # --- Update watch metadata (price + variant if enriched) ---
     update_watch_status(watch_id, status)
-    logger.info("watch %s: status=%s", watch_id, status)
+
+    # Store variant_label on watch if newly discovered
+    if check_variant and not variant_label:
+        try:
+            supabase.table("watches").update({
+                "variant_label": check_variant,
+                "price": check_price,
+            }).eq("id", watch_id).execute()
+        except Exception:
+            pass
+    elif check_price is not None:
+        try:
+            supabase.table("watches").update({"price": check_price}).eq("id", watch_id).execute()
+        except Exception:
+            pass
+
+    logger.info("watch %s: status=%s variant=%s price=%s", watch_id, status, check_variant, check_price)
 
     # --- Double-confirmation logic ---
     current_count = consecutive_counts.get(watch_id, 0)

@@ -82,6 +82,7 @@ def insert_check_log(
     signal_source: str | None = None,
     raw_signal: str | None = None,
     price: float | None = None,
+    variant_label: str | None = None,
 ) -> None:
     """Insert a row into check_logs.
 
@@ -98,6 +99,8 @@ def insert_check_log(
         row["raw_signal"] = raw_signal
     if price is not None:
         row["price"] = price
+    if variant_label is not None:
+        row["variant_label"] = variant_label
     supabase.table("check_logs").insert(row).execute()
 
 
