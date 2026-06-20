@@ -1158,6 +1158,9 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
         # UI garbage
         if low in _UI_GARBAGE:
             return None
+        # UI status messages (partial match)
+        if any(w in low for w in ("sold out", "unavailable", "rupture de stock", "épuisé")):
+            return None
         # Hex color codes: #000000, #fff, #a1b2c3
         if re.match(r"^#[0-9a-fA-F]{3,8}$", t):
             return None
