@@ -799,13 +799,33 @@ async def _universal_extract(page, html: str, url: str) -> dict:
     result["sizes"] = sizes
     result["colors"] = colors
 
-    # Detect which sizes/colors are out of stock (per combination when possible)
-    oos, combinations = _detect_oos_variants(page, variants, sizes, colors)
-    for s in sizes:
-        result["sizes_status"][s] = s not in oos
-    for c in colors:
-        result["colors_status"][c] = c not in oos
-    result["variants_status"] = combinations
+    # Shopify: ProductGroup JSON-LD has perfect data. Use it as ground truth.
+    shopify_jsonld = _extract_shopify_product_group(html) if _is_shopify(url, html) else None
+    if shopify_jsonld:
+        if shopify_jsonld["name"] and shopify_jsonld["name"] != result["name"]:
+            # Only override if JSON-LD name is more specific (longer)
+            if len(shopify_jsonld["name"]) > len(result.get("name") or ""):
+                result["name"] = shopify_jsonld["name"]
+        if result["price"] is None and shopify_jsonld["price"] is not None:
+            result["price"] = shopify_jsonld["price"]
+        result["sizes"] = shopify_jsonld["sizes"]
+        result["colors"] = shopify_jsonld["colors"]
+        result["variants"] = shopify_jsonld["variants"]
+        if shopify_jsonld["sizes_status"]:
+            result["sizes_status"] = shopify_jsonld["sizes_status"]
+        if shopify_jsonld["colors_status"]:
+            result["colors_status"] = shopify_jsonld["colors_status"]
+        if shopify_jsonld["variants_status"]:
+            result["variants_status"] = shopify_jsonld["variants_status"]
+
+    # Detect which sizes/colors are out of stock from DOM (fallback for non-Shopify)
+    if not shopify_jsonld:
+        oos, combinations = _detect_oos_variants(page, variants, sizes, colors)
+        for s in sizes:
+            result["sizes_status"][s] = s not in oos
+        for c in colors:
+            result["colors_status"][c] = c not in oos
+        result["variants_status"] = combinations
 
     return result
 
@@ -824,6 +844,157 @@ def _extract_jsonld_field(html: str, field: str) -> str | None:
                     return val.strip()
         except Exception:
             pass
+    return None
+
+
+def _extract_shopify_product_group(html: str) -> dict | None:
+    """Extract variants, sizes, colors, prices, and stock from Shopify ProductGroup JSON-LD.
+
+    Returns a dict with:
+        variants: list of variant option values (e.g. ["35 ml", "100 ml", "Noir", "Blanc"])
+        sizes: list of size-like options
+        colors: list of color-like options
+        prices: dict mapping variant label → price
+        stock: dict mapping variant label → bool (True = in stock)
+        variant_names: list of full variant names (e.g. "Brand Product - 35 ml")
+    """
+    SIZE_PATTERN = re.compile(
+        r'\b\d{1,3}\s*(ml|l|oz|gr?|kg|cm|mm|inch|pouces?|gallon|gal)\b|'
+        r'\b(x{1,3}s|s|m|l|xl|xxl|xxxl|2?x{0,2}l|one[_ ]?size|taille[_ ]?unique|'
+        r'uni|universel|tu)\b|'
+        r'\b(?:taille|size|taglia)\s*\d{1,2}\b|'
+        r'\b\d{1,2}\s*(?:ans?|mois|month|year|yr?)\b',
+        re.IGNORECASE,
+    )
+    COLOR_NAMES = {
+        "blanc", "noir", "rouge", "bleu", "vert", "rose", "gris", "jaune",
+        "marron", "brun", "beige", "violet", "orange", "turquoise", "khaki",
+        "kaki", "ivoire", "crème", "creme", "ecru", "écru", "argent", "or",
+        "white", "black", "red", "blue", "green", "pink", "grey", "gray",
+        "yellow", "brown", "purple", "silver", "gold", "navy", "cream",
+        "camel", "burgundy", "coral", "teal", "mint", "lavender", "indigo",
+        "copper", "bronze", "mauve", "olive", "mustard", "crimson", "aqua",
+        "maroon", "tan", "denim", "cobalt", "slate", "charcoal", "magenta",
+        "cyan", "lilac", "rust", "sage", "taupe", "ochre", "jade", "plum",
+        "chocolate", "vanilla", "caramel", "cherry", "lemon", "lime",
+    }
+
+    for m in re.finditer(
+        r'<script type="application/ld\+json"[^>]*>(.*?)</script>',
+        html, re.DOTALL,
+    ):
+        try:
+            data = json.loads(m.group(1))
+        except Exception:
+            continue
+
+        if not isinstance(data, dict):
+            continue
+
+        # Favour @graph (Shopify Dawn >= v15)
+        items = data.get("@graph") or [data]
+
+        for item in items:
+            if item.get("@type") != "ProductGroup":
+                continue
+
+            variants_raw = item.get("hasVariant") or []
+            if not variants_raw:
+                continue
+
+            base_name = item.get("name", "")
+            all_options: list[str] = []
+            variant_labels: list[str] = []
+            prices: dict[str, float] = {}
+            stock: dict[str, bool] = {}
+
+            for v in variants_raw:
+                v_name = v.get("name", "")
+                offers = v.get("offers") or {}
+                availability = offers.get("availability", "")
+                in_stock = "InStock" in availability
+                price = offers.get("price")
+
+                # Extract the option part (after the last " - " or base product name)
+                option = v_name
+                if base_name and v_name.startswith(base_name):
+                    option = v_name[len(base_name):].strip(" -–\xa0")
+                elif " - " in v_name:
+                    option = v_name.rsplit(" - ", 1)[-1].strip()
+
+                variant_labels.append(option)
+                if price is not None:
+                    try:
+                        prices[option] = float(price)
+                    except (ValueError, TypeError):
+                        pass
+                stock[option] = in_stock
+
+                # Split compound options like "S / Noir" or "35 ml / Blanc"
+                parts = re.split(r'\s*/\s*', option)
+                for p in parts:
+                    p = p.strip()
+                    if p and p not in all_options:
+                        all_options.append(p)
+
+            # Classify each unique option as size or color
+            sizes: list[str] = []
+            colors: list[str] = []
+            for opt in all_options:
+                if SIZE_PATTERN.search(opt):
+                    sizes.append(opt)
+                elif opt.lower() in COLOR_NAMES:
+                    colors.append(opt)
+                else:
+                    # Heuristic: if it looks like a measurement, it's a size
+                    if re.search(r'\d', opt):
+                        sizes.append(opt)
+                    else:
+                        colors.append(opt)
+
+            # Build per-variant stock status
+            sizes_status: dict[str, bool] = {}
+            colors_status: dict[str, bool] = {}
+            variants_status: dict[str, bool] = {}
+
+            for i, label in enumerate(variant_labels):
+                variants_status[label] = stock.get(label, True)
+
+                # Map stock to size and color components
+                parts = re.split(r'\s*/\s*', label)
+                for p in parts:
+                    p = p.strip()
+                    if p in sizes:
+                        sizes_status[p] = sizes_status.get(p, False) or stock.get(label, True)
+                    if p in colors:
+                        colors_status[p] = colors_status.get(p, False) or stock.get(label, True)
+
+            # Fallback: if a size isn't in sizes_status, check all variants
+            for s in sizes:
+                if s not in sizes_status:
+                    sizes_status[s] = True  # assume available if not explicitly OOS
+
+            # Pick the best price (prefer current variant)
+            price_val = None
+            if variant_labels:
+                price_val = prices.get(variant_labels[0])
+            if price_val is None and prices:
+                price_val = next(iter(prices.values()))
+
+            return {
+                "variants": all_options,
+                "sizes": sizes,
+                "colors": colors,
+                "prices": prices,
+                "stock": stock,
+                "variant_labels": variant_labels,
+                "sizes_status": sizes_status,
+                "colors_status": colors_status,
+                "variants_status": variants_status,
+                "price": price_val,
+                "name": base_name or None,
+            }
+
     return None
 
 
@@ -1849,16 +2020,19 @@ async def _analyze_scrape(url: str, proxy_url: str | None = None, pw_proxy: dict
                 # Image: LLM as fallback for missing images
                 if not result.get("image_url") and llm_result.get("image_url"):
                     result["image_url"] = llm_result["image_url"]
-                # Colors: LLM overrides — regex picks up recommended product names
-                llm_colors = llm_result.get("colors") or []
-                if llm_colors:
-                    result["colors"] = llm_colors
-                # Sizes: LLM overrides when it finds results (avoids recommended product junk)
-                llm_sizes = llm_result.get("sizes") or []
-                if llm_sizes:
-                    result["sizes"] = llm_sizes
-                    # Update variants to match
-                    result["variants"] = llm_sizes + (result.get("colors") or [])
+                # Colors/Sizes: LLM overrides only when we don't have structured
+                # JSON-LD status data (Shopify ProductGroup already provides clean stock info).
+                _has_structured_stock = bool(
+                    result.get("sizes_status") or result.get("colors_status")
+                )
+                if not _has_structured_stock:
+                    llm_colors = llm_result.get("colors") or []
+                    if llm_colors:
+                        result["colors"] = llm_colors
+                    llm_sizes = llm_result.get("sizes") or []
+                    if llm_sizes:
+                        result["sizes"] = llm_sizes
+                        result["variants"] = llm_sizes + (result.get("colors") or [])
                 logger.info("LLM validated: name=%s sizes=%s colors=%s",
                             result.get("name"), result.get("sizes"), result.get("colors"))
         except Exception:
@@ -1866,10 +2040,16 @@ async def _analyze_scrape(url: str, proxy_url: str | None = None, pw_proxy: dict
 
     # If no sizes found and we only did Level 1 HTTP, try Playwright
     # for JS-rendered size selectors (COS, other SPA retailers).
-    # Also trigger if colors are missing on Shopify — theme variants are
-    # rendered client-side and static HTML can't see them.
+    # Also trigger if colors are missing on Shopify AND we don't have
+    # structured JSON-LD stock data yet.
     _needs_pw = not result.get("sizes")
-    if not _needs_pw and not result.get("colors") and _is_shopify(url, html):
+    _has_jsonld_stock = bool(result.get("sizes_status") or result.get("colors_status"))
+    if (
+        not _needs_pw
+        and not result.get("colors")
+        and _is_shopify(url, html)
+        and not _has_jsonld_stock
+    ):
         _needs_pw = True
     logger.debug("Post-extract: sizes=%s colors=%s was_playwright=%s needs_pw=%s",
                  result.get("sizes"), result.get("colors"), _was_playwright, _needs_pw)
