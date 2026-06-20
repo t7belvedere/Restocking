@@ -74,7 +74,11 @@ export function AddWatchForm() {
   const colors = analysis?.colors ?? [];
   const variants = analysis?.variants ?? [];
   // Multi-select: use sizes+colors when available, else fall back to legacy variants
-  const hasMultiSelect = sizes.length > 0 && colors.length > 0;
+  // Show size/color selectors whenever we have structured variant data
+  // (with or without colors — perfumes only have sizes, e.g.)
+  const hasSizes = sizes.length > 0;
+  const hasColors = colors.length > 0;
+  const hasMultiSelect = hasSizes || hasColors;
   const hasLegacyVariants = !hasMultiSelect && variants.length > 0;
 
   const variantLabel = useMemo(() => {
@@ -281,60 +285,64 @@ export function AddWatchForm() {
       {hasMultiSelect ? (
         <>
           {/* Size selection */}
-          <div className="space-y-3">
-            <Label>{t("addWatch.size")}</Label>
-            <div className="flex flex-wrap gap-2">
-              {sizes.map((s) => {
-                const active = selectedSize === s;
-                const inStock = analysis?.sizes_status?.[s] ?? true;
-                return (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setSelectedSize(active ? null : s)}
-                    className={cn(
-                      "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
-                      "active:scale-[0.97]",
-                      !inStock && active && "border-red-400 bg-red-200 text-red-600 line-through cursor-pointer",
-                      !inStock && !active && "border-dashed border-red-200 bg-red-50/50 text-red-400 line-through hover:bg-red-100/50 cursor-pointer",
-                      inStock && active && "border-foreground bg-foreground text-background shadow-sm",
-                      inStock && !active && "border-border bg-background hover:border-foreground/40 hover:bg-muted",
-                    )}
-                  >
-                    {s}{!inStock ? <span className="ml-1 text-[9px] opacity-60">{t("addWatch.oosBadge")}</span> : null}
-                  </button>
-                );
-              })}
+          {hasSizes ? (
+            <div className="space-y-3">
+              <Label>{t("addWatch.size")}</Label>
+              <div className="flex flex-wrap gap-2">
+                {sizes.map((s) => {
+                  const active = selectedSize === s;
+                  const inStock = analysis?.sizes_status?.[s] ?? true;
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setSelectedSize(active ? null : s)}
+                      className={cn(
+                        "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
+                        "active:scale-[0.97]",
+                        !inStock && active && "border-red-400 bg-red-200 text-red-600 line-through cursor-pointer",
+                        !inStock && !active && "border-dashed border-red-200 bg-red-50/50 text-red-400 line-through hover:bg-red-100/50 cursor-pointer",
+                        inStock && active && "border-foreground bg-foreground text-background shadow-sm",
+                        inStock && !active && "border-border bg-background hover:border-foreground/40 hover:bg-muted",
+                      )}
+                    >
+                      {s}{!inStock ? <span className="ml-1 text-[9px] opacity-60">{t("addWatch.oosBadge")}</span> : null}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          ) : null}
 
           {/* Color selection */}
-          <div className="space-y-3">
-            <Label>{t("addWatch.color")}</Label>
-            <div className="flex flex-wrap gap-2">
-              {colors.map((c) => {
-                const active = selectedColor === c;
-                const inStock = analysis?.colors_status?.[c] ?? true;
-                return (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => setSelectedColor(active ? null : c)}
-                    className={cn(
-                      "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
-                      "active:scale-[0.97]",
-                      !inStock && active && "border-red-400 bg-red-200 text-red-600 line-through cursor-pointer",
-                      !inStock && !active && "border-dashed border-red-200 bg-red-50/50 text-red-400 line-through hover:bg-red-100/50 cursor-pointer",
-                      inStock && active && "border-foreground bg-foreground text-background shadow-sm",
-                      inStock && !active && "border-border bg-background hover:border-foreground/40 hover:bg-muted",
-                    )}
-                  >
-                    {c}{!inStock ? <span className="ml-1 text-[9px] opacity-60">{t("addWatch.oosBadge")}</span> : null}
-                  </button>
-                );
-              })}
+          {hasColors ? (
+            <div className="space-y-3">
+              <Label>{t("addWatch.color")}</Label>
+              <div className="flex flex-wrap gap-2">
+                {colors.map((c) => {
+                  const active = selectedColor === c;
+                  const inStock = analysis?.colors_status?.[c] ?? true;
+                  return (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setSelectedColor(active ? null : c)}
+                      className={cn(
+                        "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
+                        "active:scale-[0.97]",
+                        !inStock && active && "border-red-400 bg-red-200 text-red-600 line-through cursor-pointer",
+                        !inStock && !active && "border-dashed border-red-200 bg-red-50/50 text-red-400 line-through hover:bg-red-100/50 cursor-pointer",
+                        inStock && active && "border-foreground bg-foreground text-background shadow-sm",
+                        inStock && !active && "border-border bg-background hover:border-foreground/40 hover:bg-muted",
+                      )}
+                    >
+                      {c}{!inStock ? <span className="ml-1 text-[9px] opacity-60">{t("addWatch.oosBadge")}</span> : null}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          ) : null}
         </>
       ) : hasLegacyVariants ? (
         <div className="space-y-3">
