@@ -1161,6 +1161,12 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
         # Hex color codes: #000000, #fff, #a1b2c3
         if re.match(r"^#[0-9a-fA-F]{3,8}$", t):
             return None
+        # Hex-like strings without # (6-char uppercase hex)
+        if re.fullmatch(r"[0-9A-F]{6}", t):
+            return None
+        # HTML fragments
+        if "<" in t or ">" in t or "div class" in low:
+            return None
         # Pure numeric tokens (with optional spaces): "0 0 0", "18 18 18", "255 255 255"
         if re.fullmatch(r"[\d\s]+", t):
             return None
@@ -1331,12 +1337,14 @@ def _classify_variants(variants: list[str]) -> tuple[list[str], list[str]]:
             return None
         # Must look like a color name: 1-3 words, max 25 chars per word
         if len(t) <= 30 and all(len(w) <= 25 for w in words_lower) and len(words_lower) <= 4:
+            # Reject HTML fragments, UI messages, and boilerplate
+            if "<" in t or ">" in t or "div class" in low:
+                return None
+            if any(phrase in low for phrase in ("variant sold out", "unavailable", "terms and conditions", "perfume bottle")):
+                return None
             # Reject all-caps proper names without digits (product/brand names leaking in)
             # Exception: known color words like WHITE, BLACK, NAVY, CREAM, etc.
             if t == t.upper() and len(t) >= 5 and not re.search(r"\d", t) and t.upper() not in _COLOR_WORDS:
-                return None
-            # Reject HTML fragments
-            if "<" in t or ">" in t:
                 return None
             return ("color", t)
         return None
