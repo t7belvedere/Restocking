@@ -691,6 +691,7 @@ async def _universal_extract(page, html: str, url: str) -> dict:
         "image_url": None,
         "image_base64": None,
         "price": None,
+        "price_map": {},  # { "35 ml": 25.0, "100 ml": 45.0, ... }
         "variants": [],
         "sizes": [],
         "colors": [],
@@ -817,6 +818,8 @@ async def _universal_extract(page, html: str, url: str) -> dict:
             result["colors_status"] = shopify_jsonld["colors_status"]
         if shopify_jsonld["variants_status"]:
             result["variants_status"] = shopify_jsonld["variants_status"]
+        if shopify_jsonld["prices"]:
+            result["price_map"] = shopify_jsonld["prices"]
 
     # Detect which sizes/colors are out of stock from DOM (fallback for non-Shopify)
     if not shopify_jsonld:

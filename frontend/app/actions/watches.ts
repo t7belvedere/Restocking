@@ -15,6 +15,7 @@ export type AnalyzeResult = {
   image_url: string | null;
   image_base64?: string | null;
   price: number | null;
+  price_map?: Record<string, number>;
   variants: string[];
   sizes: string[];
   colors: string[];

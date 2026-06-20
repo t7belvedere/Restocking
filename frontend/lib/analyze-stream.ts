@@ -107,6 +107,7 @@ function mapResult(data: Record<string, unknown>): AnalyzeResult {
     image_url: (data.image_url as string) ?? null,
     image_base64: (data.image_base64 as string) ?? null,
     price: (data.price as number) ?? null,
+    price_map: (data.price_map as Record<string, number>) ?? undefined,
     variants: Array.isArray(data.variants) ? (data.variants as string[]) : [],
     sizes: Array.isArray(data.sizes) ? (data.sizes as string[]) : [],
     colors: Array.isArray(data.colors) ? (data.colors as string[]) : [],

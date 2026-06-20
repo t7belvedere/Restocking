@@ -73,6 +73,19 @@ export function AddWatchForm() {
   const sizes = analysis?.sizes ?? [];
   const colors = analysis?.colors ?? [];
   const variants = analysis?.variants ?? [];
+  const priceMap = analysis?.price_map ?? {};
+
+  // Price for the currently selected variant (falls back to base price)
+  const displayPrice = useMemo(() => {
+    const base = analysis?.price;
+    // Try selectedSize+Color combo first, then just size, then just color
+    const parts = [selectedSize, selectedColor].filter(Boolean);
+    const key = parts.join(" / ");
+    if (key && priceMap[key] !== undefined) return priceMap[key];
+    if (selectedSize && priceMap[selectedSize] !== undefined) return priceMap[selectedSize];
+    if (selectedColor && priceMap[selectedColor] !== undefined) return priceMap[selectedColor];
+    return base;
+  }, [analysis?.price, priceMap, selectedSize, selectedColor]);
   // Multi-select: use sizes+colors when available, else fall back to legacy variants
   // Show size/color selectors whenever we have structured variant data
   // (with or without colors — perfumes only have sizes, e.g.)
@@ -271,7 +284,7 @@ export function AddWatchForm() {
             <p className="text-sm text-muted-foreground">
               {shortHost(analysis.url)}
             </p>
-            <p className="text-sm font-medium">{formatPrice(analysis.price)}</p>
+            <p className="text-sm font-medium">{formatPrice(displayPrice)}</p>
           </div>
         </CardContent>
       </Card>
