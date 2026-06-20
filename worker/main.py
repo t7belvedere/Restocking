@@ -82,6 +82,7 @@ from db.client import (
     update_watch_metadata,
     update_watch_status,
 )
+from notifier.discord import send_discord_notification
 from notifier.email import send_restock_email
 from notifier.sms import send_restock_sms  # SMS skipped — no phone in DB schema
 from scraper.detectors import detect_stock
@@ -233,6 +234,19 @@ def _send_notifications(watch: dict, status: str) -> None:
             logger.warning("watch %s: email notification FAILED for %s", watch_id, to_email)
     else:
         logger.warning("watch %s: could not resolve email for user %s — skipping email", watch_id, user_id)
+
+    # Discord — always sent alongside email when webhook is configured
+    discord_ok = send_discord_notification(
+        product_name=name,
+        variant_label=variant_label,
+        product_url=url,
+        brand_name=brand_name,
+        price=watch.get("price"),
+        image_url=watch.get("image_url"),
+        watch_id=watch_id,
+    )
+    if discord_ok:
+        logger.info("watch %s: Discord notification sent", watch_id)
 
     # SMS — Pro plan only
     if plan == "pro":
