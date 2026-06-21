@@ -1,4 +1,5 @@
 import { getAllWatches, toggleWatch, deleteWatch } from "@/app/actions/watches-admin";
+import { createAdminClient } from "@/lib/supabase/server";
 import { formatPrice, shortHost } from "@/lib/utils";
 
 function statusLabel(s: string | null, active: boolean) {
@@ -10,6 +11,26 @@ function statusLabel(s: string | null, active: boolean) {
 
 export default async function WatchesAdminPage() {
   const watches = await getAllWatches();
+
+  // Batch-resolve user emails via admin API
+  const userIds = [...new Set(watches.map((w) => w.user_id))];
+  const emailMap: Record<string, string> = {};
+
+  if (userIds.length > 0) {
+    const adminClient = createAdminClient();
+    if (adminClient) {
+      for (const uid of userIds) {
+        try {
+          const { data } = await adminClient.auth.admin.getUserById(uid);
+          if (data?.user?.email) {
+            emailMap[uid] = data.user.email;
+          }
+        } catch {
+          emailMap[uid] = uid.slice(0, 8) + "…";
+        }
+      }
+    }
+  }
 
   return (
     <div>
@@ -40,7 +61,9 @@ export default async function WatchesAdminPage() {
                   <td className="p-3 font-medium max-w-[200px] truncate" title={w.name ?? ""}>
                     {w.name ?? "—"}
                   </td>
-                  <td className="p-3 text-ink/50 text-xs">{w.user_id.slice(0, 8)}…</td>
+                  <td className="p-3 text-xs">
+                    {emailMap[w.user_id] ?? w.user_id.slice(0, 8) + "…"}
+                  </td>
                   <td className="p-3">
                     <a
                       href={w.url}
