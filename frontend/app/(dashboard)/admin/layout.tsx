@@ -33,6 +33,12 @@ export default async function AdminLayout({
           >
             Waitlist
           </Link>
+          <Link
+            href="/admin/watches"
+            className="border-2 border-transparent px-4 py-2 font-bold hover:border-ink"
+          >
+            Alertes
+          </Link>
         </nav>
       </div>
       <div>{children}</div>
